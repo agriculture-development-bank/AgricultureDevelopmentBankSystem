@@ -1,0 +1,43 @@
+package com.casic.${client}.tags;
+
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.thymeleaf.dialect.AbstractProcessorDialect;
+import org.thymeleaf.processor.IProcessor;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Created by yuzengwen on 2018/1/17.
+ * 由于springsecurity与shiro权限控制稍有不同，
+ * 为保证代码生成无缝衔接，故扩展其按钮显示标签
+ */
+
+@Component
+public class CasicBtnDialect extends AbstractProcessorDialect {
+
+
+    private static final String DIALECT_NAME = "casic_btn_control";
+
+    private static final String PREFIX = "shiro";
+
+    public static final int PROCESSOR_PRECEDENCE = 1000;
+
+
+    @Value("${security.oauth2.client.client-id}")
+    private String clientId;
+
+
+    public CasicBtnDialect() {
+        super(DIALECT_NAME, PREFIX, PROCESSOR_PRECEDENCE);
+    }
+
+    @Override
+    public Set<IProcessor> getProcessors(final String dialectPrefix) {
+        final Set<IProcessor> processors = new HashSet<IProcessor>();
+        processors.add(new CasicBtnTagProcessor(dialectPrefix,clientId));
+        return processors;
+    }
+
+}

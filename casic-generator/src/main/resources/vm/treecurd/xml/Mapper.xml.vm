@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${package}.mapper.${moduleName}.${className}Mapper">
+    
+    <resultMap type="${className}" id="${className}Result">
+        <id property="${primaryKey.attrname}" column="${primaryKey.columnName}"/>
+        <result property="${parentId.attrname}" column="${parentId.columnName}" /> 
+    #foreach ($column in $columns)
+        #if($column.attrType !="${className}")
+        
+        <result property="${column.attrname}" column="${column.columnName}" />
+        #end
+    #end
+    
+        <association property="parent${className}"  column="${parentId.columnName}" select="getParent${className}"/>
+        <collection property="child${className}List" ofType="${className}" column="${primaryKey.columnName}" select="getChild${className}List" />
+        
+    </resultMap>
+
+    
+    <select id="getChild${className}List" parameterType="${primaryKey.attrType}" resultType="${className}">
+        select ${primaryKey.columnName},
+               ${parentId.columnName}#if($velocityCount != $columns.size()+1 && $column.attrType !="${className}"),#end
+        #foreach($column in $columns)
+         
+               $column.columnName #if($velocityCount != $columns.size() && $column.attrType !="${className}"),#end 
+        #end
+        
+        from ${tableName}
+        where ${parentId.columnName} = #{${primaryKey.attrname}}
+    </select>
+    
+    <select id="getParent${className}" parameterType="${primaryKey.attrType}" resultType="${className}">
+        select ${primaryKey.columnName},
+               ${parentId.columnName}#if($velocityCount != $columns.size()+1 && $column.attrType !="${className}"),#end
+        #foreach($column in $columns)
+        
+               $column.columnName #if($velocityCount != $columns.size() && $column.attrType !="${className}"),#end
+        #end
+        
+        from ${tableName}
+        where ${primaryKey.columnName} = #{${parentId.attrname}}
+    </select>
+    
+	<sql id="select${className}Vo">
+        select ${primaryKey.columnName},
+               ${parentId.columnName}#if($velocityCount != $columns.size()+1 && $column.attrType !="${className}"),#end
+        #foreach($column in $columns) 
+            
+               $column.columnName#if($velocityCount != $columns.size()),#end
+        #end 
+        
+        from ${tableName}
+    </sql>
+
+    
+    <select id="select${className}List" parameterType="${className}" resultMap="${className}Result">
+        <include refid="select${className}Vo"/>
+        <where>
+            <if test="$parentId.attrname != null #if($parentId.attrType == 'String' ) and $parentId.attrname.trim() != '' #end"> 
+                <![CDATA[
+                    and $parentId.columnName = #{$parentId.attrname}
+                 ]]>
+            </if>
+        #foreach($column in $columns)
+        
+            <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname.trim() != '' #end"> 
+                <![CDATA[
+                    and $column.columnName = #{$column.attrname}
+                 ]]>
+            </if>
+        #end
+ 
+        </where>
+    </select>
+    
+    <select id="select${className}ById" parameterType="${primaryKey.attrType}" resultMap="${className}Result">
+        <include refid="select${className}Vo"/>
+        where ${primaryKey.columnName} = #{${primaryKey.attrname}}
+    </select>
+        
+    <insert id="insert${className}" parameterType="${className}">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="$primaryKey.attrname != null #if($primaryKey.attrType == 'String' ) and $primaryKey.attrname != '' #end ">
+                $primaryKey.columnName,
+            </if>
+            <if test="$parentId.attrname != null #if($parentId.attrType == 'String' ) and $parentId.attrname != '' #end ">
+                $parentId.columnName,
+            </if>
+        #foreach($column in $columns)
+        
+            <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != '' #end ">
+                $column.columnName,
+            </if>
+        #end
+        
+         </trim>
+         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="$primaryKey.attrname != null #if($primaryKey.attrType == 'String' ) and $primaryKey.attrname != '' #end ">
+                #{$primaryKey.attrname},
+            </if>
+            <if test="$parentId.attrname != null #if($parentId.attrType == 'String' ) and $parentId.attrname != '' #end ">
+                #{$parentId.attrname},
+            </if>
+        #foreach($column in $columns)
+        
+            <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != '' #end ">
+                #{$column.attrname},
+            </if>
+        #end        
+            
+         </trim>
+    </insert>
+     
+    <update id="update${className}" parameterType="${className}">
+        update ${tableName}
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="$parentId.attrname != null #if($parentId.attrType == 'String' ) and $parentId.attrname != '' #end ">
+                $parentId.columnName = #{$parentId.attrname},
+            </if>
+        #foreach($column in $columns)
+        
+            <if test="$column.attrname != null #if($column.attrType == 'String' ) and $column.attrname != '' #end ">
+                $column.columnName = #{$column.attrname},
+            </if>
+        #end
+        
+        </trim>
+        where ${primaryKey.columnName} = #{${primaryKey.attrname}}
+    </update>
+
+    <delete id="delete${className}ById" parameterType="${primaryKey.attrType}">
+        delete from ${tableName} where ${primaryKey.columnName} = #{${primaryKey.attrname}}
+    </delete>
+    
+    <delete id="delete${className}ByIds" parameterType="String">
+        delete from ${tableName} where ${primaryKey.columnName} in 
+        <foreach item="${primaryKey.attrname}" collection="array" open="(" separator="," close=")">
+            #{${primaryKey.attrname}}
+        </foreach>
+    </delete>
+    
+</mapper>

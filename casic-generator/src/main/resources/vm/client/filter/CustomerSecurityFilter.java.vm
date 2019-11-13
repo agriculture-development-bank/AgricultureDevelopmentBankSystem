@@ -1,0 +1,28 @@
+package com.casic.${client}.filter;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.GenericFilterBean;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
+
+@Component
+public class CustomerSecurityFilter extends GenericFilterBean {
+    private static final String FILTER_APPLIED = "__spring_security_customerFilter_filterApplied";
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
+
+        if(servletRequest.getAttribute(FILTER_APPLIED) != null){
+            filterChain.doFilter(servletRequest,servletResponse);
+            return;
+        }
+
+        //替换用户信息，具体替换步骤参考上一个替换，这个用户最好存入缓存，毕竟过滤器过滤的请求挺多，每次都要查询很坑的
+        servletRequest.setAttribute(FILTER_APPLIED,true);
+        filterChain.doFilter(servletRequest,servletResponse);
+    }
+}

@@ -1,0 +1,121 @@
+package ${package}.domain.${moduleName};
+
+import java.math.BigDecimal;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.casic.common.base.BaseEntity;
+#foreach ($column in $columns)
+#if($column.attrType == 'Date')
+import java.util.Date;
+#break
+#end
+#end
+
+/**
+ * ${tableComment}表 ${tableName}
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+public class ${className} extends BaseEntity
+{
+	private static final long serialVersionUID = 1L;
+	
+	/** $primaryKey.columnComment */
+	private $primaryKey.attrType $primaryKey.attrname;
+	
+	/** $parentId.columnComment */
+    private $parentId.attrType $parentId.attrname;
+	
+#foreach ($column in $columns)
+	
+	#if($column.dataType == 'List')
+	
+	/** $column.columnComment */
+    private $column.dataType<$column.attrType> $column.attrname;
+    
+    #else
+    
+    /** $column.columnComment */
+    private $column.attrType $column.attrname;
+    
+    #end
+#end
+
+    /** 父类实例*/
+    private ${className} parent${className};
+    
+    /** 子类集合*/
+    private List<${className}> child${className}List;
+
+    public void set${primaryKey.attrName}($primaryKey.attrType $primaryKey.attrname) 
+    {
+        this.$primaryKey.attrname = $primaryKey.attrname;
+    }
+
+    public $primaryKey.attrType get${primaryKey.attrName}() 
+    {
+        return $primaryKey.attrname;
+    }
+    
+    public void set${parentId.attrName}($parentId.attrType $parentId.attrname) 
+    {
+        this.$parentId.attrname = $parentId.attrname;
+    }
+
+    public $parentId.attrType get${parentId.attrName}() 
+    {
+        return $parentId.attrname;
+    }
+    
+#foreach ($column in $columns)
+	#if($column.dataType == 'List')
+public void set${column.attrName}($column.dataType<$column.attrType> $column.attrname) 
+    {
+        this.$column.attrname = $column.attrname;
+    }
+
+    public $column.dataType<$column.attrType> get${column.attrName}() 
+    {
+        return $column.attrname;
+    }
+    #else
+public void set${column.attrName}($column.attrType $column.attrname) 
+    {
+        this.$column.attrname = $column.attrname;
+    }
+    public $column.attrType get${column.attrName}() 
+    {
+        return $column.attrname;
+    }
+    #end
+#end
+
+    public void setParent${className}(${className} parent${className}) 
+    {
+        this.parent${className} = parent${className};
+    }
+
+    public ${className} getParent${className}() 
+    {
+        return parent${className};
+    }
+    
+    public void setChild${className}List(List<${className}> child${className}List) 
+    {
+        this.child${className}List = child${className}List;
+    }
+
+    public List<${className}> getChild${className}List() 
+    {
+        return child${className}List;
+    }
+
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE).append("${primaryKey.attrname}", get${primaryKey.attrName}())
+#foreach ($column in $columns)
+            .append("${column.attrname}", get${column.attrName}())
+#end
+            .toString();
+    }
+}

@@ -1,0 +1,227 @@
+package ${package}.service.impl.${moduleName};
+
+import java.util.List;
+import java.util.UUID;
+import com.casic.common.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ${package}.mapper.${moduleName}.${className}Mapper;
+import ${package}.domain.${moduleName}.${className};
+import ${package}.service.${moduleName}.I${className}Service;
+import com.casic.common.support.Convert;
+
+/**
+ * ${tableComment} 服务层实现
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Service
+public class ${className}ServiceImpl implements I${className}Service 
+{
+	@Autowired
+	private ${className}Mapper ${classname}Mapper;
+
+	/**
+     * 查询${tableComment}信息
+     * 
+     * @param ${primaryKey.attrname} ${tableComment}ID
+     * @return ${tableComment}信息
+     */
+    @Override
+	public ${className} select${className}ById(${primaryKey.attrType} ${primaryKey.attrname})
+	{
+	    return ${classname}Mapper.select${className}ById(${primaryKey.attrname});
+	}
+	
+	/**
+     * 查询${tableComment}列表
+     * 
+     * @param ${classname} ${tableComment}信息
+     * @return ${tableComment}集合
+     */
+	@Override
+	public List<${className}> select${className}List(${className} ${classname})
+	{
+	    return ${classname}Mapper.select${className}List(${classname});
+	}
+	
+    /**
+     * 新增${tableComment}
+     * 
+     * @param ${classname} ${tableComment}信息
+     * @return 结果
+     */
+	@Override
+	public int insert${className}(${className} ${classname})
+	{
+	    if(StringUtils.isBlank(${classname}.get${primaryKey.attrName}())) {
+            ${classname}.set${primaryKey.attrName}(UUID.randomUUID().toString().replace("-", "").toUpperCase());
+        }
+	    return ${classname}Mapper.insert${className}(${classname});
+	}
+	
+	/**
+     * 修改${tableComment}
+     * 
+     * @param ${classname} ${tableComment}信息
+     * @return 结果
+     */
+	@Override
+	public int update${className}(${className} ${classname})
+	{
+	    return ${classname}Mapper.update${className}(${classname});
+	}
+
+	/**
+     * 删除${tableComment}对象
+     * 
+     * @param ids 需要删除的数据ID
+     * @return 结果
+     */
+	@Override
+	public int delete${className}ByIds(String ids)
+	{
+		return ${classname}Mapper.delete${className}ByIds(Convert.toStrArray(ids));
+	}
+	
+	/**
+     * 根据${className}查询树信息
+     * 
+     * @param  ${classname} ${tableComment}信息
+     * @return ${tableComment}列表
+     */
+    @Override
+    public List<Map<String, Object>> select${className}sBy${className}(${className} ${classname})
+    {
+        List<${className}> ${classname}s = new LinkedList<${className}>();
+        List<Map<String, Object>> trees = new ArrayList<Map<String, Object>>();
+        if (${classname}.get${primaryKey.attrname}() != null && !("".equals(${classname}.get${primaryKey.attrname}())))
+        {
+            ${className} obj = this.select${className}ById(${classname}.get${primaryKey.attrname}());
+            if(obj != null){
+                ${classname}s = obj.getChild${className}List();
+                List<${className}> ${classname}List = getChildPerms(${classname}s, obj.get${primaryKey.attrName}());
+                trees = getTrees(${classname}List, true);
+            }
+        }
+        else
+        {
+            
+            ${classname}s = this.select${className}List(${classname});
+            List<${className}> ${classname}List = getChildPerms(${classname}s, "0");
+            trees = getTrees(${classname}List, false);
+        }
+        
+        return trees;
+        
+    }
+    
+    /**
+     * 对象转树
+     * 
+     * @param menuList 菜单列表
+     * @param isCheck 是否需要选中
+     * @param roleMenuList 角色已存在菜单列表
+     * @param permsFlag 是否需要显示权限标识
+     * @return List<Map<String, Object>>
+     */
+    public List<Map<String, Object>> getTrees(List<${className}> ${classname}List, boolean isCheck)
+    {
+        List<Map<String, Object>> trees = new ArrayList<Map<String, Object>>();
+        for (${className} ${classname} : ${classname}List)
+        {
+            Map<String, Object> ${classname}Map = new HashMap<String, Object>();
+            ${classname}Map.put("id", ${classname}.get${primaryKey.attrName}());
+            ${classname}Map.put("pId", ${classname}.get${parentId.attrName}());
+            ${classname}Map.put("name", ${classname}.get${className}Name());
+            ${classname}Map.put("title", ${classname}.get${className}Name());
+            if (isCheck)
+            {
+                ${classname}Map.put("checked", true);
+            }
+            else
+            {
+                ${classname}Map.put("checked", false);
+            }
+            trees.add(${classname}Map);
+        }
+        return trees;
+    }
+	
+	/**
+     * 根据父节点的ID获取所有子节点
+     * 
+     * @param list 分类表
+     * @param typeId 传入的父节点ID
+     * @return String
+     */
+    public List<${className}> getChildPerms(List<${className}> list,  String parentId)
+    {
+        List<${className}> returnList = new ArrayList<${className}>();
+        for (Iterator<${className}> iterator = list.iterator(); iterator.hasNext();)
+        {
+            ${className} t = (${className}) iterator.next();
+            // 一、根据传入的某个父节点ID,遍历该父节点的所有子节点
+            if (t.getParentId().equals(parentId))
+            {
+                recursionFn(list, t);
+                returnList.add(t);
+            }
+        }
+        return returnList;
+    }
+
+    /**
+     * 递归列表
+     * 
+     * @param list
+     * @param ${className}
+     */
+    private void recursionFn(List<${className}> list, ${className} t)
+    {
+        // 得到子节点列表
+        List<${className}> childList = getChildList(list, t);
+        t.setChildren(childList);
+        for (${className} tChild : childList)
+        {
+            if (hasChild(list, tChild))
+            {
+                // 判断是否有子节点
+                Iterator<${className}> it = childList.iterator();
+                while (it.hasNext())
+                {
+                    ${className} n = (${className}) it.next();
+                    recursionFn(list, n);
+                }
+            }
+        }
+    }
+
+    /**
+     * 得到子节点列表
+     */
+    private List<${className}> getChildList(List<${className}> list, ${className} t)
+    {
+        List<${className}> tlist = new ArrayList<${className}>();
+        Iterator<${className}> it = list.iterator();
+        while (it.hasNext())
+        {
+            ${className} n = (${className}) it.next();
+            if (n.getParentId().equals(t.get${primaryKey.attrName}()))
+            {
+                tlist.add(n);
+            }
+        }
+        return tlist;
+    }
+
+    /**
+     * 判断是否有子节点
+     */
+    private boolean hasChild(List<${className}> list, ${className} t)
+    {
+        return getChildList(list, t).size() > 0 ? true : false;
+    }
+	
+}

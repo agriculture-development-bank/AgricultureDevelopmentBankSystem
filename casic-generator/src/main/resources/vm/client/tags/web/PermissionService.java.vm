@@ -1,0 +1,31 @@
+package com.casic.${client}.tags.web;
+
+import com.casic.sso.common.utils.PermissionUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+/**
+ * west首创 js调用 thymeleaf 实现按钮权限可见性
+ *
+ * @author yuzengwen
+ */
+@Service("permission")
+public class PermissionService
+{
+    @Value("${security.oauth2.client.client-id}")
+    private String clientId;
+
+    public String hasPermi(String permission)
+    {
+        return isPermittedOperator(permission) ? "" : "hidden";
+    }
+
+    private boolean isPermittedOperator(String permission)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasPermission = PermissionUtils.hasPermission(authentication,permission, clientId);
+        return hasPermission;
+    }
+}

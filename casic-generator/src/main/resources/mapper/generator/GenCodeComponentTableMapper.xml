@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.GenCodeComponentTableMapper">
+    
+    <resultMap type="GenCodeComponentTable" id="GenCodeComponentTableResult">
+        <result property="id"    column="id"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="tableEnName"    column="table_en_name"    />
+        <result property="componentId"    column="component_id"    />
+        <result property="datasourceId"    column="datasource_id"    />
+        <result property="comments"    column="comments"    />
+        <result property="packageName"    column="package_name"    />
+        <result property="className"    column="class_name"    />
+        <result property="tableType"    column="table_type"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="GenCodeTableColumns" id="GenCodeTableColumnsResult">
+        <result property="id"    column="id"    />
+        <result property="tableId"    column="table_id"    />
+        <result property="columnName"    column="column_name"    />
+        <result property="columnZhName"    column="column_zh_name"    />
+        <result property="comments"    column="comments"    />
+        <result property="len"    column="len"    />
+        <result property="jdbcType"    column="jdbc_type"    />
+        <result property="javaType"    column="java_type"    />
+        <result property="javaField"    column="java_field"    />
+        <result property="isFK"    column="is_fk"    />
+        <result property="fkTableName"    column="fk_table_name"    />
+        <result property="fkFieldName"    column="fk_field_name"    />
+        <result property="isPk"    column="is_pk"    />
+        <result property="isNull"    column="is_null"    />
+        <result property="dictType"    column="dict_type"    />
+        <result property="settings"    column="settings"    />
+        <result property="sort"    column="sort"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="TableInfo" id="TableInfoResult">
+        <id     property="tableName"      column="table_name"      />
+        <result property="tableComment"   column="table_comment"   />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateTime"     column="update_time"     />
+    </resultMap>
+
+    <sql id="selectGenCodeComponentTable">
+       select id, table_name, table_en_name, component_id, datasource_id, comments, class_name, table_type, del_flag, create_by, create_time, update_by, update_time, remark from gen_code_component_table
+    </sql>
+
+	<sql id="selectGenCodeComponentTableVo">
+        select a.*, b.conmponent_name as componentName, c.source_name as dataSourceName
+        from gen_code_component_table as a
+        left join gen_code_component as b on a.component_id= b.id
+        left join gen_code_datasource as c on a.datasource_id = c.id
+    </sql>
+	
+    <select id="selectGenCodeComponentTableList" parameterType="GenCodeComponentTable" resultMap="GenCodeComponentTableResult">
+        <include refid="selectGenCodeComponentTableVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and a.id = #{id}</if>
+             <if test="tableName != null  and tableName != '' "> and a.table_name like concat('%', concat(#{tableName},'%'))</if>
+             <if test="tableEnName != null  and tableEnName != '' "> and a.table_en_name = #{tableEnName}</if>
+             <if test="componentId != null  and componentId != '' "> and a.component_id = #{componentId}</if>
+             <if test="datasourceId != null  and datasourceId != '' "> and a.datasource_id = #{datasourceId}</if>
+             <if test="comments != null  and comments != '' "> and a.comments = #{comments}</if>
+             <if test="packageName != null  and packageName != '' "> and a.package_name = #{packageName}</if>
+             <if test="className != null  and className != '' "> and a.class_name = #{className}</if>
+             <if test="tableType != null  and tableType != '' "> and a.table_type = #{tableType}</if>
+             <if test="delFlag != null  and delFlag != '' "> and a.del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+             <if test="createTime != null "> and a.create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and a.remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectGenCodeComponentTableById" parameterType="String" resultMap="GenCodeComponentTableResult">
+        <include refid="selectGenCodeComponentTableVo"/>
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertGenCodeComponentTable" parameterType="GenCodeComponentTable">
+        insert into gen_code_component_table
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="tableName != null  and tableName != ''  ">table_name,</if>
+			<if test="tableEnName != null  and tableEnName != ''  ">table_en_name,</if>
+			<if test="componentId != null  and componentId != ''  ">component_id,</if>
+			<if test="datasourceId != null  and datasourceId != ''  ">datasource_id,</if>
+			<if test="comments != null  and comments != ''  ">comments,</if>
+            <if test="packageName != null  and packageName != '' ">package_name,</if>
+			<if test="className != null  and className != ''  ">class_name,</if>
+			<if test="tableType != null  and tableType != ''  ">table_type,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="tableName != null  and tableName != ''  ">#{tableName},</if>
+			<if test="tableEnName != null  and tableEnName != ''  ">#{tableEnName},</if>
+			<if test="componentId != null  and componentId != ''  ">#{componentId},</if>
+			<if test="datasourceId != null  and datasourceId != ''  ">#{datasourceId},</if>
+			<if test="comments != null  and comments != ''  ">#{comments},</if>
+            <if test="packageName != null  and packageName != '' ">#{packageName},</if>
+			<if test="className != null  and className != ''  ">#{className},</if>
+			<if test="tableType != null  and tableType != ''  ">#{tableType},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGenCodeComponentTable" parameterType="GenCodeComponentTable">
+        update gen_code_component_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableName != null  and tableName != ''  ">table_name = #{tableName},</if>
+            <if test="tableEnName != null  and tableEnName != ''  ">table_en_name = #{tableEnName},</if>
+            <if test="componentId != null  and componentId != ''  ">component_id = #{componentId},</if>
+            <if test="datasourceId != null  and datasourceId != ''  ">datasource_id = #{datasourceId},</if>
+            <if test="comments != null  and comments != ''  ">comments = #{comments},</if>
+            <if test="packageName != null  and packageName != '' ">package_name = #{packageName},</if>
+            <if test="className != null  and className != ''  ">class_name = #{className},</if>
+            <if test="tableType != null  and tableType != ''  ">table_type = #{tableType},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGenCodeComponentTableById" parameterType="String">
+        delete from gen_code_component_table where id = #{id}
+    </delete>
+
+
+    <delete id="deleteGenCodeFunctionTableRel" parameterType="String">
+        delete from gen_code_function_table where table_id = #{tableId}
+    </delete>
+
+    <delete id="deleteGenCodeComponentTableByIds" parameterType="String">
+        delete from gen_code_component_table where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectTableFieldByTableId" parameterType="java.lang.String" resultMap="GenCodeTableColumnsResult">
+        select * from gen_code_table_columns where table_id = #{tableId} order by sort asc
+    </select>
+
+    <select id="selectTableList" resultMap="TableInfoResult">
+        select table_name, table_comment, create_time, update_time from information_schema.tables
+        where table_type = 'BASE TABLE' and table_schema = #{databaseName}
+        <if test="tableName != null and tableName != ''">
+            AND table_name like concat('%', concat(#{tableName}, '%'))
+        </if>
+    </select>
+
+    <select id="selectTableInfoByTableNameAndTableSchema" resultType="java.util.HashMap">
+        SELECT
+            table_schema,
+            table_name,
+            table_comment,
+            create_time,
+            update_time
+        FROM
+            information_schema.TABLES
+        WHERE
+            table_schema = #{tableSchema}
+            and table_type = 'base table'
+            AND table_name = #{tableName}
+    </select>
+
+    <select id="selectColumnsByTableSchemaAndTableName" resultType="java.util.HashMap">
+        SELECT
+            *
+        FROM
+            information_schema.COLUMNS
+        WHERE
+            table_schema = #{tableSchema}
+            AND table_name = #{tableName}
+    </select>
+
+    <select id="checkFieldUnique" parameterType="string" resultMap="GenCodeComponentTableResult">
+        <include refid="selectGenCodeComponentTable"/>
+        where ${filedName} = #{fieldValue}
+    </select>
+
+
+
+
+    <select id="selectTableByTableSchemaAndTableName" parameterType="String" resultType="java.util.HashMap">
+        select
+            concat(table_name, concat('.', column_name)) as 'foreignKey',
+            referenced_table_name, referenced_column_name
+        from
+            information_schema.key_column_usage
+        where
+            table_schema= #{table_schema} and
+            referenced_table_name is not null and table_name = #{table_name} and column_name = #{column_name}
+    </select>
+</mapper>

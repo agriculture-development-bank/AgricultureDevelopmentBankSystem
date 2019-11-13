@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.GenCodeTableColumnsMapper">
+    
+    <resultMap type="GenCodeTableColumns" id="GenCodeTableColumnsResult">
+        <result property="id"    column="id"    />
+        <result property="tableId"    column="table_id"    />
+        <result property="columnName"    column="column_name"    />
+        <result property="columnZhName"    column="column_zh_name"    />
+        <result property="comments"    column="comments"    />
+        <result property="len"    column="len"    />
+        <result property="jdbcType"    column="jdbc_type"    />
+        <result property="javaType"    column="java_type"    />
+        <result property="javaField"    column="java_field"    />
+        <result property="isFK"    column="is_fk"    />
+        <result property="fkTableName"    column="fk_table_name"    />
+        <result property="fkFieldName"    column="fk_field_name"    />
+        <result property="isPk"    column="is_pk"    />
+        <result property="isNull"    column="is_null"    />
+        <result property="dictType"    column="dict_type"    />
+        <result property="settings"    column="settings"    />
+        <result property="sort"    column="sort"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectGenCodeTableColumnsVo">
+        select id, table_id, column_name, column_zh_name, comments, len, jdbc_type, java_type, java_field, is_fk, fk_table_name, fk_field_name, is_pk, is_null, dict_type, settings, sort, del_flag, create_by, create_time, update_by, update_time, remark from gen_code_table_columns
+    </sql>
+	
+    <select id="selectGenCodeTableColumnsList" parameterType="GenCodeTableColumns" resultMap="GenCodeTableColumnsResult">
+        <include refid="selectGenCodeTableColumnsVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="tableId != null  and tableId != '' "> and table_id = #{tableId}</if>
+             <if test="columnName != null  and columnName != '' "> and column_name = #{columnName}</if>
+             <if test="columnZhName != null  and columnZhName != '' "> and column_zh_name = #{columnZhName}</if>
+             <if test="comments != null  and comments != '' "> and comments = #{comments}</if>
+             <if test="len != null  and len != '' "> and len = #{len}</if>
+             <if test="jdbcType != null  and jdbcType != '' "> and jdbc_type = #{jdbcType}</if>
+             <if test="javaType != null  and javaType != '' "> and java_type = #{javaType}</if>
+             <if test="javaField != null  and javaField != '' "> and java_field = #{javaField}</if>
+             <if test="isFK != null  and isFK != '' "> and is_fk = #{isFK}</if>
+             <if test="fkTableName != null  and fkTableName != '' "> and fk_table_name = #{fkTableName}</if>
+             <if test="fkFieldName != null  and fkFieldName != '' "> and fk_field_name = #{fkFieldName}</if>
+             <if test="isPk != null  and isPk != '' "> and is_pk = #{isPk}</if>
+             <if test="isNull != null  and isNull != '' "> and is_null = #{isNull}</if>
+             <if test="dictType != null  and dictType != '' "> and dict_type = #{dictType}</if>
+             <if test="settings != null  and settings != '' "> and settings = #{settings}</if>
+             <if test="sort != null "> and sort = #{sort}</if>
+             <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectGenCodeTableColumnsById" parameterType="String" resultMap="GenCodeTableColumnsResult">
+        <include refid="selectGenCodeTableColumnsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertGenCodeTableColumns" parameterType="GenCodeTableColumns">
+        insert into gen_code_table_columns
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="tableId != null  and tableId != ''  ">table_id,</if>
+			<if test="columnName != null  and columnName != ''  ">column_name,</if>
+			<if test="columnZhName != null  and columnZhName != ''  ">column_zh_name,</if>
+			<if test="comments != null  and comments != ''  ">comments,</if>
+			<if test="len != null  and len != ''  ">len,</if>
+			<if test="jdbcType != null  and jdbcType != ''  ">jdbc_type,</if>
+			<if test="javaType != null  and javaType != ''  ">java_type,</if>
+			<if test="javaField != null  and javaField != ''  ">java_field,</if>
+            <if test="isFK != null  and isFK != '' ">is_fk,</if>
+            <if test="fkTableName != null  and fkTableName != '' ">fk_table_name,</if>
+            <if test="fkFieldName != null  and fkFieldName != '' ">fk_field_name,</if>
+			<if test="isPk != null  and isPk != ''  ">is_pk,</if>
+			<if test="isNull != null  and isNull != ''  ">is_null,</if>
+			<if test="dictType != null  and dictType != ''  ">dict_type,</if>
+			<if test="settings != null  and settings != ''  ">settings,</if>
+			<if test="sort != null  ">sort,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="tableId != null  and tableId != ''  ">#{tableId},</if>
+			<if test="columnName != null  and columnName != ''  ">#{columnName},</if>
+			<if test="columnZhName != null  and columnZhName != ''  ">#{columnZhName},</if>
+			<if test="comments != null  and comments != ''  ">#{comments},</if>
+			<if test="len != null  and len != ''  ">#{len},</if>
+			<if test="jdbcType != null  and jdbcType != ''  ">#{jdbcType},</if>
+			<if test="javaType != null  and javaType != ''  ">#{javaType},</if>
+			<if test="javaField != null  and javaField != ''  ">#{javaField},</if>
+            <if test="isFK != null  and isFK != '' ">#{isFK},</if>
+            <if test="fkTableName != null  and fkTableName != '' ">#{fkTableName},</if>
+            <if test="fkFieldName != null  and fkFieldName != '' ">#{fkFieldName},</if>
+			<if test="isPk != null  and isPk != ''  ">#{isPk},</if>
+			<if test="isNull != null  and isNull != ''  ">#{isNull},</if>
+			<if test="dictType != null  and dictType != ''  ">#{dictType},</if>
+			<if test="settings != null  and settings != ''  ">#{settings},</if>
+			<if test="sort != null  ">#{sort},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGenCodeTableColumns" parameterType="GenCodeTableColumns">
+        update gen_code_table_columns
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableId != null  and tableId != ''  ">table_id = #{tableId},</if>
+            <if test="columnName != null  and columnName != ''  ">column_name = #{columnName},</if>
+            <if test="columnZhName != null  and columnZhName != ''  ">column_zh_name = #{columnZhName},</if>
+            <if test="comments != null  and comments != ''  ">comments = #{comments},</if>
+            <if test="len != null  and len != ''  ">len = #{len},</if>
+            <if test="jdbcType != null  and jdbcType != ''  ">jdbc_type = #{jdbcType},</if>
+            <if test="javaType != null  and javaType != ''  ">java_type = #{javaType},</if>
+            <if test="javaField != null  and javaField != ''  ">java_field = #{javaField},</if>
+            <if test="isFK != null  and isFK != '' ">is_fk = #{isFK},</if>
+            <if test="fkTableName != null  and fkTableName != '' ">fk_table_name = #{fkTableName},</if>
+            <if test="fkFieldName != null  and fkFieldName != '' ">fk_field_name = #{fkFieldName},</if>
+            <if test="isPk != null  and isPk != ''  ">is_pk = #{isPk},</if>
+            <if test="isNull != null  and isNull != ''  ">is_null = #{isNull},</if>
+            <if test="dictType != null  and dictType != ''  ">dict_type = #{dictType},</if>
+            <if test="settings != null  and settings != ''  ">settings = #{settings},</if>
+            <if test="sort != null  ">sort = #{sort},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGenCodeTableColumnsById" parameterType="String">
+        delete from gen_code_table_columns where id = #{id}
+    </delete>
+	
+    <delete id="deleteGenCodeTableColumnsByIds" parameterType="String">
+        delete from gen_code_table_columns where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectGenCodeTableColumnsByTableId" parameterType="string" resultMap="GenCodeTableColumnsResult">
+        select * from gen_code_table_columns where table_id = #{tableId}
+    </select>
+
+    <select id="checkFieldUnique" parameterType="string" resultMap="GenCodeTableColumnsResult">
+        <include refid="selectGenCodeTableColumnsVo"/>
+        where ${fieldName} = #{fieldValue} and table_id = #{tableId}
+    </select>
+    
+</mapper>

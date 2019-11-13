@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.CodeDatasourceMapper">
+    
+    <resultMap type="CodeDatasource" id="CodeDatasourceResult">
+        <result property="id"    column="id"    />
+        <result property="sourceName"    column="source_name"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="sourceClass"    column="source_class"    />
+        <result property="sourceUrl"    column="source_url"    />
+        <result property="databaseName"    column="database_name"    />
+        <result property="sourceUser"    column="source_user"    />
+        <result property="sourcePass"    column="source_pass"    />
+        <result property="sourceRemark"    column="source_remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectCodeDatasourceVo">
+        select id, source_name, source_type, source_class, source_url, database_name, source_user, source_pass, source_remark, del_flag, create_by, create_time, update_by, update_time, remark from gen_code_datasource
+    </sql>
+	
+    <select id="selectCodeDatasourceList" parameterType="CodeDatasource" resultMap="CodeDatasourceResult">
+        <include refid="selectCodeDatasourceVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="sourceName != null  and sourceName != '' "> and source_name = #{sourceName}</if>
+             <if test="sourceType != null "> and source_type = #{sourceType}</if>
+             <if test="sourceClass != null  and sourceClass != '' "> and source_class = #{sourceClass}</if>
+             <if test="sourceUrl != null  and sourceUrl != '' "> and source_url = #{sourceUrl}</if>
+             <if test="databaseName != null  and databaseName != '' "> and database_name = #{databaseName}</if>
+             <if test="sourceUser != null  and sourceUser != '' "> and source_user = #{sourceUser}</if>
+             <if test="sourcePass != null  and sourcePass != '' "> and source_pass = #{sourcePass}</if>
+             <if test="sourceRemark != null  and sourceRemark != '' "> and source_remark = #{sourceRemark}</if>
+             <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectCodeDatasourceById" parameterType="String" resultMap="CodeDatasourceResult">
+        <include refid="selectCodeDatasourceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCodeDatasource" parameterType="CodeDatasource">
+        insert into gen_code_datasource
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="sourceName != null  and sourceName != ''  ">source_name,</if>
+			<if test="sourceType != null  ">source_type,</if>
+			<if test="sourceClass != null  and sourceClass != ''  ">source_class,</if>
+			<if test="sourceUrl != null  and sourceUrl != ''  ">source_url,</if>
+			<if test="databaseName != null  and databaseName != ''  ">database_name,</if>
+			<if test="sourceUser != null  and sourceUser != ''  ">source_user,</if>
+			<if test="sourcePass != null  and sourcePass != ''  ">source_pass,</if>
+			<if test="sourceRemark != null  and sourceRemark != ''  ">source_remark,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="sourceName != null  and sourceName != ''  ">#{sourceName},</if>
+			<if test="sourceType != null  ">#{sourceType},</if>
+			<if test="sourceClass != null  and sourceClass != ''  ">#{sourceClass},</if>
+			<if test="sourceUrl != null  and sourceUrl != ''  ">#{sourceUrl},</if>
+			<if test="databaseName != null  and databaseName != ''  ">#{databaseName},</if>
+			<if test="sourceUser != null  and sourceUser != ''  ">#{sourceUser},</if>
+			<if test="sourcePass != null  and sourcePass != ''  ">#{sourcePass},</if>
+			<if test="sourceRemark != null  and sourceRemark != ''  ">#{sourceRemark},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateCodeDatasource" parameterType="CodeDatasource">
+        update gen_code_datasource
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sourceName != null  and sourceName != ''  ">source_name = #{sourceName},</if>
+            <if test="sourceType != null  ">source_type = #{sourceType},</if>
+            <if test="sourceClass != null  and sourceClass != ''  ">source_class = #{sourceClass},</if>
+            <if test="sourceUrl != null  and sourceUrl != ''  ">source_url = #{sourceUrl},</if>
+            <if test="databaseName != null  and databaseName != ''  ">database_name = #{databaseName},</if>
+            <if test="sourceUser != null  and sourceUser != ''  ">source_user = #{sourceUser},</if>
+            <if test="sourcePass != null  and sourcePass != ''  ">source_pass = #{sourcePass},</if>
+            <if test="sourceRemark != null  and sourceRemark != ''  ">source_remark = #{sourceRemark},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteCodeDatasourceById" parameterType="String">
+        delete from gen_code_datasource where id = #{id}
+    </delete>
+	
+    <delete id="deleteCodeDatasourceByIds" parameterType="String">
+        delete from gen_code_datasource where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,141 @@
+package com.casic.${client}.aspect;
+
+import com.casic.common.utils.RequestResponseUtil;
+import com.casic.common.utils.ServletUtils;
+import com.casic.sso.common.enums.Logical;
+import com.casic.sso.common.support.RequiresPermissions;
+import com.casic.sso.common.utils.PermissionUtils;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+
+@Aspect
+@Component
+public class RequiresPermissionsAspect {
+    private static final Logger log = LoggerFactory.getLogger(RequiresPermissionsAspect.class);
+
+    @Value("${security.oauth2.client.client-id}")
+    private String clientId;
+
+
+    // 配置织入点
+    @Pointcut("@annotation(com.casic.sso.common.support.RequiresPermissions)")
+    public void permissionPointCut()
+    {
+
+    }
+
+    @AfterReturning("permissionPointCut()")
+    public void doBefore(JoinPoint joinPoint)
+    {
+        handlePermissions(joinPoint, null);
+    }
+
+
+    protected void handlePermissions(final JoinPoint joinPoint, final Exception e) {
+        try {
+            HttpServletResponse response = ServletUtils.getResponse();
+            // 获得注解
+            String[] perms = getAnnotationValue(joinPoint);
+            if (perms == null) {
+                return;
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (perms.length == 1) {
+                boolean b1 = PermissionUtils.hasPermission(authentication, perms[0], clientId);
+                if (!b1) {
+                    pushToPage(response);
+                }
+            }
+
+            RequiresPermissions annotation = getAnnotation(joinPoint);
+            Logical logical = annotation.logical();
+            if (logical != null) {
+                if (Logical.AND.equals(annotation.logical())) {
+                    boolean b = PermissionUtils.hasPermissions(authentication, perms, clientId);
+                    if (!b) {
+                        pushToPage(response);
+                    }
+                }
+                if (Logical.OR.equals(annotation.logical())) {
+                    boolean hasOrPermission = false;
+                    for (String permission : perms) {
+                        if (PermissionUtils.hasPermission(authentication, permission, clientId)) {
+                            hasOrPermission = true;
+                        }
+                    }
+                    if (!hasOrPermission) {
+                        pushToPage(response);
+                    }
+                }
+            }
+        } catch (Exception exp) {
+            // 记录本地异常日志
+            log.error("==前置通知异常==");
+            log.error("异常信息:{}", exp.getMessage());
+            exp.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 是否存在注解，如果存在就获取
+     */
+    private String[] getAnnotationValue(JoinPoint joinPoint) throws Exception
+    {
+        Signature signature = joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) signature;
+        Method method = methodSignature.getMethod();
+
+        if (method != null)
+        {
+            return method.getAnnotation(RequiresPermissions.class).value();
+        }
+        return null;
+    }
+
+    /**
+     * 是否存在注解，如果存在就获取
+     */
+    private RequiresPermissions getAnnotation(JoinPoint joinPoint) throws Exception
+    {
+        Signature signature = joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) signature;
+        Method method = methodSignature.getMethod();
+
+        if (method != null)
+        {
+            return method.getAnnotation(RequiresPermissions.class);
+        }
+        return null;
+    }
+
+    private void pushToPage(HttpServletResponse response){
+        RequestResponseUtil.responseWrite("no permission!", response);
+        #*PrintWriter out = null;
+        try {
+            out = response.getWriter();
+            out.println("no permission!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            out.flush();
+            out.close();
+        }*#
+    }
+
+}

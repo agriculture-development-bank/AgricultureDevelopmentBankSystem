@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.GenCodeDomainMapper">
+    
+    <resultMap type="GenCodeDomain" id="GenCodeDomainResult">
+        <result property="id"    column="id"    />
+        <result property="domainName"    column="domain_name"    />
+        <result property="domainCode"    column="domain_code"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <collection property="componentList" column="{id=id}"    javaType="java.util.List"
+                    ofType="com.casic.generator.domain.GenCodeComponent"
+                    select="selectComponentList"
+        />
+    </resultMap>
+
+    <resultMap type="GenCodeComponent" id="ComponentResult">
+        <result property="id"    column="id"    />
+        <result property="conmponentName"    column="conmponent_name"    />
+        <result property="conmponentCode"    column="conmponent_code"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+	
+	<sql id="selectGenCodeDomainVo">
+        select d.id, d.domain_name, d.domain_code, d.del_flag, d.create_by, d.create_time, d.update_by, d.update_time, d.remark
+        from gen_code_domain d
+    </sql>
+
+    <select id="selectComponentList"  parameterType="java.util.Map" resultMap="ComponentResult">
+        select c.id, c.conmponent_name, c.conmponent_code, c.del_flag from gen_code_component c
+        left join gen_code_domain_component dc on dc.component_id = c.id
+        left join gen_code_domain d on dc.system_id = d.id
+        where d.id = #{id}
+    </select>
+	
+    <select id="selectGenCodeDomainList" parameterType="GenCodeDomain" resultMap="GenCodeDomainResult">
+        <include refid="selectGenCodeDomainVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="domainName != null  and domainName != '' "> and domain_name = #{domainName}</if>
+             <if test="domainCode != null  and domainCode != '' "> and domain_code = #{domainCode}</if>
+             <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectGenCodeDomainById" parameterType="String" resultMap="GenCodeDomainResult">
+        <include refid="selectGenCodeDomainVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertGenCodeDomain" parameterType="GenCodeDomain">
+        insert into gen_code_domain
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="domainName != null  and domainName != ''  ">domain_name,</if>
+			<if test="domainCode != null  and domainCode != ''  ">domain_code,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="domainName != null  and domainName != ''  ">#{domainName},</if>
+			<if test="domainCode != null  and domainCode != ''  ">#{domainCode},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGenCodeDomain" parameterType="GenCodeDomain">
+        update gen_code_domain
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="domainName != null  and domainName != ''  ">domain_name = #{domainName},</if>
+            <if test="domainCode != null  and domainCode != ''  ">domain_code = #{domainCode},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGenCodeDomainById" parameterType="String">
+        delete from gen_code_domain where id = #{id}
+    </delete>
+	
+    <delete id="deleteGenCodeDomainByIds" parameterType="String">
+        delete from gen_code_domain where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,40 @@
+package com.casic.${client}.config;
+
+
+import com.casic.${client}.tags.CasicBtnDialect;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+@ComponentScan(basePackages = {
+        "com.casic.${client}",
+        "com.casic.auth.service",
+        "com.casic.system.service"
+}
+)
+@Configuration
+public class ApplicationConfig {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CasicBtnDialect casicDialect() {
+        return new CasicBtnDialect();
+    }
+
+    /**
+     * 执行周期性或定时任务
+     */
+    @Bean(name = "authScheduledExecutorService")
+    protected ScheduledExecutorService scheduledExecutorService()
+    {
+        return new ScheduledThreadPoolExecutor(20,
+                new BasicThreadFactory.Builder().namingPattern("auth-log-schedule-pool-%d").daemon(true).build());
+    }
+
+
+}

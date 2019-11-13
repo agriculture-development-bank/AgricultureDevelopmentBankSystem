@@ -1,0 +1,57 @@
+package com.casic.${client}.controller;
+
+import com.casic.common.config.Global;
+import com.casic.common.web.domain.bo.AuthResource;
+import com.casic.sso.common.base.BaseController;
+import com.casic.sso.common.utils.PermissionUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * @author yuzengwen
+ * @date 2019-03-03
+ */
+@Controller
+@RequestMapping
+public class IndexController extends BaseController {
+
+    @GetMapping()
+    public String index(HttpServletRequest request, Authentication authentication,Model model) {
+        List<AuthResource> currClientMenuList = PermissionUtils.getCurrClientMenuList(authentication, getClientId());
+        currClientMenuList = this.removeBtnAuthResource(currClientMenuList);
+        model.addAttribute("menus",currClientMenuList);
+        model.addAttribute("version", Global.getVersion());
+        model.addAttribute("copyrightYear", Global.getCopyrightYear());
+
+        return "index";
+    }
+
+    // 系统介绍
+    @GetMapping("/mem/main")
+    public String main(Model model)  {
+        return "main";
+    }
+
+    private List<AuthResource> removeBtnAuthResource(List<AuthResource> authResourceList){
+        Iterator<AuthResource> it = authResourceList.iterator();
+        while (it.hasNext()) {
+            AuthResource resource = it.next();
+            if(resource.getType()==3){
+                it.remove();
+            }else{
+                List<AuthResource> children = resource.getChildren();
+                if(children.size()>0){
+                    this.removeBtnAuthResource(children);
+                }
+            }
+        }
+        return authResourceList;
+    }
+}

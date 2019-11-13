@@ -1,0 +1,32 @@
+package com.casic.${client};
+
+import com.casic.${client}.config.ApplicationConfig;
+import com.casic.${client}.config.WebSecurityConfig;
+import org.casic.workflow.config.ApplicationConfiguration;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Import({
+        ApplicationConfig.class,
+        WebSecurityConfig.class,
+        ApplicationConfiguration.class,
+})
+@MapperScan({
+        "com.casic.*.mapper",
+        "org.casic.workflow.mapper"
+})
+@SpringBootApplication
+@EnableTransactionManagement
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SsoClient${up_client}Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SsoClient${up_client}Application.class, args);
+    }
+
+
+}

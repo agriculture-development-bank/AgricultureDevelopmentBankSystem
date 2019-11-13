@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.GenCodeComponentMapper">
+    
+    <resultMap type="GenCodeComponentVo" id="GenCodeComponentResult">
+        <result property="id"    column="id"    />
+        <result property="conmponentName"    column="conmponent_name"    />
+        <result property="conmponentCode"    column="conmponent_code"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="clientId"     column="client_id"  />
+        <result property="datasourceId"     column="datasourceId"   />
+        <association property="clientDetails"   column="{client_id=client_id}"  select="selectClientDetails"    />
+        <association property="datasource" column="{datasourceId = datasourceId}" select="selectDataSource"   />
+        <association property="domain" column="{id=id}" select="selectDomain"  />
+        <association property="createUser" column="{id=create_by}" select="selectUser"  />
+        <association property="updateUser" column="{id=update_by}" select="selectUser"  />
+    </resultMap>
+
+    <resultMap id="domainResult" type="GenCodeDomain">
+        <result property="id"    column="id"    />
+        <result property="domainName"    column="domain_name"    />
+        <result property="domainCode"    column="domain_code"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap id="userResult" type="SysUser">
+        <id     property="userId"       column="user_id"      />
+        <result property="deptId"       column="dept_id"      />
+        <result property="loginName"    column="login_name"   />
+        <result property="userName"     column="user_name"    />
+        <result property="email"        column="email"        />
+        <result property="phonenumber"  column="phonenumber"  />
+        <result property="sex"          column="sex"          />
+        <result property="avatar"       column="avatar"       />
+        <result property="password"     column="password"     />
+        <result property="salt"         column="salt"         />
+        <result property="status"       column="status"       />
+        <result property="userCareer"   column="user_career"  />
+        <result property="delFlag"      column="del_flag"     />
+        <result property="loginIp"      column="login_ip"     />
+        <result property="loginDate"    column="login_date"   />
+        <result property="createBy"     column="create_by"    />
+        <result property="createTime"   column="create_time"  />
+        <result property="updateBy"     column="update_by"    />
+        <result property="updateTime"   column="update_time"  />
+        <result property="remark"       column="remark"       />
+    </resultMap>
+
+    <resultMap id="clientDetailsResult" type="com.casic.common.web.domain.bo.OAuthClientDetails">
+        <result property="clientId"    column="client_id"    />
+        <result property="clientName"    column="client_name"    />
+        <result property="resourceIds"    column="resource_ids"    />
+        <result property="clientSecret"    column="client_secret"    />
+        <result property="scope"    column="scope"    />
+        <result property="authorizedGrantTypes"    column="authorized_grant_types"    />
+        <result property="webServerRedirectUri"    column="web_server_redirect_uri"    />
+        <result property="authorities"    column="authorities"    />
+        <result property="accessTokenValidity"    column="access_token_validity"    />
+        <result property="refreshTokenValidity"    column="refresh_token_validity"    />
+        <result property="additionalInformation"    column="additional_information"    />
+        <result property="autoapprove"    column="autoapprove"    />
+        <result property="clientIndexPage"    column="client_index_page"    />
+    </resultMap>
+
+    <resultMap id="dataSourceResult" type="CodeDatasource">
+        <result property="id"    column="id"    />
+        <result property="sourceName"    column="source_name"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="sourceClass"    column="source_class"    />
+        <result property="sourceUrl"    column="source_url"    />
+        <result property="sourceUser"    column="source_user"    />
+        <result property="sourcePass"    column="source_pass"    />
+        <result property="sourceRemark"    column="source_remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="databaseName"    column="database_name"    />
+    </resultMap>
+
+    <select id="selectDomain"  parameterType="java.util.Map" resultMap="domainResult">
+        select d.id, d.domain_name, d.domain_code, d.del_flag, d.create_by, d.create_time, d.update_by, d.update_time, d.remark from gen_code_domain d
+        left join gen_code_domain_component dc on dc.system_id = d.id
+        left join gen_code_component c on dc.component_id = c.id
+        where c.id = #{id}
+    </select>
+
+    <select id="selectUser" parameterType="java.util.Map" resultMap="userResult" >
+        select  u.user_id, u.dept_id, u.login_name, u.user_name, u.email, u.phonenumber, u.sex, u.avatar, u.password, u.salt, u.status, u.user_career, u.del_flag, u.login_ip, u.login_date, u.create_time, u.remark,
+       		    d.dept_id, d.parent_id, d.dept_name, d.order_num, d.status as dept_status,
+       		    r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
+		from sys_user u
+			 left join sys_dept d on u.dept_id = d.dept_id
+			 left join sys_user_role ur on u.user_id = ur.user_id
+			 left join sys_role r on r.role_id = ur.role_id
+	    where u.user_id = #{id}
+    </select>
+
+    <select id="selectClientDetails" parameterType="java.util.Map" resultMap="clientDetailsResult" >
+        select
+            client_id,
+            client_name,
+            resource_ids,
+            client_secret,
+            scope,
+            authorized_grant_types,
+            web_server_redirect_uri,
+            authorities,
+            access_token_validity,
+            refresh_token_validity,
+            additional_information,
+            autoapprove,
+            client_index_page
+        from
+          oauth_client_details
+        where client_id = #{client_id}
+    </select>
+
+    <select id="selectDataSource" parameterType="java.util.Map" resultMap="dataSourceResult"    >
+        select id, source_name, source_type, source_class, source_url, database_name, source_user, source_pass, source_remark, del_flag, create_by, create_time, update_by, update_time, remark from gen_code_datasource
+        where id = #{datasourceId}
+    </select>
+	
+	<sql id="selectGenCodeComponentVo">
+        select c.id, c.conmponent_name, c.conmponent_code, c.del_flag, c.create_by, c.create_time, c.update_by, c.update_time, c.remark, c.client_id, c.datasourceId from gen_code_component c
+        left join gen_code_domain_component dc on dc.component_id = c.id
+        left join gen_code_domain d on dc.system_id = d.id
+    </sql>
+	
+    <select id="selectGenCodeComponentList" parameterType="GenCodeComponentVo" resultMap="GenCodeComponentResult">
+        <include refid="selectGenCodeComponentVo"/>
+        <where>
+             <if test="domainId != null and domainId != '' "> and d.id = #{domainId}</if>
+             <if test="id != null  and id != '' "> and c.id = #{id}</if>
+             <if test="conmponentName != null  and conmponentName != '' "> and c.conmponent_name like concat('%',concat(#{conmponentName},'%'))</if>
+             <if test="conmponentCode != null  and conmponentCode != '' "> and c.conmponent_code like concat('%',concat(#{conmponentCode},'%'))</if>
+             <if test="delFlag != null  and delFlag != '' "> and c.del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and c.create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{c.createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and c.update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and c.update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and c.remark = #{remark}</if>
+             <if test="clientId != null and clientId != '' "> and c.client_id = #{clientId}</if>
+             <if test="datasourceId != null and datasourceId != '' ">and c.datasourceId = #{datasourceId}</if>
+         </where>
+    </select>
+    
+    <select id="selectGenCodeComponentById" parameterType="String" resultMap="GenCodeComponentResult">
+        <include refid="selectGenCodeComponentVo"/>
+        where c.id = #{id}
+    </select>
+        
+    <insert id="insertGenCodeComponent" parameterType="GenCodeComponent">
+        <selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+            select uuid()
+        </selectKey>
+        insert into gen_code_component
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="conmponentName != null  and conmponentName != ''  ">conmponent_name,</if>
+			<if test="conmponentCode != null  and conmponentCode != ''  ">conmponent_code,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="clientId != null and clientId != '' ">client_id,</if>
+            <if test="datasourceId !=null and datasourceId != '' ">datasourceId,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="conmponentName != null  and conmponentName != ''  ">#{conmponentName},</if>
+			<if test="conmponentCode != null  and conmponentCode != ''  ">#{conmponentCode},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="clientId != null and clientId != '' ">#{clientId},</if>
+            <if test="datasourceId != null and datasourceId != '' ">#{datasourceId}</if>
+         </trim>
+    </insert>
+
+    <insert id="insertGenCodeDomainComponent" parameterType="GenCodeComponentVo">
+        <selectKey resultType="java.lang.String" order="BEFORE" keyProperty="domainComponentId">
+            select uuid()
+        </selectKey>
+        insert into gen_code_domain_component
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="domainId != null  and domainId != ''  ">system_id,</if>
+            <if test="id != null  and id != ''  ">component_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{domainComponentId},
+            <if test="domainId != null  and domainId != ''  ">#{domainId},</if>
+            <if test="id != null  and id != ''  ">#{id},</if>
+        </trim>
+    </insert>
+	 
+    <update id="updateGenCodeComponent" parameterType="GenCodeComponent">
+        update gen_code_component
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="conmponentName != null  and conmponentName != ''  ">conmponent_name = #{conmponentName},</if>
+            <if test="conmponentCode != null  and conmponentCode != ''  ">conmponent_code = #{conmponentCode},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="clientId != null and clientId != '' ">client_id = #{clientId},</if>
+            <if test="datasourceId !=null and datasourceId != '' ">datasourceId = #{datasourceId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateGenCodeDomainComponent" parameterType="GenCodeComponentVo">
+        update gen_code_domain_component set
+        system_id = #{domainId}
+        where component_id = #{id}
+    </update>
+
+	<delete id="deleteGenCodeComponentById" parameterType="String">
+        delete from gen_code_component where id = #{id}
+    </delete>
+	
+    <delete id="deleteGenCodeComponentByIds" parameterType="String">
+        delete from gen_code_component where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteGenCodeDomainComponentByIds" parameterType="String">
+        delete from gen_code_domain_component where component_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="checkComponentNameUnique" parameterType="java.lang.String" resultMap="GenCodeComponentResult">
+        <include refid="selectGenCodeComponentVo"/>
+        where conmponent_name = #{componentName}
+    </select>
+
+    <select id="checkComponentCodeUnique" parameterType="java.lang.String" resultMap="GenCodeComponentResult">
+        <include refid="selectGenCodeComponentVo"/>
+        where conmponent_code = #{componentCode}
+    </select>
+
+    <select id="checkClientIdUnique" parameterType="java.lang.String" resultMap="GenCodeComponentResult">
+        <include refid="selectGenCodeComponentVo"/>
+        where client_id = #{clientId}
+    </select>
+    
+</mapper>

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.generator.mapper.GenCodeFunctionMapper">
+    
+    <resultMap type="GenCodeFunction" id="GenCodeFunctionResult">
+        <result property="id"    column="id"    />
+        <result property="funcName"    column="func_name"    />
+        <result property="funcEnName"    column="func_en_name"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="funcMenuId"    column="func_menu_id"    />
+        <result property="packageName"    column="package_name"    />
+        <result property="funcSimpleName"    column="func_simple_name"    />
+        <result property="funcAuthor"    column="func_author"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="com.casic.generator.domain.GenCodeComponent" id="GenCodeComponentResult">
+        <result property="id"    column="id"    />
+        <result property="conmponentName"    column="conmponent_name"    />
+        <result property="conmponentCode"    column="conmponent_code"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="clientId"     column="client_id"  />
+    </resultMap>
+
+    <resultMap type="com.casic.common.web.domain.bo.OAuthClientDetails" id="OAuthClientDetailsResult">
+        <result property="clientId"    column="client_id"    />
+        <result property="clientName"    column="client_name"    />
+        <result property="resourceIds"    column="resource_ids"    />
+        <result property="clientSecret"    column="client_secret"    />
+        <result property="scope"    column="scope"    />
+        <result property="authorizedGrantTypes"    column="authorized_grant_types"    />
+        <result property="webServerRedirectUri"    column="web_server_redirect_uri"    />
+        <result property="authorities"    column="authorities"    />
+        <result property="accessTokenValidity"    column="access_token_validity"    />
+        <result property="refreshTokenValidity"    column="refresh_token_validity"    />
+        <result property="additionalInformation"    column="additional_information"    />
+        <result property="autoapprove"    column="autoapprove"    />
+        <result property="clientIndexPage"    column="client_index_page"    />
+    </resultMap>
+
+    <resultMap type="com.casic.common.web.domain.bo.AuthResource" id="AuthResourceResult">
+        <result property="id"    column="id" />
+        <result property="code"    column="code" />
+        <result property="name"    column="name" />
+        <result property="parentId"    column="parent_id" />
+        <result property="parentIds"	column="parent_ids" />
+        <result property="perms"	column="perms" />
+        <result property="parentName"    column="parent_name" />
+        <result property="uri"    column="uri"    />
+        <result property="type"    column="type"    />
+        <result property="method"    column="method"    />
+        <result property="icon"    column="icon"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time" />
+        <result property="updateTime"    column="update_time" />
+        <result property="sysCode"    column="sys_code" />
+    </resultMap>
+	
+	<sql id="selectGenCodeFunctionVo">
+        select id, func_name, func_en_name, category_id, func_menu_id, package_name, func_simple_name, func_author, del_flag, create_by, create_time, update_by, update_time, remark from gen_code_function
+    </sql>
+	
+    <select id="selectGenCodeFunctionList" parameterType="GenCodeFunction" resultMap="GenCodeFunctionResult">
+        <include refid="selectGenCodeFunctionVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="funcName != null  and funcName != '' "> and func_name = #{funcName}</if>
+             <if test="funcEnName != null  and funcEnName != '' "> and func_en_name = #{funcEnName}</if>
+             <if test="categoryId != null  and categoryId != '' "> and category_id = #{categoryId}</if>
+             <if test="funcMenuId != null  and funcMenuId != '' "> and func_menu_id = #{funcMenuId}</if>
+             <if test="packageName != null  and packageName != '' "> and package_name = #{packageName}</if>
+             <if test="funcSimpleName != null  and funcSimpleName != '' "> and func_simple_name = #{funcSimpleName}</if>
+             <if test="funcAuthor != null  and funcAuthor != '' "> and func_author = #{funcAuthor}</if>
+             <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectGenCodeFunctionById" parameterType="String" resultMap="GenCodeFunctionResult">
+        <include refid="selectGenCodeFunctionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertGenCodeFunction" parameterType="GenCodeFunction">
+        insert into gen_code_function
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="funcName != null  and funcName != ''  ">func_name,</if>
+			<if test="funcEnName != null  and funcEnName != ''  ">func_en_name,</if>
+			<if test="categoryId != null  and categoryId != ''  ">category_id,</if>
+			<if test="funcMenuId != null  and funcMenuId != ''  ">func_menu_id,</if>
+			<if test="packageName != null  and packageName != ''  ">package_name,</if>
+			<if test="funcSimpleName != null  and funcSimpleName != ''  ">func_simple_name,</if>
+			<if test="funcAuthor != null  and funcAuthor != ''  ">func_author,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="funcName != null  and funcName != ''  ">#{funcName},</if>
+			<if test="funcEnName != null  and funcEnName != ''  ">#{funcEnName},</if>
+			<if test="categoryId != null  and categoryId != ''  ">#{categoryId},</if>
+			<if test="funcMenuId != null  and funcMenuId != ''  ">#{funcMenuId},</if>
+			<if test="packageName != null  and packageName != ''  ">#{packageName},</if>
+			<if test="funcSimpleName != null  and funcSimpleName != ''  ">#{funcSimpleName},</if>
+			<if test="funcAuthor != null  and funcAuthor != ''  ">#{funcAuthor},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGenCodeFunction" parameterType="GenCodeFunction">
+        update gen_code_function
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="funcName != null  and funcName != ''  ">func_name = #{funcName},</if>
+            <if test="funcEnName != null  and funcEnName != ''  ">func_en_name = #{funcEnName},</if>
+            <if test="categoryId != null  and categoryId != ''  ">category_id = #{categoryId},</if>
+            <if test="funcMenuId != null  and funcMenuId != ''  ">func_menu_id = #{funcMenuId},</if>
+            <if test="packageName != null  and packageName != ''  ">package_name = #{packageName},</if>
+            <if test="funcSimpleName != null  and funcSimpleName != ''  ">func_simple_name = #{funcSimpleName},</if>
+            <if test="funcAuthor != null  and funcAuthor != ''  ">func_author = #{funcAuthor},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGenCodeFunctionById" parameterType="String">
+        delete from gen_code_function where id = #{id}
+    </delete>
+	
+    <delete id="deleteGenCodeFunctionByIds" parameterType="String">
+        delete from gen_code_function where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertGenCodeComponentFunction" parameterType="map">
+        insert into gen_code_component_function(id, component_id, func_id) values(#{id}, #{componentId}, #{funcId})
+    </insert>
+
+    <insert id="insertGenCodeFunctionTable" parameterType="java.util.List">
+        insert into gen_code_function_table(id, function_id, table_id) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.functionId}, #{item.tableId})
+        </foreach>
+    </insert>
+
+    <select id="selectGenCodeComponentByFunctionId" parameterType="string" resultMap="GenCodeComponentResult">
+        select a.* from gen_code_component as a
+        left join gen_code_component_function as b on a.id = b.component_id
+        left join gen_code_function as c on c.id = b.func_id
+        where c.id = #{id}
+    </select>
+
+    <select id="selectAuthResourceAll" parameterType="string" resultMap="AuthResourceResult">
+        select  r.id,
+	        	r.code,
+	        	r.name,
+	        	r.parent_id,
+	        	r.parent_ids,
+	        	r.perms,
+	        	r.uri,
+	        	r.type,
+	        	r.method,
+	        	r.icon,
+	        	r.status,
+	        	r.create_time,
+	        	r.update_time,
+	        	r.sys_code
+        	from
+        	auth_resource r
+        	where r.sys_code =  #{clientId}
+        	and r.type in (1,2)
+    </select>
+
+    <select id="selectTableByFunctionId" parameterType="string" resultType="map">
+        SELECT
+            a.*
+        FROM
+            gen_code_function_table AS a
+            LEFT JOIN gen_code_function AS b ON b.id = a.function_id
+        WHERE
+            b.id = #{id}
+    </select>
+
+    <select id="selectGenCodeFunctionListByComponentId" parameterType="map" resultMap="GenCodeFunctionResult">
+        select a.* from gen_code_function as a
+        left join gen_code_component_function as b on a.id = b.func_id
+        left join gen_code_component as c on b.component_id = c.id
+        where c.id = #{componentId}
+    </select>
+
+    <select id="selectOauthClientDetailsByComponentId" parameterType="string" resultMap="OAuthClientDetailsResult">
+        SELECT DISTINCT
+            c.*
+        FROM
+            gen_code_component AS a
+            LEFT JOIN auth_resource AS b ON a.client_id  = b.sys_code
+            LEFT JOIN oauth_client_details AS c ON c.client_id = b.sys_code
+        WHERE
+            a.id = #{componentId}
+    </select>
+
+    <delete id="deleteGenCodeFunctionTableByFunctionId" parameterType="string">
+        delete from gen_code_function_table where function_id = #{functionId}
+    </delete>
+
+    <delete id="deleteGenCodeFunctionTableByFunctionIds" parameterType="string">
+        delete from gen_code_function_table where function_id in
+        <foreach collection="array" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectResourceByClientId" parameterType="string" resultMap="AuthResourceResult">
+        SELECT t.id, t.code, t.parent_id, t.name, t.parent_ids, t.uri, t.type, t.perms, t.method, t.icon, t.`status`,t.sys_code,
+			(SELECT name FROM auth_resource WHERE id = t.parent_id) parent_name
+		FROM auth_resource t
+		where t.parent_id	= 0 and sys_code = #{clientId}
+    </select>
+</mapper>
