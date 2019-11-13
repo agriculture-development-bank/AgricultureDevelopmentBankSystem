@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-process-type-edit" th:object="${processType}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+            <input id="processId" name="processId" th:field="*{processId}" type="hidden" >
+            <div class="form-group">
+                <label class="col-sm-3 control-label">系统编码：</label>
+                <div class="col-sm-8">
+                    <select name="sysCode" class="form-control m-b">
+                        <option th:each="syscfg : ${@authSystem.getSysCodeList('')}" th:text="${syscfg.sysName}" th:value="${syscfg.sysCode}" th:field="*{sysCode}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">包含表单：</label>
+                <div class="col-sm-8">
+                    <ul class="list-group">
+                        <li class="list-group-item" th:each="form : ${containForms}" th:text="${form}"></li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+        var prefix = ctx + "workflow/actDeModel"
+        $("#form-process-type-edit").validate({
+            rules:{
+                sysCode:{
+                    required:true,
+                },
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.modal.loading("正在处理中，请稍后...");
+                $.ajax({
+                    url: prefix + "/deploy",
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#form-process-type-edit").serialize(),
+                    success: function (result) {
+                        if (result.code == web_status.SUCCESS) {
+                            $.modal.msgReload("保存成功,正在刷新数据请稍后……", modal_status.SUCCESS);
+                        } else {
+                            $.modal.alertError("操作失败！");
+                        }
+                        $.modal.closeLoading();
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>

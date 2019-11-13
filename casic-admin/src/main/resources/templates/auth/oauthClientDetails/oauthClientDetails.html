@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="config-form">
+					<div class="select-list">
+						<ul>
+							<li>
+								应用编码：<input type="text" name="clientId"/>
+							</li>
+
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+
+			<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="auth:oauthClientDetails:add">
+					<i class="fa fa-plus"></i> 添加
+				</a>
+				<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="auth:oauthClientDetails:edit">
+					<i class="fa fa-edit"></i> 修改
+				</a>
+				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="auth:oauthClientDetails:remove">
+					<i class="fa fa-remove"></i> 删除
+				</a>
+			</div>
+
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('auth:oauthClientDetails:edit')}]];
+        var userFlag = [[${@permission.hasPermi('auth:user:view')}]];
+        var roleFlag = [[${@permission.hasPermi('auth:role:view')}]];
+        var resourceFlag = [[${@permission.hasPermi('auth:resource:view')}]];
+        var removeFlag = [[${@permission.hasPermi('auth:oauthClientDetails:remove')}]];
+        var prefix = ctx + "auth/oauthClientDetails";
+
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "应用管理",
+                search: false,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'clientId', 
+					title : '应用编码'
+				},
+				{
+					field : 'clientName',
+					title : '应用名称'
+				},
+				{
+					field : 'scope', 
+					title : '权限范围'
+				},
+				{
+					field : 'authorizedGrantTypes', 
+					title : '授权类型'
+				},
+
+				/*{
+					field : 'webServerRedirectUri', 
+					title : '客户端回调地址'
+				},*/
+
+				{
+					field : 'accessTokenValidity', 
+					title : 'token过期时长(s)'
+				},
+
+				/*{
+					field : 'refreshTokenValidity', 
+					title : 'token刷新时长(s)'
+				},*/
+
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.clientId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + userFlag + '" href="#" onclick="userOpen(\'' + row.clientId + '\',\'' + row.clientName + '\')"><i class="fa fa-edit"></i>用户分配</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + roleFlag + '" href="#" onclick="roleOpen(\'' + row.clientId + '\',\'' + row.clientName + '\')"><i class="fa fa-edit"></i>角色维护</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + resourceFlag + '" href="#" onclick="resourceOpen(\'' + row.clientId + '\',\'' + row.clientName + '\')"><i class="fa fa-edit"></i>菜单维护</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.clientId + '\')"><i class="fa fa-remove"></i>删除</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+
+        function userOpen(clientId,clientName){
+            var url = ctx + "auth/user?clientId="+clientId;
+			$.modal.openFull(clientName+"-应用用户分配",url);
+		}
+
+        function roleOpen(clientId,clientName){
+            var url = ctx + "auth/role?clientId="+clientId;
+            $.modal.openFull(clientName+"-应用角色维护",url);
+        }
+
+        function resourceOpen(clientId,clientName){
+            var url = ctx + "auth/resource?clientId="+clientId;
+            $.modal.openFull(clientName+"-应用菜单维护",url);
+        }
+
+    </script>
+</body>
+</html>

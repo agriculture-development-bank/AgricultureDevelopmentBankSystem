@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-genCodeDomain-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">领域名称：</label>
+            <div class="col-sm-8">
+                <input id="domainName" name="domainName" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">领域编码：</label>
+            <div class="col-sm-8">
+                <input id="domainCode" name="domainCode" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">系统备注：</label>
+            <div class="col-sm-8">
+                <input id="remark" name="remark" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeDomain";
+    $("#form-genCodeDomain-add").validate({
+        rules:{
+            domainName:{
+                required:true,
+            },
+            domainCode:{
+                required:true,
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-genCodeDomain-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-genCodeFunctionTableField-add">
+        <input type="hidden" id="componentId" name="componentId" th:value="${componentId}" >
+        <input type="hidden" id="tableId" name="tableId" th:value="${id}" >
+        <input type="hidden" id="functionId" name="functionId" th:value="${functionId}" >
+        <input type="hidden" id="colsId" name="colsId">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">待选字段：</label>
+            <div class="col-sm-3">
+                <select id="brand_sel" multiple="multiple" class="form-control" style="min-height: 300px">
+                    <option th:each="tableInfo:${list}" th:value="${tableInfo.id}" th:text="${tableInfo.columnName + '('+ tableInfo.columnZhName + ')'}"></option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <ul class="list-group" style="margin: 50px auto">
+                    <li class="list-group-item" style="text-align: center;"><a href="#" onclick="javascript:rightMove()">==></a></li>
+                    <li class="list-group-item" style="text-align: center;"><a href="#" onclick="javascript:leftMove()"><== </a></li>
+                    <!--<li class="list-group-item" style="text-align: center;"><a href="#" onclick="clean()">重置</a></li>-->
+                </ul>
+            </div>
+            <div class="col-sm-3">
+                <select id="choose_sel" multiple="multiple" class="form-control" style="min-height: 300px">
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fade_layer"></div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeFunctionTableField";
+    var colsId = [];
+    $("#form-genCodeFunctionTableField-add").validate({
+        rules:{
+            colsId:{
+                required:true,
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            console.log(colsId);
+            $('#colsId').val(colsId.join(','));
+            $.operate.save(prefix + "/add", $('#form-genCodeFunctionTableField-add').serialize());
+        }
+    }
+
+    Array.prototype.indexOf = function(val) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] == val) return i;
+        }
+        return -1;
+    };
+
+    Array.prototype.remove = function(val) {
+        var index = this.indexOf(val);
+        if (index > -1) {
+            this.splice(index, 1);
+        }
+    };
+
+
+    function rightMove(){
+        var brand_sel = document.getElementById("brand_sel");
+        var choose_sel = document.getElementById("choose_sel");
+        var brand_options = brand_sel.options;
+        var s = choose_sel.options.length;
+        for(var i=0;i<brand_options.length;i++){
+            var is_selected = brand_options[i].selected;
+            if(is_selected){
+                var option  = new Option(brand_options[i].text  ,brand_options[i].value);
+                if(!contains(choose_sel,option)){
+                    choose_sel.options[s++] = new Option(brand_options[i].text  ,brand_options[i].value);
+                    colsId.push(brand_options[i].value);
+                }
+            }
+        }
+    }
+
+    function leftMove(){
+        var choose_sel = document.getElementById("choose_sel");
+        var s = choose_sel.options.length;
+        for(var i=0;i<s;i++){
+            var is_selected = choose_sel.options[i].selected;
+            if (is_selected) {
+                colsId.remove(choose_sel.options[i].value);
+                choose_sel.options[i].remove();
+            }
+        }
+    }
+
+    function clean(){
+        $("#choose_sel>option").each(function(){
+            $(this).remove();
+        });
+    }
+    function selectChoose(){
+        $("#choose_sel>option").attr("selected","true");
+        return true;
+    }
+
+
+    function  contains(obj_sel,option) {
+        var options = obj_sel.options;
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].value == option.value) {
+                return true;
+            }
+        }
+        return false;
+    }
+</script>
+</body>
+</html>

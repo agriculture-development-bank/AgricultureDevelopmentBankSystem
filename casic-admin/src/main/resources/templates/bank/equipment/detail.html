@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+        background-color: #ffffff;
+        opacity: 1;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" role="form" id="form-equipment-detail" th:object="${bankEquipment}">
+        <input id="equipmentId" name="id" th:field="*{id}"  type="hidden" disabled="disabled">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">设备名称：</label>
+            <div class="col-sm-8">
+                <input id="equipmentName" name="equipmentName" class="form-control" type="text" th:field="*{equipmentName}" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">载体柜类型：</label>
+            <div class="col-sm-8">
+                <select id="equipmentType" name="equipmentType" class="form-control m-b"
+                        th:with="type=${@dict.getType('equipment_type')}" th:field="*{equipmentType}" disabled="disabled">
+                    <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">载体柜单元数：</label>
+            <div class="col-sm-8">
+                <input id="unitLevel" name="unitLevel" class="form-control" type="text" th:field="*{unitLevel}" disabled="disabled" onfocus="this.blur();"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">部署位置：</label>
+            <div class="col-sm-8">
+                <!--<input id="position" name="position" class="form-control" type="text" th:field="*{position}">-->
+                <select id="position" name="position" th:field="*{position}" class="form-control" disabled="disabled">
+                    <option th:each="location:${bankLocations}" th:text="${location?.locationName}" th:value="${location?.id}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">设备IP：</label>
+            <div class="col-sm-8">
+                <input id="ip" name="ip" class="form-control" type="text" th:field="*{ip}" disabled="disabled">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属部门：</label>
+            <div class="col-sm-8">
+                <select id="deptId" name="deptId" class="form-control m-b" disabled="disabled" th:field="*{deptId}">
+                    <option th:each="dept:${sysDepts}" th:text="${dept?.deptName}" th:value="${dept?.deptId}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">责任人：</label>
+            <div class="col-sm-8">
+                <select id="userId" name="userId" class="form-control" th:field="*{userId}" disabled="disabled">
+                    <option th:each="user:${sysUsers}" th:text="${user?.userName}" th:value="${user?.userId}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">设备状态：</label>
+            <div class="col-sm-8">
+                <select id="equipmentStatus" name="equipmentStatus" class="form-control m-b"
+                        th:with="type=${@dict.getType('equipment_statue')}" th:field="*{equipmentStatus}" disabled="disabled">
+                    <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+</body>
+</html>

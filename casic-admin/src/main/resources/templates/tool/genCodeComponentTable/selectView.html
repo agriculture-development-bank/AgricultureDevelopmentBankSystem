@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="container-div">
+
+    <div class="col-sm-12 search-collapse">
+        <form id="table-form">
+            <div class="select-list">
+                <ul>
+                    <li>
+                        数据源名称：
+                        <select name="databaseName" id="databaseName">
+                            <option th:each="dict : ${codeDatasources}" th:text="${dict.sourceName}" th:value="${dict.databaseName}"></option>
+                        </select>
+                    </li>
+                    <li>
+                        表过滤：
+                        <input type="text" id="tableName" name="tableName" placeholder="请搜索表名或者前缀名"/>
+                    </li>
+                    <li>
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="doSearch()"><i class="fa fa-search"></i>查询</a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-sm-12 select-table table-striped">
+        <table id="bootstrap-table-import" data-mobile-responsive="true"></table>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeComponentTable";
+
+    $(function() {
+        var options = {
+            url: prefix + "/tableList",
+            modalName: "数据库表管理",
+            queryParams: queryParams,
+            sortName: "createTime",
+            sortOrder: "desc",
+            search : false,
+            showSearch: false,
+            showToggle: false,
+            showExport: false,
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            dataType: 'json',
+            cache: false,                                       // 是否使用缓存
+            method: 'post',//请求方式（*）
+     //       toolbar: '#toolbar',//工具按钮用哪个容器
+            striped: true,//是否显示行间隔色
+            showRefresh: false,//是否显示刷新按钮
+            clickToSelect: true,//是否启用点击选中行
+            uniqueId: "tableName",//每一行的唯一标识，一般为主键列
+            showColumns: false,
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 10,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],
+            sidePagination: "server",
+            columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'tableName',
+                    title: '表名称',
+                    width: '20%',
+                    sortable: true
+                },
+                {
+                    field: 'tableComment',
+                    title: '表描述',
+                    width: '20%',
+                    sortable: true
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    width: '20%',
+                    sortable: true
+                },
+                {
+                    field: 'updateTime',
+                    title: '更新时间',
+                    width: '20%',
+                    sortable: true
+                }
+            ]
+        };
+        $('#bootstrap-table-import').bootstrapTable(options);
+    });
+
+    // 查询条件
+    function queryParams(params) {
+        return {
+            databaseName:  $('#databaseName').val(),
+            pageSize:       params.limit,
+            pageNum:        params.offset / params.limit + 1,
+            searchValue:    params.search,
+            orderByColumn:  params.sort,
+            isAsc:          params.order
+        };
+    }
+
+    // 搜索
+    function doSearch(formId) {
+        var params = $('#bootstrap-table-import').bootstrapTable('getOptions');
+        params.queryParams = function(params) {
+            var search = {};
+            $.each($("#table-form").serializeArray(), function(i, field) {
+                search[field.name] = field.value;
+            });
+            search.pageSize = params.limit;
+            search.pageNum = params.offset / params.limit + 1;
+            search.searchValue = params.search;
+            search.orderByColumn = params.sort;
+            search.isAsc = params.order;
+            return search;
+        };
+        $('#bootstrap-table-import').bootstrapTable('refresh', params);
+    }
+</script>
+</body>
+</html>

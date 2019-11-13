@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-genCodeComponent-add">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">所属领域：</label>
+				<div class="col-sm-8">
+					<input id="domainId" name="domainId" class="form-control" type="hidden" th:value="${domainId}">
+					<input id="domainName" name="domainName" onclick="selectDomainDialog()" class="form-control" type="text" readonly="readonly" th:value="${domainName}">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">组件名称：</label>
+				<div class="col-sm-8">
+					<input id="conmponentName" name="conmponentName" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">组件编码：</label>
+				<div class="col-sm-8">
+					<input id="conmponentCode" name="conmponentCode" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">所属应用：</label>
+				<div class="col-sm-8">
+					<input id="clientId" name="clientId" class="form-control" type="hidden">
+					<input id="clientName" name="clientName" onclick="selectClientDetailsDialog()" class="form-control" type="text" readonly="readonly">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">数据源：</label>
+				<div class="col-sm-8">
+					<input id="datasourceId" name="datasourceId" class="form-control" type="hidden">
+					<input id="datasourceName" name="datasourceName" onclick="selectDataSourceDialog()" class="form-control" type="text" readonly="readonly">
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "tool/genCodeComponent"
+		$("#form-genCodeComponent-add").validate({
+			rules:{
+                domainName:{
+					required:true,
+				},
+                conmponentName:{
+                    required:true,
+                    minlength: 2,
+                    maxlength: 25,
+                    remote: {
+                        url: ctx + "tool/genCodeComponent/checkComponentNameUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            conmponentName: function () {
+                                return $.common.trim($("#conmponentName").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+				},
+                conmponentCode:{
+                    required:true,
+                    minlength: 2,
+                    maxlength: 25,
+                    remote: {
+                        url: ctx + "tool/genCodeComponent/checkComponentCodeUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            conmponentCode: function () {
+                                return $.common.trim($("#conmponentCode").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                clientName:{
+                    required:true,
+                    remote: {
+                        url: ctx + "tool/genCodeComponent/checkClientIdUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            clientId: function () {
+                                return $.common.trim($("#clientId").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                datasourceName:{
+                    required:true
+				}
+			},
+            messages: {
+                "conmponentName": {
+                    remote: "组件名称已经存在"
+                },
+                "conmponentCode": {
+                    remote: "组件编码已经存在"
+                },
+				"clientName":{
+                    remote: "该应用已被占用"
+				}
+            }
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-genCodeComponent-add').serialize());
+	        }
+	    }
+
+	    function selectDomainDialog() {
+		    $.ajax({
+				url: ctx + "tool/genCodeDomain/selectView",
+				type: 'get',
+				data:{},
+				dataType: 'html',
+				success:function (result) {
+				    var content = result;
+                    var index = layer.open({
+                        type : 1,
+                        title : '选择领域',
+                        shadeClose: true,
+                        shade: 0.3,
+                        offset: "10%",
+                        shadeClose : false,
+                        area: ['80%', '80%'],
+                        content: content,
+						btn: ['确定','关闭'],
+						yes:function (index) {
+                            var selRow =  $("#domain-bootstrap-table").bootstrapTable('getSelections');
+                            if(selRow.length>0){
+                                var domainId = selRow[0].id;
+                                var domainName = selRow[0].domainName;
+                                $("#domainId").val(domainId);
+                                $("#domainName").val(domainName);
+                                layer.close(index);
+							}else{
+								$.modal.msg("未选中数据！")
+							}
+                        },
+						btn2:function (index) {
+							layer.close(index)
+                        }
+                    });
+                }
+			})
+        }
+
+        function selectClientDetailsDialog() {
+            $.ajax({
+                url: ctx + "auth/oauthClientDetails/selectView",
+                type: 'get',
+                data:{},
+                dataType: 'html',
+                success:function (result) {
+                    var content = result;
+                    var index = layer.open({
+                        type : 1,
+                        title : '选择应用',
+                        shadeClose: true,
+                        shade: 0.3,
+                        offset: "10%",
+                        shadeClose : false,
+                        area: ['80%', '80%'],
+                        content: content,
+                        btn: ['确定','关闭'],
+                        yes:function (index) {
+                            var selRow =  $("#client-details-bootstrap-table").bootstrapTable('getSelections');
+                            if(selRow.length>0){
+                                var clientId = selRow[0].clientId;
+                                var clientName = selRow[0].clientName;
+                                $("#clientId").val(clientId);
+                                $("#clientName").val(clientName).blur();
+                                layer.close(index);
+                            }else{
+                                $.modal.msg("未选中数据！")
+                            }
+                        },
+                        btn2:function (index) {
+                            layer.close(index)
+                        }
+                    });
+                }
+            })
+        }
+
+        function selectDataSourceDialog() {
+            $.ajax({
+                url: ctx + "tool/codeDatasource/selectView",
+                type: 'get',
+                data:{},
+                dataType: 'html',
+                success:function (result) {
+                    var content = result;
+                    var index = layer.open({
+                        type : 1,
+                        title : '选择数据源',
+                        shadeClose: true,
+                        shade: 0.3,
+                        offset: "10%",
+                        shadeClose : false,
+                        area: ['80%', '80%'],
+                        content: content,
+                        btn: ['确定','关闭'],
+                        yes:function (index) {
+                            var selRow =  $("#datasource-bootstrap-table").bootstrapTable('getSelections');
+                            if(selRow.length>0){
+                                var datasourceId = selRow[0].id;
+                                var datasourceName = selRow[0].sourceName;
+                                $("#datasourceId").val(datasourceId);
+                                $("#datasourceName").val(datasourceName).blur();
+                                layer.close(index);
+                            }else{
+                                $.modal.msg("未选中数据！")
+                            }
+                        },
+                        btn2:function (index) {
+                            layer.close(index)
+                        }
+                    });
+                }
+            })
+        }
+	</script>
+</body>
+</html>

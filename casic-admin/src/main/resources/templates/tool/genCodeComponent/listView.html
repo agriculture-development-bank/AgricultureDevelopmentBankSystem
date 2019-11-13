@@ -1,0 +1,34 @@
+<div class="col-sm-12 search-collapse">
+    <form id="component-form">
+        <div class="select-list">
+            <ul>
+                <li>
+                    组件名称：<input type="text" name="conmponentName"/>
+                </li>
+                <li>
+                    组件编码：<input type="text" name="conmponentCode"/>
+                </li>
+                <li>
+                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('component-form')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('component-form')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                </li>
+            </ul>
+        </div>
+    </form>
+</div>
+
+<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+    <a class="btn btn-success" onclick="componentAdd()" shiro:hasPermission="tool:genCodeComponent:add">
+        <i class="fa fa-plus"></i> 添加
+    </a>
+    <a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="tool:genCodeComponent:edit">
+        <i class="fa fa-edit"></i> 修改
+    </a>
+    <a class="btn btn-danger btn-del btn-del disabled" onclick="componentRemoveAll()" shiro:hasPermission="tool:genCodeComponent:remove">
+        <i class="fa fa-remove"></i> 删除
+    </a>
+</div>
+
+<div class="col-sm-12 select-table table-striped no-scroll">
+    <table id="bootstrap-table" data-mobile-responsive="true"></table>
+</div>

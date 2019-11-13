@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="equipment-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            位置名称：<input type="text" name="locationName" autocomplete="off"/>
+                        </li>
+                        <li>
+                            位置编码：<input type="text" name="locationCode" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="bank:location:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bank:location:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('bank:location:remove')}]];
+    var detailFlag = [[${@permission.hasPermi('bank:location:detail')}]];
+    var dept_flag = [[${@dict.getType('sys_dept_flag')}]];
+    var prefix = ctx + "bank/location";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            detailUrl: prefix + "/detail/{id}",
+            exportUrl: prefix + "/export",
+            sortName: "createTime",
+            sortOrder: "desc",
+            uniqueId: "id",
+            modalName: "位置",
+            search: false,
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'locationName',
+                    title: '位置名称',
+                    align: 'center'
+                },
+                {
+                    field: 'locationCode',
+                    title: '位置编码',
+                    align: 'center'
+                },
+                {
+                    field: 'deptName',
+                    title: '所属部门',
+                    align: 'center'
+                },
+                {
+                    field: 'store',
+                    title: '是否为存储位置',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(dept_flag, value);
+                    }
+
+                },
+                {
+                    field: 'description',
+                    title: '位置描述',
+                    align: 'center'
+                },
+                {
+                    field: 'createUserName',
+                    title: '创建人',
+                    align: 'center'
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    align: 'center'
+
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="#" onclick="$.operate.detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>&nbsp;编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="treeTableRemove(\'' + row.id + '\')"><i class="fa fa-trash-o"></i>&nbsp;删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function treeTableRemove(id) {
+        $.modal.confirm("确定删除该条" + $.table._option.modalName + "信息吗？", function() {
+            $.ajax({
+                type : 'post',
+                url: prefix + "/remove/" + id,
+                success : function(result) {
+                    if (result.code == web_status.SUCCESS) {
+                        $.modal.msgSuccess(result.msg);
+                        $.table.refresh();
+                    } else {
+                        $.modal.msgError(result.msg);
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

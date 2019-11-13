@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-user-edit" th:object="${user}">
+            <input id="uid" name="uid" th:field="*{uid}"  type="hidden">
+            
+             <div class="form-group">	
+                <label class="col-sm-3 control-label">用户名：</label>
+                <div class="col-sm-8">
+                	<span th:text="*{username}"></span>
+                </div>
+            </div>
+            
+          <!--  <div class="form-group">
+            	<label class="col-sm-3 control-label">所属应用： </label>
+            	<div class="col-sm-8">
+            		<div class="radio-box" th:each="syscfg : ${@authSystem.getSysCodeList('')}">
+						<input type="radio" th:id="${syscfg.sysCode}"  name="sysCode" th:value="${syscfg.sysCode}" th:field="*{sysCode}">
+						<label th:for="${syscfg.sysCode}" th:text="${syscfg.sysName}"></label>
+					</div>
+				</div>
+			</div>
+			-->
+			
+			<div class="form-group">
+				<label class="col-sm-3 control-label">对应角色：</label>
+				<div class="col-sm-8" id="authRoleDiv"> 
+					<label th:each="role:${sysCodeUserRoles}" class="check-box">
+						<input name="authRole" type="checkbox" th:value="${role.id}" th:text="${role.name}" th:checked="${role.flag}">
+					</label>
+				</div>
+			</div>
+            
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">用户真名：</label>
+                <div class="col-sm-8">
+                    <input id="realName" name="realName" th:field="*{realName}" class="form-control" type="text">
+                </div>
+            </div>
+          	
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">电话号码：</label>
+                <div class="col-sm-8">
+                    <input id="phone" name="phone" th:field="*{phone}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">邮件地址：</label>
+                <div class="col-sm-8">
+                    <input id="email" name="email" th:field="*{email}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">性别：</label>
+                <div class="col-sm-8">
+                    <select id="sex" name="sex" class="form-control m-b" th:with="type=${@dict.getType('sys_user_sex')}">
+	                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{sex}"></option>
+	                </select>
+                </div>
+            </div>
+            
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">账户状态：</label>
+                <div class="col-sm-8">
+                     <select id="status" name="status" class="form-control m-b" th:with="type=${@dict.getType('sys_normal_disable')}">
+	                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{status}"></option>
+	                 </select>
+                </div>
+            </div>
+        
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script th:src="@{/ajax/libs/select/select2.js}"></script>
+    
+    <script type="text/javascript" th:inline="javascript">
+		var prefix = ctx + "auth/user";
+		
+		$(function() {
+        	$("input:radio[name='sysCode']").on('ifChecked', function(event) {
+        		var sysCode = $(event.target).val();
+        		var userId = [[${user.uid}]];
+        		appendRolesBySysCode(sysCode,userId);
+        		//$("input[name='sysCode']").val(sysCode);
+        	});
+        });
+		
+		
+		$("#form-user-edit").validate({
+			rules:{
+				username:{
+					required:true,
+					remote: {
+                        url: ctx + "auth/user/checkUserNameUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                        	"username": function() {
+                                return $("#username").val();
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                        	return $.validate.unique(data);
+                        }
+                    }
+				},
+				email:{
+        			required:true,
+                    email:true,
+                    remote: {
+                        url: ctx + "auth/user/checkEmailUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                        	"uid": function() {
+                                return $("#uid").val();
+                            },
+                			"email": function() {
+                                return $.common.trim($("#email").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                        	return $.validate.unique(data);
+                        }
+                    }
+        		},
+        		phone:{
+        			required:true,
+        			isPhone:true,
+                    remote: {
+                        url: ctx + "auth/user/checkPhoneUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                        	"uid": function() {
+                        		return $("#uid").val();
+                            },
+                			"phone": function() {
+                                return $.common.trim($("#phone").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                        	return $.validate.unique(data);
+                        }
+                    }
+        		},
+        	},
+        	messages: {
+        		"username": {
+                    remote: "用户名已经存在"
+                },
+        		"email": {
+                    remote: "Email已经存在"
+                },
+        		"phone":{
+                	remote: "手机号码已经存在"
+        		}
+            }
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	        	var uid = $("input[name='uid']").val();
+	        	var sysCode = $("input[name='sysCode']:checked").val();
+	        	console.info("sysCode : "+sysCode);
+	        	var authRoleIds = $.form.selectCheckeds("authRole");
+	        	var realName = $("input[name='realName']").val();
+	        	var phone = $("input[name='phone']").val();
+	        	var email = $("input[name='email']").val();
+	        	var sex = $("#sex option:selected").val();
+	        	var status = $("#status option:selected").val();
+                var clientId = [[${clientId}]];
+	        	$.ajax({
+	        		cache : true,
+	        		type : "POST",
+	        		url : prefix + "/edit",
+	        		data : {
+	        			"uid": uid,
+	        			"sysCode": sysCode,
+	        			"authRoleIds": authRoleIds,
+	        			"realName": realName,
+	        			"email": email,
+	        			"phone": phone,
+	        			"sex": sex,
+	        			"status": status,
+                        "clientId":clientId
+	        		},
+	        		async : false,
+	        		error : function(request) {
+	        			$.modal.alertError("系统错误");
+	        		},
+	        		success : function(data) {
+	        			$.operate.saveSuccess(data);
+	        		}
+	        	});
+	        	
+	            //$.operate.save(prefix + "/edit", $('#form-user-edit').serialize());
+	        }
+	    }
+		
+		
+		function appendRolesBySysCode(sysCode,userId){
+			$.ajax({
+				type : 'post',
+				url: ctx + "auth/role/getUserRoles",
+				async : false,
+				data:{
+					"sysCode" : sysCode,
+					"userId" : userId
+				},
+				success : function(rows) {
+					$("#authRoleDiv").parents(".form-group").hide();
+					if(rows && rows.length > 0){
+						var html = "";
+						for(var i=0;i<rows.length;i++){
+							var row = rows[i];
+							if(row.flag){
+								html += "<label class=\"check-box\"> <input type=\"checkbox\" name=\"authRole\" value=\""+row.id+"\" checked/> "+row.name+" </label> ";
+							}else{
+								html += "<label class=\"check-box\"> <input type=\"checkbox\" name=\"authRole\" value=\""+row.id+"\" /> "+row.name+" </label> ";
+							}
+				        }
+						$("#authRoleDiv").html(html);
+			            $("#authRoleDiv").parents(".form-group").show();
+					} else {
+	                	$.modal.msgError("返回错误!");
+	                }
+				}
+			});
+		}
+	
+	</script>
+</body>
+</html>

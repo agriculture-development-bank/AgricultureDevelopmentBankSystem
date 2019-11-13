@@ -1,0 +1,43 @@
+<div class="row">
+    <div class="col-sm-12 search-collapse">
+        <form id="gen-form">
+            <div class="select-list">
+                <ul>
+                    <li>
+                        表名称：<input type="text" name="tableName"/>
+                    </li>
+                    <li>
+                        所属分类：<select type="text" name="tableType" th:with="tbl_type=${@dict.getType('tool_genCodeComponentTable_tableType')}">
+                        <option value="">所有</option>
+                        <option th:each="dict : ${tbl_type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                    </li>
+                    <li>
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+
+    <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+        <a type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" shiro:hasPermission="tool:genCodeComponentTable:add">
+            新建数据库 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" th:with="type=${@dict.getType('tool_genCodeComponentTable_tableType')}">
+            <li><a href="#" th:onclick="addTableByType([[${dict.dictLabel}]], [[${dict.dictValue}]]);" shiro:hasPermission="tool:genCodeComponentTable:add" th:each="dict : ${type}" th:text="${dict.dictLabel}"></a></li>
+        </ul>
+
+        <a class="btn btn-success" onclick="#" shiro:hasPermission="tool:genCodeComponentTable:importFromLocal">
+            从当前库导入
+        </a>
+        <a class="btn btn-success" onclick="#" shiro:hasPermission="tool:genCodeComponentTable:importFromSpecial">
+            从指定库导入
+        </a>
+    </div>
+
+    <div class="col-sm-12 select-table table-striped">
+        <table id="bootstrap-table" data-mobile-responsive="true"></table>
+    </div>
+</div>

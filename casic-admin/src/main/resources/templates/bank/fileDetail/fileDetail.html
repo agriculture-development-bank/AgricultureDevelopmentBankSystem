@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<style type="text/css">
+    .btn-group .btn {
+        width: 90px;
+        display: block;
+    }
+    .dropdown-menu {
+        min-width: unset;
+        width: 100%;
+    }
+    .dropdown-menu li {
+        text-align: center;
+        cursor: pointer;
+    }
+    .dropdown-menu li:hover {
+        color: #fff;
+        background: #398439;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="fileDetail-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            文件编号：<input id="flowId" name="flowId" type="text" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('fileDetail-form')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="batchUpdatePosition()" shiro:hasPermission="bank:receive:add">
+                <i class="fa fa-edit"></i> 批量更新位置
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:src="@{/js/jquery.qrcode.min.js}"></script>
+<script th:src="@{/js/jquery.jqprint-0.3.js}"></script>
+<script th:inline="javascript">
+var removeFlag = [[${@permission.hasPermi('bank:fileDetail:remove')}]];
+var infoFlag = [[${@permission.hasPermi('bank:fileDetail:resume')}]];
+var fileStatusDatas = [[${@dict.getType('file_receive_status')}]];
+var prefix = ctx + "bank/fileDetail";
+//初始化查询条件使用
+var fileId = [[${fileId}]];
+$(function () {
+    //初始化查询条件
+    var options = {
+        url:  prefix +  "/list?id=" + fileId,
+        updateUrl: prefix + "/edit/{id}",
+        removeUrl: prefix + "/remove",
+        modalName: "文件详情",
+        showExport:false,
+        showToggle: false,
+        search: false,
+        showSearch: true,
+        showColumns: true,
+        showRefresh: true,
+        pageSize:10,
+        pageList:[10,20,30,50],
+        columns: [
+            {checkbox: true},
+            {
+                field: 'id',
+                title: 'id',
+                visible: false
+            },
+            {
+                field: 'flowId',
+                title: '文件编号',
+                align: "center"
+            },
+            {
+                field: 'registrationNum',
+                title: '登记号',
+                align: "center"
+            },
+            {
+                field: 'documentNum',
+                title: '文号',
+                align: "center"
+            },
+            {
+                field: 'title',
+                title: '标题',
+                align: "center"
+            },
+            {
+                field: 'status',
+                title: '当前状态',
+                align: "center",
+                formatter: function (value, row, index) {
+                    return $.table.selectDictLabel(fileStatusDatas, value);
+                }
+            },
+            {
+                field: 'currentDeptName',
+                title: '当前所在部门',
+                align: "center"
+            },
+            {
+                field: 'rfid',
+                title: 'RFID编号',
+                align: "center"
+            },
+            {
+                field: 'locationName',
+                title: '所在位置',
+                align: "center"
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    var actions = [];
+                    actions.push('<a class="btn btn-info btn-xs" href="#" id="detail" onclick="resume(\'' + row.id + '\')"><i class="fa fa-modx"></i>&nbsp;流程记录</a> ');
+                    actions.push('<a class="btn btn-success btn-xs" href="#" id="position" onclick="position(\'' + row.id + '\')"><i class="fa fa-leaf"></i>&nbsp;位置</a> ');
+                    actions.push('<a class="btn btn-danger btn-xs" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-trash-o"></i>&nbsp;删除</a>');
+                    return actions.join('');
+                }
+            }]
+    };
+    $.table.init(options);
+});
+
+function resume(id) {
+    var url = prefix + "/resume/" + id;
+    createMenuItem(url, "流程记录");
+}
+
+/**
+ * 位置修改
+ * @param id
+ */
+function position(id) {
+    var url = prefix + "/position/" + id;
+    $.modal.open("修改文件存储位置", url);
+}
+
+/**
+ * 批量更新位置信息
+ * @param id
+ */
+function batchUpdatePosition(id) {
+    var row = $('#bootstrap-table').bootstrapTable('getSelections');
+    if (row.length > 0) {
+        var ids = $.map(row, function (item) {
+            return item.id;
+        });
+        if (ids != null && ids.length > 0)  {
+            console.log(ids.join(","));
+            var url = prefix + "/batchUpdateLocation/" + ids;
+            $.modal.open("批量修改文件存储位置", url);
+        }
+    } else {
+        $.modal.alertWarning("请至少选择一条记录");
+        return;
+    }
+}
+</script>
+<script>
+    function print() {
+        var rows = $('#bootstrap-table').bootstrapTable('getSelections');
+        if(rows.length>0){
+            var index = layer.open({
+                type: 1,
+                title: '打印二维码',
+                shadeClose: true,
+                shade: 0.3,
+                offset: "40%",
+                area: ['300px', '220px'],
+                btn: ['确定', '取消'],
+                yes: function(index) {
+
+                    var qr_code_size = $("input[type=radio][name='qr_code_size']:checked").val();
+                    var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+                    var ids=rows.join();
+                    layer.close(index);
+                    printQrcode(qr_code_size,ids);
+                },
+                btn2: function () {
+                    layer.close();
+                },
+                content: '<div style="padding: 20px;"><div>'+
+                '<label style="font-size: 25px"><input style="width: 20px;height: 20px;margin-right: 5px;" type="radio" name="qr_code_size" value="qr" checked="checked">二维码 </label>'+
+                '</div> <div> <label style="font-size: 25px"> <input style="width: 20px;height: 20px;margin-right: 5px;" type="radio" name="qr_code_size" value="rfid">RFID标签 </label> </div> </div>'
+            });
+        }else {
+            layer.msg("请选择要打印的文件台账！",
+                {
+                    time: 1000,
+                }
+            )
+        }
+    }
+
+    function printQrcode(qr_code_size,ids){
+        $(".qr_code_box").remove();
+        var qrCodeBox = $("<div class='qr_code_box'></div>");
+        if(ids != "undefined" && ids != null && ids != ""){
+            var imgDiv = "";
+            imgDiv = $('<div id="imgDiv" ></div>');//TSC打印机用
+            var printerDatas = [];
+            for(var i=0; i< ids.split(',').length; i++){
+                var rowData = $("#bootstrap-table").bootstrapTable('getSelections',ids[i]);
+                qrCodeBox.append("<div class='qr_code'></div>");
+
+                var assetName;
+                if(rowData[i].name == null || rowData[i].name == ""){
+                    assetName = "台账名称:无";
+                }else{
+                    assetName = rowData[i].name;
+                }
+                var assetSn;
+                if(rowData[i].sn == null || rowData[i].sn == ""){
+                    assetSn = "文号:无";
+                }else{
+                    assetSn = rowData[i].sn;
+                }
+                var deptName;
+                if(rowData[i].deptName == null || rowData[i].deptName == ""){
+                    deptName = "无";
+                }else{
+                    deptName = rowData[i].deptName;
+                }
+                var userName;
+                if(rowData[i].userName == null || rowData[i].userName == ""){
+                    userName = "无";
+                }else{
+                    userName = rowData[i].userName;
+                }
+                var assetBrand;
+                if(rowData[i].assetBrand == null || rowData[i].assetBrand == ""){
+                    assetBrand = "品牌:无";
+                }else{
+                    assetBrand = rowData[i].assetBrand;
+                }
+                var assetParams;
+                if(rowData[i].assetParams == null || rowData[i].assetParams == ""){
+                    assetParams = "规格型号:无";
+                }else{
+                    assetParams = rowData[i].assetParams;
+                }
+                var belongDeptCode = rowData[i].belongDeptCode == null ? "" : rowData[i].belongDeptCode;
+                var belongDept = "";
+                $.each(sastind_belong_dept_code, function(index, dict) {
+                    if (dict.dictValue == belongDeptCode) {
+                        belongDept= dict.dictLabel;
+                    }
+                });
+                if(belongDept == null || belongDept == ""){
+                    belongDept = "资产权属:无";
+                }
+                var locationName = "";
+                if(rowData[i].locationName == null || rowData[i].locationName == ""){
+                    locationName = "无";
+                }else{
+                    locationName = rowData[i].locationName;
+                }
+
+                qrCodeBox.find(".qr_code").eq(i).qrcode({
+                    render: 'canvas',
+                    width: 85,
+                    height: 75,
+                    text: assetSn
+                });
+                var canvas = qrCodeBox.find(".qr_code").eq(i).find("canvas")[0];
+                var strDataURI = canvas.toDataURL("image/png");
+                //标签排版
+                if(qr_code_size=="qr"){
+                    imgDiv.append(qr_code_dom(qr_code_size,assetName,assetSn,deptName,userName,belongDept,strDataURI,assetBrand,assetParams,locationName));
+                }else{
+                    var printerData = {
+                        assetName: assetName,
+                        assetSn: assetSn,
+                        deptName: deptName,
+                        userName: userName,
+                        belongDept:belongDept,
+                        assetBrand:assetBrand,
+                        assetParams:assetParams,
+                        locationName:locationName
+                    };
+                    printerDatas.push(printerData);
+                }
+            }
+
+            if(qr_code_size=="qr"){
+                /*$(".container-div").append(imgDiv);*/
+                imgDiv.jqprint();
+            }else{
+                $.modal.loading("正在处理中，请稍后...");
+                var data = {
+                    barcodeList:printerDatas
+                };
+                $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:888");
+            }
+        }
+    }
+
+    function isEmpty(obj) {
+        if (typeof obj == "undefined" || obj == null || obj == "") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+</script>
+</body>
+</html>

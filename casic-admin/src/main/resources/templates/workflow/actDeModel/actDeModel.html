@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    <div class="container-div">
+		<div class="col-sm-12 search-collapse">
+			<form id="demo-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							名称：<input type="text" name="name"/>
+						</li>
+						<li>
+							key：<input type="text" name="modelKey"/>
+						</li>
+
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var deployFlag = [[${@permission.hasPermi('workflow:actDeModel:deploy')}]];
+        var removeFlag = [[${@permission.hasPermi('workflow:actDeModel:remove')}]];
+        var prefix = ctx + "workflow/actDeModel";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "流程模型",
+                search: false,
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                columns: [{
+		            checkbox: false
+		        },
+				/*{
+				    field : 'id',
+					title : '模型ID',
+					hidden: true
+				},*/
+                {
+                    field : 'modelKey',
+                    title : '模型KEY'
+                },
+				{
+					field : 'name', 
+					title : '模型名称'
+				},
+				{
+				    field : 'processType.sysCode',
+					title : '系统编码'
+				},
+                {
+                    field : 'processType.reProcdef.version',
+                    title : '版本号'
+                },
+				{
+					field : 'processType.containForms',
+					title : '包含表单'
+				},
+				{
+					field : 'created',
+					title : '创建时间'
+				},
+				{
+					field : 'lastUpdated',
+					title : '最后更新时间'
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs" href="#" onclick="javascript:editModel(\'' + row.id + '\')"><i class="fa fa-edit">编辑</i></a> ')
+		            	actions.push('<a class="btn btn-warning btn-xs' + deployFlag + '" href="#" onclick="javascript:deployModel(\'' + row.id + '\')"><i class="fa fa-bolt">部署</i></a> ')
+                        actions.push('<a class="btn btn-primary btn-xs" href="/custom/rest/models/' + row.id + '/bpmn20?version=' + Date.now() + '" ><i class="fa fa-download">下载</i></a> ')
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+
+        function deployModel(id){
+            var title = "流程部署";
+			var url = prefix + "/deploy/"+id;
+            $.modal.open(title, url);
+		}
+
+		function editModel(id) {
+            var url = "/modeler/index.html#/editor/"+id;
+            $.modal.topOpenFull("流程编辑",url)
+        }
+    </script>
+</body>
+</html>

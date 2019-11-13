@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="fileReceive-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label style="width: 80px;text-align: right;">文号：</label>
+                            <input type="text" name="registrationNum" autocomplete="off" style="width: 240px"/>
+                        </li>
+
+                        <li>
+                            <label style="width: 80px;text-align: right;">标题：</label>
+                            <input type="text" name="title" autocomplete="off" style="width: 240px"/>
+                        </li>
+
+                        <li>
+                            <label style="width: 80px;text-align: right;">份数：</label>
+                            <input type="number" name="numOfCopies" autocomplete="off" style="width: 240px"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">来文单位：</label>
+                            <input type="text" name="communicationUnit" autocomplete="off" style="width: 240px"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">联合单位：</label>
+                            <input type="text" name="jointUnit" autocomplete="off" style="width: 240px"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">联系人：</label>
+                            <input type="text" name="contact" autocomplete="off" style="width: 240px"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">文件密级：</label>
+                            <select id="secretLevel" name="secretLevel" th:with="type=${@dict.getType('secrecy_level')}" style="width: 240px">
+                                <option value="">所有</option>
+                                <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li style="margin-left: 20px;">
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchInCap()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 search-collapse select-list">
+            <ul>
+                <li>
+                    监控设备：<select id="equipmentId" name="equipmentId">
+                    <option value="">全部</option>
+                    <option th:each="equipment:${bankEquipments}" th:text="${equipment?.equipmentName}" th:value="${equipment?.id}"></option>
+                    </select>
+                </li>
+                <li>
+                    在柜文件数量：<input id="inCount" style="border: none"/>
+                </li>
+                <li>
+                    应在柜文件数量：<input id="allCount"  style="border: none"/>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+
+    var prefix = ctx + "bank/inCap";
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    $(function () {
+
+        var options = {
+            url: prefix + "/list",
+            uniqueId: "id",
+            modalName: "在柜信息",
+            search: false,
+            showExport: false,
+            responseHandler: function(res) {
+                console.log(res);
+                if (res.code == 0) {
+                    // $("#inCount").val(res.inCount);
+                    // $("#allCount").val(res.allCount);
+                    return { rows: res.rows, total: res.total,inCount: res.inCount, allCount: res.allCount };
+                } else {
+                    $.modal.alertWarning(res.msg);
+                    return { rows: [], total: 0 };
+                }
+            },
+            onLoadSuccess: function (data) {
+                console.log(data);
+                var inCount = data.inCount;
+                var allCount = data.allCount;
+
+                console.log(inCount + "-------"+ allCount+"---");
+                $("#inCount").val(inCount);
+                $("#allCount").val(allCount);
+            },
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '在柜Id',
+                    visible:false
+                },
+                {
+                    field: 'documentNum',
+                    title: '登记号'
+                },
+                {
+                    field: 'registrationNum',
+                    title: '文号'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+
+                {
+                    field: 'title',
+                    title: '标题'
+                },
+                {
+                    field: 'communicationUnit',
+                    title: '来问单位'
+                },
+                {
+                    field: 'jointUnit',
+                    title: '联合单位'
+                },
+                {
+                    field: 'numOfCopies',
+                    title: '份数'
+                },
+                {
+                    field: 'contact',
+                    title: '联系人'
+                },
+                {
+                    field: 'deptName',
+                    title: '部门'
+                },
+                {
+                    field: 'phone',
+                    title: '电话'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-rounded btn-xs " href="#" id="detail" onclick="detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;详情</a> ');
+
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+
+        $('#equipmentId').on('click', function () {
+            searchInCap();
+        })
+    });
+
+   function detail(fileId) {
+       console.log(fileId)
+       var url = ctx + "bank/inCap/detail?id=" + fileId;
+       createMenuItem(url, "文件详情列表");
+   }
+
+   function searchInCap() {
+       var currentId = 'fileReceive-form';
+       var params = $("#bootstrap-table").bootstrapTable('getOptions');
+       params.queryParams = function(params) {
+           var search = {};
+           $.each($("#" + currentId).serializeArray(), function(i, field) {
+               search[field.name] = field.value;
+           });
+           search.equipmentId = $("#equipmentId").val();
+           search.pageSize = params.limit;
+           search.pageNum = params.offset / params.limit + 1;
+           search.searchValue = params.search;
+           search.orderByColumn = params.sort;
+           search.isAsc = params.order;
+           return search;
+       }
+       $("#bootstrap-table").bootstrapTable('refresh', params);
+   }
+
+
+
+
+
+</script>
+</body>
+</html>

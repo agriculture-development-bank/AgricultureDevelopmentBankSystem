@@ -1,0 +1,595 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" >
+<head th:include="include :: header"></head>
+<body class="white-bg" onload="load()">
+<div style="display: none">
+    <object id="plugin0" type="application/x-htkyscanplugin" width="auto" height="auto"></object>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-xs-12">
+            <div class="control-group">
+                <div class="col-sm-6">
+                    <input type="hidden" id="uuid">
+                </div>
+                <div class="col-sm-6">
+                    <div class="controls" style="text-align: right;margin-right: 32px;">
+                        <button type="button" class="btn btn-primary" id="scan">扫描二维码</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <!-- RFID打印托盘程序iframe -->
+            <div style="display: none">
+                <iframe id="rfidFrame" src="http://127.0.0.1:888/postek/index.html" frameborder="1"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+    <form class="form-horizontal edit-form" role="form" id="form-bankFileReceive-add">
+        <input type="hidden" id="deptId" name="deptId" class="form-control">
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">登记号：</label>
+                    <div class="col-sm-8">
+                        <input id="registrationNum" autocomplete="off" name="registrationNum"  class="form-control" type="text" placeholder="登记号"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">文件密级：</label>
+                    <div class="col-sm-8">
+                        <select id="secretLevel" name="secretLevel" th:with="type=${@dict.getType('secrecy_level')}">
+                            <option th:each="dict: ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.isDefault == 'Y' ? true : false}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">紧急程度：</label>
+                    <div class="col-sm-8">
+                        <select id="urgency" name="urgency" th:with="type=${@dict.getType('urgency')}">
+                            <option th:each="dict: ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.isDefault == 'Y' ? true : false}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">份数：</label>
+                    <div class="col-sm-8">
+                        <input id="numOfCopies" autocomplete="off" name="numOfCopies" class="form-control" type="text" placeholder="份数">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">文号：</label>
+                    <div class="col-sm-8">
+                        <input id="documentNum" autocomplete="off" name="documentNum" class="form-control" type="text" placeholder="文号">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">成文日期：</label>
+                    <div class="col-sm-8">
+                        <input id="handleTime" name="handleTime" class="form-control handleTime" type="text" placeholder="成文日期" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="width: 12.666667%;">标题：</label>
+                    <div class="col-sm-10">
+                        <input id="title" autocomplete="off" name="title" class="form-control" type="text" placeholder="标题">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">发文单位：</label>
+                    <div class="col-sm-8">
+                        <input id="communicationUnit" name="communicationUnit" class="form-control" type="text"
+                               placeholder="来文单位" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">联合单位：</label>
+                    <div class="col-sm-8">
+                        <input id="jointUnit" name="jointUnit" class="form-control" type="text" placeholder="联合单位" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">部门：</label>
+                    <div class="col-sm-8">
+                        <input id="deptName" name="deptName" class="form-control" type="text" placeholder="部门" onclick="$('#tree').show()" tabindex="2" onfocus="this.blur();">
+                        <div id="tree" style="display: none;position: absolute;z-index: 1010;background-color: white;margin-left: 0px;width: 95%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">联系人：</label>
+                    <div class="col-sm-8">
+                        <input id="contact" name="contact" class="form-control" type="text" placeholder="联系人" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">联系电话：</label>
+                    <div class="col-sm-8">
+                        <input id="phone" name="phone" class="form-control" type="text" placeholder="联系电话" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">所属载体柜：</label>
+                    <div class="col-sm-8">
+                        <select id="equipmentId" name="equipmentId" type="text">
+                            <option value="">请选择载体柜</option>
+                            <option th:each="equipment: ${bankEquipments}" th:value="${equipment?.id}" th:text="${equipment?.equipmentName}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">所属载体柜单元门：</label>
+                    <div class="col-sm-8">
+                        <select id="capBoardId" name="capBoardId" type="text" disabled="disabled">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group-separator" style="height: 0px;background: #eee;margin-bottom: 15px;"></div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="width: 12.666667%;">备注：</label>
+                    <div class="col-sm-10" >
+                        <textarea id="remark" name="remark" class="form-control" type="text" placeholder="备注" autocomplete="off"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 50px;">
+            <div class="col-xs-12">
+                <div class="control-group">
+                    <div class="controls" style="text-align: center">
+                        <button type="button" class="btn btn-primary" id="save">确认登记</button>
+                        <button type="button" class="btn btn-primary" id="clear">重置</button>
+                        <button type="button" class="btn btn-primary" id="print">打印标签</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/bank/bootstrap-treeview.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.jqprint-0.3.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/receive";
+    var sysVersion = [[${sysVersion}]];
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        lay('.handleTime').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'date'
+            });
+        });
+    });
+
+    function empty_capBoardId(){
+        $("#capBoardId").empty();
+        $("#capBoardId").attr("disabled", false);
+    }
+
+    $(function () {
+        var url = ctx + 'system/dept/getSysDeptTree/';
+        var config = {
+            url: url,
+            type: 'get',
+            contentType: 'application/json',
+            async: false,
+            success: function (result) {
+                if (result != null) {
+                    var options = {
+                      levels: 1,
+                      data: result,
+                      onNodeSelected: function (event, data) {
+                          $('#deptName').val(data.text);
+                          $('#deptId').val(data.href);
+                          $('#tree').hide();//选中树节点后隐藏
+                      }
+                    };
+                    $('#tree').treeview(options);
+                }
+            }, error: function () {
+                layer.msg("下拉部门加载失败");
+            }
+        };
+        $.ajax(config);
+    });
+
+
+    $("#equipmentId").bind("change",function(){
+        var equipmentId = $(this).val();
+        var url = ctx + "bank/bankCapBoard/selectBankCapBoardByEquipmentId";
+        $.post(url,{"equipmentId":equipmentId},function(dataObj){
+            console.log(dataObj);
+            if(dataObj == undefined){
+                layer.msg("未查询到载体柜分类数据！");
+            }else{
+                empty_capBoardId();
+                for(var i=0;i<dataObj.length;i++){
+                    //更新门的分类
+                    var capBoardId = dataObj[i].id;
+                    var capBoardName=dataObj[i].capBoardName;
+                    $("#capBoardId").append("<option value='"+capBoardId+"'>"+capBoardName+"</option>");
+                }
+            }
+        })
+    });
+
+    $("#form-bankFileReceive-add").validate({
+        rules: {
+            registrationNum: {
+                required: true,
+                digits: true,
+                minlength: 9,
+                maxlength: 9,
+                remote: {
+                    url: prefix + "/checkRegistrationNumUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "registrationNum" : function() {
+                            return $.common.trim($("#registrationNum").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            secretLevel: {
+                required: true
+            },
+            urgency:{
+                required: true
+            },
+            numOfCopies: {
+                required: true,
+                digits: true,
+                min: 0
+            },
+            documentNum: {
+                required: true
+            },
+            handleTime: {
+                required: true
+            },
+            title: {
+                required: true
+            },
+            communicationUnit: {
+                required: true
+            },
+            deptName: {
+                required: true
+            },
+            equipmentId: {
+                required: true
+            },
+            capBoardId: {
+                required: true
+            }
+        },
+        messages: {
+            "registrationNum": {
+                remote: "登记号已经存在"
+            }
+        }
+    });
+
+    $('#clear').on('click', function () {
+        clearHandler();
+        $('#save').prop('disabled', false);
+    });
+
+    $('#save').on('click', function () {
+
+        submitHandler();
+    });
+
+    $('#print').on('click', function () {
+        printHandler();
+    });
+
+    $('#scan').on('click', function () {
+        scanHandler();
+    });
+
+    function clearHandler() {
+        console.log("清空操作");
+        $(":input", '#form-bankFileReceive-add')
+            .not(':button, :submit, :reset, :hidden')
+            .val('')
+            .removeAttr('checked')
+            .removeAttr('selected');
+        $("#uuid").val('');
+    }
+
+    $("#registrationNum").change(function(){
+        $("#registrationNum").removeData("previousValue");
+    });
+
+    function printHandler() {
+        console.log("打印操作");
+        var uuid = $('#uuid').val();
+        if (uuid != null && uuid != '' && uuid != undefined) {
+            printQrcode(uuid);
+        } else {
+            layer.msg("请先录入文件台账信息!", { icon: 5, time: 2000, shift: 5,shade: [0.1, '#8F8F8F'] });
+        }
+    }
+
+    function plugin0() {
+        return document.getElementById('plugin0');
+    }
+    plugin = plugin0;
+    function addEvent(obj, name, func) {
+        if (obj.attachEvent) {
+            obj.attachEvent("on"+name, func);
+        } else {
+            obj.addEventListener(name, func, false);
+        }
+    }
+
+    function load() {
+        addEvent(plugin(), 'test', function(){
+            alert("Received a test event from the plugin.")
+        });
+    }
+
+    function pluginValid() {
+        if(plugin().valid){
+            var is_open = plugin().scan_init(0);
+            if(is_open == -2){
+                layer.msg("this plugin is outdate", { icon: 5, time: 2000, shift: 5,shade: [0.1, '#8F8F8F'] }, function () {
+                    return is_open;
+                });
+            }else if(is_open == -1){
+                layer.msg("open device failed", { icon: 5, time: 2000, shift: 5,shade: [0.1, '#8F8F8F'] }, function () {
+                    return is_open;
+                });
+            } else {
+                window.setInterval(function () {
+                    var result = plugin().scan_read();
+                    if (result.length>0){
+                        console.log(result);
+                        var join = result.split("^");
+                        $('#communicationUnit').val(join[2]);
+                        $('#documentNum').val(join[4]);
+                        $('#title').val(join[6]);
+                        //密级
+                        $("#secretLevel option").each(function () {
+                            var text = $(this).text();
+                            if (text == join[7]) {
+                                $(this).attr("selected", true);
+                            } else {
+                                $(this).attr("selected", false);
+                            }
+                        });
+                        //紧密程度
+                        $("#urgency option").each(function () {
+                            var text = $(this).text();
+                            if (text == join[8]) {
+                                $(this).attr("selected", true);
+                            } else {
+                                $(this).attr("selected", false);
+                            }
+                        });
+                        //成文日期
+                        if (join[9] != null && join[9] != '' && join[9] != undefined && join[9].length == 8) {
+                            $('#handleTime').val(join[9].replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3"));
+                        }
+                    }
+                },1000);
+            }
+        } else {
+            layer.msg("Plugin is not working !", { icon: 5, time: 2000, shift: 5,shade: [0.1, '#8F8F8F'] });
+        }
+    }
+
+    function close111(){
+        plugin().scan_close();
+    }
+
+    function scanHandler() {
+        console.log("收文扫描");
+        pluginValid();
+    }
+
+    function submitHandler() {
+    //    close111();
+        if ($.validate.form()) {
+            $.modal.loading("正在处理中，请稍后...");
+            var url = prefix + "/add";
+            var data = $('#form-bankFileReceive-add').serialize();
+            var config = {
+                url: url,
+                async : false,
+                type: "post",
+                dataType: "json",
+                data: data,
+                success: function(result) {
+                    if (result.code == 0) {
+                        uuid = result.msg;
+                        layer.msg("收文登记完成，已更新台账信息！", { icon: 1, time: 2000, shift: 5,shade: [0.1, '#8F8F8F'] }, function () {
+                            $('#save').prop('disabled', true);
+                            $('#uuid').val(result.msg);
+
+                        });
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                    $.modal.closeLoading();
+                }
+            };
+            $.ajax(config);
+        }
+    }
+
+    function printQrcode(uuid) {
+        var rows = [uuid];
+        if(rows.length>0){
+            var ids = rows.join();
+            $(".qr_code_box").remove();
+            var qrCodeBox = $("<div class='qr_code_box'></div>");
+            var rowData;
+            $.ajax({
+                url: prefix + "/selectByIds",
+                data: {
+                    ids: ids,
+                },
+                type: "post",
+                success: function (result) {
+                    rowData = result.data;
+                    if (rowData != "undefined" && rowData != null && rowData.length > 0) {
+                        var imgDiv = "";
+                        imgDiv = $('<div id="imgDiv" ></div>');//TSC打印机用
+                        var printerDatas = [];
+                        for (var i = 0; i < rowData.length; i++) {
+
+                            qrCodeBox.append("<div class='qr_code'></div>");
+
+                            var rfid;
+                            if (rowData[i].rfid == null || rowData[i].rfid == "") {
+                                rfid = "rfid编号:无";
+                            } else {
+                                rfid = rowData[i].rfid;
+                            }
+                            var flowId;
+                            if (rowData[i].flowId == null || rowData[i].flowId == "") {
+                                flowId = "文件编号:无";
+                            } else {
+                                flowId = rowData[i].flowId;
+                            }
+                            var title;
+                            if (rowData[i].title == null || rowData[i].title == "") {
+                                title = "文件标题:无";
+                            } else {
+                                title = rowData[i].title;
+                            }
+                            var secretLevel;
+                            if (rowData[i].secretLevel == null || rowData[i].secretLevel == "") {
+                                secretLevel = "密级:无";
+                            } else {
+                                secretLevel = rowData[i].secretLevel ;
+                            }
+                            $.ajax({
+                                url: prefix + "/encodingToGBK",
+                                async:false,
+                                type: "post",
+                                data:{
+                                    rfid:rfid,
+                                    flowId:flowId,
+                                    title:title
+                                },
+                                success: function (result) {
+                                    var printerData = {
+                                        flowId: flowId,
+                                        rfid: rfid,
+                                        title: title,
+                                        secretLevel: secretLevel,
+                                        finaStr: result.finaStr
+                                    };
+                                    printerDatas.push(printerData);
+                                }
+                            })
+                        }
+                        console.log(printerDatas);
+                        if(sysVersion == 0){
+                            var data = {
+                                barcodeList: printerDatas
+                            };
+                            $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:888");
+                        } else {
+                            var data = {
+                                barcodeList: JSON.stringify(printerDatas)
+                            };
+                            $.ajax({
+                                url:prefix + "/printTag",
+                                data: data,
+                                type:"post",
+                                success:function(result){
+
+                                }
+                            })
+                        }
+                    }
+                }
+            });
+        }else{
+            $.modal.alertWarning("请至少选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

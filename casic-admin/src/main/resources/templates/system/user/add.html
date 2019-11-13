@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+	<form class="form-horizontal m" id="form-user-add">
+		<input name="deptId"  type="hidden" id="treeId"/>
+		<div class="form-group">
+			<label class="col-sm-3 control-label ">登录名称：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="loginName" name="loginName" maxlength="64"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">用户名称：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="userName" id="userName" maxlength="64">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">部门名称：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="deptName" onclick="selectDeptTree()" readonly="true" id="treeName">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">性别：</label>
+			<div class="col-sm-8">
+				<select id="sex" class="form-control m-b" th:with="type=${@dict.getType('sys_user_sex')}">
+					<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-3 control-label">密码：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="password" name="password" minlength="10" id="password" th:value="${@config.getKey('sys.user.initPassword')}">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">角色：</label>
+			<div class="col-sm-8">
+				<label for="role" th:each="role:${roles}" class="check-box">
+					<input name="role" onclick="checkboxOnclick()" type="checkbox" th:value="${role.roleId}" th:text="${role.roleName}" th:disabled="${role.status == '1'}">
+				</label>
+				<label id="role-error" class="error" for="role"></label>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">邮箱：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="email" id="email">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">手机：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="phonenumber" id="phonenumber">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-3 control-label">账号状态：</label>
+			<div class="col-sm-8">
+				<div class="onoffswitch">
+					<input type="checkbox" th:checked="true" class="onoffswitch-checkbox" id="status" name="status">
+					<label class="onoffswitch-label" for="status">
+						<span class="onoffswitch-inner"></span>
+						<span class="onoffswitch-switch"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">职级：</label>
+			<div class="col-sm-8">
+				<select id="positionCode" class="form-control m-b" th:with="type=${@dict.getType('sys_user_position')}">
+					<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-3 control-label">用户状态：</label>
+			<div class="col-sm-8">
+				<select id="userStatus" class="form-control m-b" th:with="type=${@dict.getType('sys_user_status')}">
+					<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-sm-3 control-label">身份证号：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="identityCard" id="identityCard">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-3 control-label">身份卡号：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" name="cardNum" id="cardNum">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">入职日期：</label>
+			<div class="col-sm-8">
+				<input type="text" class="form-control date-input" id="employDate" placeholder="入职时间" name="employDate"/>
+			</div>
+		</div>
+	</form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/select/select2.js}"></script>
+<script>
+
+    $("#form-user-add").validate({
+        rules:{
+            loginName:{
+                required:true,
+                minlength: 2,
+                maxlength: 20,
+                remote: {
+                    url: ctx + "system/user/checkLoginNameUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+						loginName : function() {
+                            return $.common.trim($("#loginName").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            userName:{
+                required:true,
+            },
+            deptName:{
+                required:true,
+            },
+            password:{
+                required:true,
+                minlength: 5,
+                maxlength: 20
+            },
+            email:{
+                email:true,
+                remote: {
+                    url: ctx + "system/user/checkEmailUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        email: function () {
+                            return $.common.trim($("#email").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            phonenumber:{
+                isPhone:true,
+                remote: {
+                    url: ctx + "system/user/checkPhoneUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+						phonenumber: function () {
+                            return $.common.trim($("#phonenumber").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            role:{
+                required:true,
+            },
+            identityCard: {
+            		idCard:true,
+            		remote: {
+                        url: ctx + "system/user/checkIdCardUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                        		"identityCard": function () {
+                                return $.common.trim($("#identityCard").val());
+                            	}
+                        },
+                        dataFilter: function (data, type) {
+                            return $.validate.unique(data);
+                        }
+                 }
+            },
+			cardNum: {
+				remote: {
+					url: ctx + "system/user/checkCardNumUnique",
+					type: "post",
+					dataType: "json",
+					data: {
+						"cardNum": function () {
+							return $.common.trim($("#cardNum").val());
+						}
+					},
+					dataFilter: function (data, type) {
+						return $.validate.unique(data);
+					}
+				}
+			}
+
+        },
+        messages: {
+            "loginName": {
+                remote: "用户已经存在！"
+            },
+            "email": {
+                remote: "Email已经存在！"
+            },
+            "phonenumber":{
+                remote: "手机号码已经存在！"
+            },
+            "identityCard":{
+                remote: "身份证号已经存在！"
+            },
+			"cardNum": {
+				remote: "身份卡号已经存在！"
+			}
+
+        },
+        
+        errorPlacement: function (error, element) { //指定错误信息位置
+            if (element.is("input[name='role']")) { //如果是radio或checkbox
+            		if($("input:checkbox[name='role']:checked").length > 0){
+            			$("#role-error").text('');
+            		}else{
+            			$("#role-error").text('必选！');
+            		}
+            } else {
+                 error.insertAfter(element);
+            }
+         }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            add();
+        }
+    }
+    
+    function getNow(time){
+		return time < 10 ? "0"+time : time;
+	}
+
+
+    function add() {
+        var userId = $("input[name='userId']").val();
+        var deptId = $("input[name='deptId']").val();
+        var loginName = $("input[name='loginName']").val();
+        var userName = $("input[name='userName']").val();
+        var password = $("input[name='password']").val();
+        var email = $("input[name='email']").val();
+        var phonenumber = $("input[name='phonenumber']").val();
+        var sex = $("#sex option:selected").val();
+        var status = $("input[name='status']").is(':checked') == true ? 0 : 1;
+        var roleIds = $.form.selectCheckeds("role");
+        var postIds = $.form.selectSelects("post");
+        var userCareer = $("select[name='userCareer']").val();
+        var positionCode = $("#positionCode option:selected").val()
+        var userStatus = $("#userStatus  option:selected").val();
+        var identityCard = $("input[name='identityCard']").val();
+        var cardNum = $("input[name='cardNum']").val();
+        var employDate = $("input[name='employDate']").val();
+        if(employDate != ""){
+        		var myDate = new Date();
+          	//获取当前小时数(0-23)
+            var h = myDate.getHours();
+            //获取当前分钟数(0-59)
+            var m = myDate.getMinutes();
+            var s = myDate.getSeconds();
+            employDate = employDate + " " + getNow(h) + ':' + getNow(m) + ":" + getNow(s);
+        }
+        $.ajax({
+            cache : true,
+            type : "POST",
+            url : ctx + "system/user/add",
+            data : {
+                "userId": userId,
+                "deptId": deptId,
+                "loginName": loginName,
+                "userName": userName,
+                "password": password,
+                "email": email,
+                "phonenumber": phonenumber,
+                "sex": sex,
+                "status": status,
+                "roleIds": roleIds,
+                "postIds": postIds,
+                "userCareer": userCareer,
+                "userStatus": userStatus,
+                "identityCard": identityCard,
+                "cardNum": cardNum,
+                "employDate": employDate,
+				"positionCode": positionCode,
+            },
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                $.operate.saveSuccess(data);
+            }
+        });
+    }
+
+    /*用户管理-新增-选择部门树*/
+    function selectDeptTree() {
+        var treeId = $("#treeId").val();
+        var deptId = $.common.isEmpty(treeId) ? "100" : $("#treeId").val();
+        var url = ctx + "system/dept/selectDeptTree/" + deptId;
+        var options = {
+            title: '选择部门',
+            width: "380",
+            url: ctx + "system/dept/selectDeptTree/" + deptId,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+
+    function doSubmit(index, layero){
+        var tree = layero.find("iframe")[0].contentWindow.$._tree;
+        if ($.tree.notAllowParents(tree)) {
+            var body = layer.getChildFrame('body', index);
+            $("#treeId").val(body.find('#treeId').val());
+            $("#treeName").val(body.find('#treeName').val());
+            layer.close(index);
+        }
+    }
+</script>
+</body>
+</html>

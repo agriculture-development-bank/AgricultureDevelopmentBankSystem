@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .card {
+        border: 0;
+        border-radius: 0;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin-bottom: 0.875rem;
+        position: relative;
+        display: flex;
+        display: -ms-flexbox;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-spaces;
+        background-color: #fff;
+        background-clip: border-box;
+        width: 100%;
+    }
+    .card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #eaeaea;
+     }
+    .card .card-header:first-child {
+        -webkit-border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        -moz-border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+    }
+    .card-header {
+        padding: 1rem 1.5rem;
+        margin-bottom: 0;
+    }
+    .card .card-header .card-title {
+        margin-bottom: 0;
+        font-family: "Microsoft YaHei";
+        font-size: 14px;
+        color: #4d4d4d;
+    }
+    .card-chart .card-body {
+        padding: 8px;
+        width: 100%;
+    }
+    .card-body {
+        flex: 1 1 auto;
+    }
+</style>
+<body class="gray-bg">
+<div class="content container-fluid">
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-12 col-lg-4" style="padding-right: 0px!important;">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h4 class="card-title"><i class="icon icon-bar-chart"></i>文件类别统计</h4>
+                </div>
+                <div class="card-body">
+                    <div id="morrisChart" style="width: 50vm; height: 50vh;position: relative;-webkit-tap-highlight-color: rgba(0,0,0,0);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-4" style="padding-right: 0px!important;">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h4 class="card-title">紧急程度统计</h4>
+                </div>
+                <div class="card-body">
+                    <div id="morrisLine" style="width: 50vm; height: 50vh;position: relative;-webkit-tap-highlight-color: rgba(0,0,0,0);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h4 class="card-title">文件状态统计</h4>
+                </div>
+                <div class="card-body">
+                    <div id="morrisBar" style="width: 50vm; height: 50vh;position: relative;-webkit-tap-highlight-color: rgba(0,0,0,0);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-6" style="padding-right: 0px!important;">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h4 class="card-title">清退计划统计</h4>
+                </div>
+                <div class="card-body">
+                    <div id="morrisTask" style="width: 50vm; height: 50vh;position: relative;-webkit-tap-highlight-color: rgba(0,0,0,0);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-6">
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h4 class="card-title">部门使用文件情况统计</h4>
+                </div>
+                <div class="card-body">
+                    <div class="operationCondition" style="margin-left: 633px; z-index: 99999;width: 50vm; height: 4vh;position: absolute;-webkit-tap-highlight-color: rgba(0,0,0,0);float: right; margin-right: 80px;">
+                        <select id="selectDate" style="line-height: 20px;height: 4vh; border-radius:4px;text-shadow:1px 1px 1px #cdcdcd;">
+                            <option value="0">最近30天统计</option>
+                            <option value="1">最近7天统计</option>
+                            <option value="2">最近1天统计</option>
+                        </select>
+                    </div>
+                    <div id="morrisOperator" style="width: 50vm; height: 50vh;position: relative;-webkit-tap-highlight-color: rgba(0,0,0,0);">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:include="include :: footer"></div>
+<script th:src="@{/js/echarts.min.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/statistics";
+    $(function () {
+        var operatorChart = echarts.init(document.getElementById("morrisOperator"));
+    });
+    !function () {
+        //基于准备好的dom,初始化echarts实例
+        var fileTypeChart = echarts.init(document.getElementById("morrisChart"));
+        var url = prefix + '/queryFileTypeData';
+        $.get(url).done(function (data) {
+            fileTypeChart.setOption({
+                tooltip: {
+                    trigger:  'item',
+                    formatter:"{a} <br/> {b}: {c} ({d}%)"
+                },
+                legend:{
+                    orient: 'vertical',
+                    x: 'left',
+                    data:data.legendData
+                },
+                series:[
+                    {
+                        name: '文件类别',
+                        type: 'pie',
+                        radius: ['30%', '50%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            normal: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        },
+                        labelLine: {
+                            normal: {
+                                show: false
+                            }
+                        },
+                        data: data.seriesData,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            },
+                            normal:{
+                                color:function(params) {
+                                    //自定义颜色
+                                    var colorList = [
+                                        '#ecc725', '#7ecef4', '#7366ba', '#FF8C00', '#FF0000', '#FE8463',
+                                    ];
+                                    return colorList[params.dataIndex]
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+        });
+
+
+        var fileExistChart = echarts.init(document.getElementById("morrisLine"));
+        $.get(prefix + "/queryFileUrgencyData").done(function (data) {
+            fileExistChart.setOption({
+                tooltip: {
+                    trigger:  'item',
+                    formatter:"{a} <br/> {b}: {c} ({d}%)"
+                },
+                legend:{
+                    type: 'scroll',
+                    orient: 'vertical',
+                    x: 'left',
+                    data:data.legendData
+                },
+                series:[
+                    {
+                        name: '台账数量',
+                        type: 'pie',
+                        radius: '50%',
+                        data: data.seriesData,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0,0,0,0.5)'
+                            },
+                            normal:{
+                                color:function(params) {
+                                    //自定义颜色
+                                    var colorList = [
+                                        '#ecc725', '#7ecef4', '#7366ba', '#FF8C00', '#FF0000', '#FE8463',
+                                    ];
+                                    return colorList[params.dataIndex]
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+        });
+
+        var fileLocationChart = echarts.init(document.getElementById("morrisBar"));
+        $.get(prefix + "/queryFileStatusData").done(function (data) {
+
+            fileLocationChart.setOption({
+                tooltip: {
+                    trigger:  'item',
+                    formatter:"{a} <br/> {b}: {c} ({d}%)"
+                },
+                legend:{
+                    type: 'scroll',
+                    orient: 'vertical',
+                    x: 'left',
+                    data:data.legendData
+                },
+                series:[
+                    {
+                        name: '文件状态',
+                        type: 'pie',
+                        radius: '50%',
+                        data: data.seriesData,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0,0,0,0.5)'
+                            },
+                            normal:{
+                                color:function(params) {
+                                    //自定义颜色
+                                    var colorList = [
+                                        '#3e93b9', '#22e26f', '#ffd016', '#7366ba', '#ff6d6d', '#25b7e3', '#0000FF', '#CC66CC', '#FF0000'
+                                    ];
+                                    return colorList[params.dataIndex]
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+        });
+
+        var taskChart = echarts.init(document.getElementById("morrisTask"));
+        $.get(prefix + "/queryTaskData").done(function (data) {
+            taskChart.setOption({
+                legend: {},
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        crossStyle: {
+                            color: 'rgb(231,231,244,0.5)'
+                        }
+                    }
+                },
+                dataset: {
+                    dimensions: ['month', '已完成数量', '未完成数量'],
+                    source:data
+                },
+                xAxis: {
+                    type: 'category',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    splitLine:{
+                        show: true,
+                        lineStyle:{
+                            color: ['#e7e7fe'],
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                },
+                yAxis: {
+                    splitLine:{
+                        show: true,
+                        lineStyle:{
+                            color: ['#e7e7fe'],
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                },
+                series: [
+                    {type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#58cde1'},                   //柱图渐变色
+                                        {offset: 1, color: '#2589b7'},                   //柱图渐变色
+                                    ]
+                                )
+                            },
+                            emphasis: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#58cde1'},                  //柱图高亮渐变色
+                                        {offset: 1, color: '#2589b7'}                   //柱图高亮渐变色
+                                    ]
+                                )
+                            }
+                        }},
+                    {type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#f8a050'},                   //柱图渐变色
+                                        {offset: 1, color: '#f2572c'},                   //柱图渐变色
+                                    ]
+                                )
+                            },
+                            emphasis: {
+                                color: new echarts.graphic.LinearGradient(
+                                    0, 0, 0, 1,
+                                    [
+                                        {offset: 0, color: '#f8a050'},                  //柱图高亮渐变色
+                                        {offset: 1, color: '#f2572c'}                   //柱图高亮渐变色
+                                    ]
+                                )
+                            }
+                        }}
+                ]
+            });
+        });
+
+        var operatorChart = echarts.init(document.getElementById("morrisOperator"));
+        var type = $('#selectDate').val();
+        $.get(prefix + "/queryRecordCountData?type=" + type).done(function (data) {
+            operatorChart.setOption({
+                tooltip: {
+                    trigger:'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        crossStyle: {
+                            color: 'rgb(231,231,244,0.5)'
+                        }
+                    }
+                },
+                xAxis: [{
+                    type: 'category',
+                    data:data.legendData,
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    splitLine:{
+                        show: true,
+                        lineStyle:{
+                            color: ['#e7e7fe'],
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                }],
+                yAxis: [
+                    {
+                        type: 'value',
+                        splitLine:{
+                            show: true,
+                            lineStyle:{
+                                color: ['#e7e7fe'],
+                                width: 1,
+                                type: 'solid'
+                            }
+                        }
+                    }
+                ],
+                series: [{
+                    type:'bar',
+                    data:data.seriesData,
+                    barWidth:'50%',
+                    itemStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#a9c8e8'},                   //柱图渐变色
+                                    {offset: 1, color: '#497ec8'},                   //柱图渐变色
+                                ]
+                            )
+                        },
+                        emphasis: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#a9c8e8'},                  //柱图高亮渐变色
+                                    {offset: 1, color: '#497ec8'}                   //柱图高亮渐变色
+                                ]
+                            )
+                        }
+                    }
+                    }
+                ]
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            fileTypeChart.resize();
+            fileExistChart.resize();
+            fileLocationChart.resize();
+            taskChart.resize();
+            operatorChart.resize();
+        });
+    }();
+
+    $('#selectDate').on('click', function () {
+        var val = $(this).val();
+        console.log(val);
+        $.get(prefix + "/queryRecordCountData?type=" + val).done(function (data) {
+            echarts.init(document.getElementById("morrisOperator")).setOption({
+                tooltip: {
+                    trigger:'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        crossStyle: {
+                            color: 'rgb(231,231,244,0.5)'
+                        }
+                    }
+                },
+                xAxis: [{
+                    type: 'category',
+                    data:data.legendData,
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    splitLine:{
+                        show: true,
+                        lineStyle:{
+                            color: ['#e7e7fe'],
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                }],
+                yAxis: [
+                    {
+                        type: 'value',
+                        splitLine:{
+                            show: true,
+                            lineStyle:{
+                                color: ['#e7e7fe'],
+                                width: 1,
+                                type: 'solid'
+                            }
+                        }
+                    }
+                ],
+                series: [{
+                    type:'bar',
+                    data:data.seriesData,
+                    barWidth:'50%',
+                    itemStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#a9c8e8'},                   //柱图渐变色
+                                    {offset: 1, color: '#497ec8'},                   //柱图渐变色
+                                ]
+                            )
+                        },
+                        emphasis: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#a9c8e8'},                  //柱图高亮渐变色
+                                    {offset: 1, color: '#497ec8'}                   //柱图高亮渐变色
+                                ]
+                            )
+                        }
+                    }
+                }
+                ]
+            }, true);
+        });
+    });
+</script>
+</body>
+</html>

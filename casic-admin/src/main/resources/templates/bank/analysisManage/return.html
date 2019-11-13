@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-primary" id="confirmFile" shiro:hasPermission="bank:analysisManage:analysis">
+                <i class="fa fa-telegram"></i> &nbsp;清退
+            </a>
+            <a class="btn btn-info" id="cancelFile" shiro:hasPermission="bank:analysisManage:cancelAnalysis">
+                <i class="fa fa-chain"></i> &nbsp;取消清退
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    var analysisStatue = [[${@dict.getType('analysis_statue')}]];
+    var prefix = ctx + "bank/analysisManage";
+    var planId = [[${id}]];
+    $(function () {
+        var options = {
+            url: prefix + "/returnList?planId=" + planId,
+            sortName: "handleTime",
+            sortOrder: "desc",
+            uniqueId: "detailId",
+            search: false,
+            showExport: false,
+            showToggle: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'detailId',
+                    title: '文件id',
+                    visible: false
+                },
+                {
+                    field: 'flowId',
+                    title: '文件编号'
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: 'center'
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: 'center'
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '清退状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(analysisStatue, value);
+                    }
+                },
+                {
+                    field: 'handleTime',
+                    title: '收文时间',
+                    align: 'center'
+                }]
+        };
+        $.table.init(options);
+    });
+
+    /**
+     * 清退事件
+     */
+    $('#confirmFile').on('click', function () {
+        var row = $('#bootstrap-table').bootstrapTable('getSelections');
+        if (row.length > 0) {
+            var ids = $.map(row, function (item) {
+                console.log(item);
+                if (item.detailStatus == 1  || item.detailStatus == 5 || item.detailStatus == 8) {
+                    return item.detailId;
+                }
+            });
+            console.log(ids);
+            var noIds = $.map(row, function (item) {
+                if (item.detailStatus != 1 && item.detailStatus != 5 || item.detailStatus != 8) {
+                    return item.flowId;
+                }
+            });
+            if (ids != null && ids.length > 0) {
+                confirm(ids);
+            } else {
+                $.modal.alertWarning("文件编号为"+ noIds.join(",") + "的文件已清退，请勿重复清退");
+            }
+        } else {
+            $.modal.alertWarning("请至少选择一条记录");
+            return;
+        }
+    });
+
+    /**
+     * 清退功能
+     * @param ids
+     */
+   function confirm(ids) {
+       var data = { "ids": ids.join(","), "planId": planId };
+       var url =  prefix + '/analysis';
+       $.modal.loading("正在处理中，请稍后...");
+       var config = {
+           url: url,
+           type: "post",
+           dataType: "json",
+           data: data,
+           success: function(result) {
+               if (result.code == 0) {
+                   $.modal.msgSuccess(result.msg);
+                   $('#bootstrap-table').bootstrapTable('refresh');
+                   $.table.refresh();
+                   refreshMenuItem(ctx + "bank/analysisManage");
+               } else {
+                   $.modal.alertError(result.msg);
+               }
+               $.modal.closeLoading();
+           }
+       };
+       $.ajax(config)
+   }
+
+    /**
+     * 取消清退事件
+     */
+    $('#cancelFile').on('click', function () {
+        var row = $('#bootstrap-table').bootstrapTable('getSelections');
+        if (row.length > 0) {
+            var ids = $.map(row, function (item) {
+                return item.detailId;
+            });
+            cancelConfirm(ids);
+        } else {
+            $.modal.alertWarning("请至少选择一条记录");
+            return;
+        }
+    });
+
+    /**
+     * 取消清退事件
+     * @param ids
+     */
+    function cancelConfirm(ids) {
+        var data = { "ids": ids.join(","), "planId": planId };
+        var url =  prefix + '/cancelAnalysis';
+        $.modal.loading("正在处理中，请稍后...");
+        var config = {
+            url: url,
+            type: "post",
+            dataType: "json",
+            data: data,
+            success: function(result) {
+                if (result.code == 0) {
+                    $.modal.msgSuccess(result.msg);
+                    $('#bootstrap-table').bootstrapTable('refresh');
+                    $.table.refresh();
+                    refreshMenuItem(ctx + "bank/analysisManage");
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            }
+        };
+        $.ajax(config)
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<style type="text/css">
+    .btn-group .btn {
+        width: 90px;
+        display: block;
+    }
+    .dropdown-menu {
+        min-width: unset;
+        width: 100%;
+    }
+    .dropdown-menu li {
+        text-align: center;
+        cursor: pointer;
+    }
+    .dropdown-menu li:hover {
+        color: #fff;
+        background: #398439;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table_file" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/fileDetail";
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    var fileReceiveStatus = [[${@dict.getType('file_receive_status')}]];
+    //初始化查询条件使用
+    var fileId = [[${fileId}]];
+    var type = [[${type}]];
+    var list = [[${list}]];
+    var planId = [[${planId}]];
+    var optionalList = [[${optionalList}]];
+    var fileDetailIds = [[${fileDetailIds}]];
+    var collect = [[${collect}]];
+    var split;
+    if ($.trim(collect).length > 0) {
+        split = collect.split(",");
+    } else {
+        split = "";
+    }
+    var $table;
+    var selectionIds = optionalList || [];  //保存选中的ids
+
+    var selectRows = list || [];
+    $(function () {
+        var url;
+        if (type == 0) {
+            url = prefix +  "/optionalList?fileId=" + fileId + "&editType=" + 0;
+        } else {
+            url = prefix +  "/optionalList?fileId=" + fileId + "&planId=" + planId + "&editType=" + 1;
+        }
+        //初始化查询条件
+        var options = {
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            url:  url,
+            showExport:false,
+            showToggle: false,
+            search: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            iconSize: 'outline',
+            sortable: true,
+            sortStable: true,
+            sortName: "a.sort",
+            sortOrder: "asc",
+            maintainSelected: true,
+            pageNumber: 1,
+            pageSize: 10,
+            pageList:[10,20,30,50,100],
+            pagination: false,
+            clickToSelect: true,
+            sidePagination: "server",
+            idField: "id",
+            uniqueId: "id",
+            responseHandler: responseHandler,
+            queryParams:function(params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize:       params.limit,
+                    pageNum:        params.offset / params.limit + 1,
+                    searchValue:    params.search,
+                    orderByColumn:  params.sort,
+                    isAsc:          params.order
+                };
+            },
+            columns: [
+                {
+                    checkbox: true,
+                    title: '全选',
+                    valign: 'middle',
+                    formatter: function (value, row, index) {
+                        if (type == 0) {
+                            if (!row.planDetailId) {
+                                return {
+                                    disabled :false
+                                };
+                            } else {
+                                return {
+                                    disabled :true
+                                };
+                            }
+                        } else {
+                            if (row.planId == planId) {
+                                return {
+                                    disabled :false
+                                };
+                            } else {
+                                if (row.planDetailId == null) {
+                                    return {
+                                        disabled :false
+                                    };
+                                }  else {
+                                    return {
+                                        disabled :true
+                                    };
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'flowId',
+                    title: '文件编号',
+                    align: "center"
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: "center"
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: "center"
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: "center"
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: "center",
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '当前状态',
+                    align: "center",
+                    visible: false,
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(fileReceiveStatus, value);
+                    }
+                },
+                {
+                    field: 'createTime',
+                    title: '收文时间',
+                    align: "center"
+                },
+                {
+                    field: 'planDetailId',
+                    title: '计划文件id',
+                    align: "center",
+                    visible: false,
+
+                }],
+            onLoadSuccess: function () {
+                if (split != null && split.length > 0) {
+                    $("#bootstrap-table_file").bootstrapTable("checkBy", {
+                        field: "id",
+                        values: split
+                    });
+                }
+            }
+        };
+        $table = $("#bootstrap-table_file").bootstrapTable(options);
+
+        //选中事件操作数组
+        var union = function (array,ids) {
+            $.each(ids, function (i, id) {
+                if ($.inArray(id, array) == -1) {
+                    array[array.length] = id;
+                }
+            });
+            return array;
+        };
+        //取消选中事件操作数组
+        var difference = function (array, ids) {
+            $.each(ids, function (i, id) {
+                var index = $.inArray(id, array);
+                if (index != -1) {
+                    array.splice(index, 1);
+                }
+            });
+            return array;
+        };
+
+        var _ = {"union": union, "difference": difference};
+        //绑定选中事件、取消事件、全部选中、全部取消
+        $table.on('check.bs.table check-all.bs.table uncheck.bs.table uncheck-all.bs.table', function (e, rows) {
+            var ids = $.map(!$.isArray(rows) ? [rows] : rows, function (row) {
+                return row.id;
+            });
+            func = $.inArray(e.type, ['check', 'check-all']) > -1 ? 'union' : 'difference';
+            selectionIds = _[func](selectionIds, ids);
+            split =  _[func](split, ids);
+        });
+
+       // 当改变此页所显示的数据条数或改变页码时触发
+        /*$table.on('page-change.bs.table', function (number, size) {
+            var table = $("#bootstrap-table_file").bootstrapTable('getSelections');
+            $.each(table, function (i, row) {
+                var index = $.inArray(row, selectRows);
+                if (index != -1) {
+                    selectRows.splice(index, 1);
+                } else {
+                    selectRows[selectRows.length] = row;
+                }
+            });
+        });*/
+
+    });
+
+    function responseHandler(res) {
+        $.each(res.rows, function (i, row) {
+            row.checkStatus = $.inArray(row.id, selectionIds) != -1; //判断当前行的数据id是否存在与选中的数组，存在则将多选框状态变为true
+        });
+        return res;
+    }
+    
+    function selectionRows() {
+        var rows = [];
+        //获取已选中的当前页数据
+        var table = $("#bootstrap-table_file").bootstrapTable('getSelections');
+        //过滤掉已在其他计划中的文件
+        var filterTable = [];
+        if (type == 0) {
+            filterTable = table.filter((item) => item.planId == null);
+        } else {
+            filterTable =  table;
+        }
+        //新增
+        var merge = [];
+        if (type == 1 && selectRows.length > 0) {
+            merge = jQuery.merge(filterTable, selectRows);
+        } else {
+            merge = filterTable;
+        }
+        var unique = jQuery.unique(merge);
+        $.map(unique, function (item) {
+            if (type == 0) {
+                if (!item.planId) {
+                    rows.push(item);
+                }
+            } else {
+                rows.push(item);
+            }
+
+        });
+        return jQuery.unique(rows);
+    }
+
+    //去重
+    function unique(arr, type) {
+        const res = new Map();
+        return arr.filter((a) => !res.has(a[type]) && res.set(a[type], 1));
+    }
+</script>
+</body>
+</html>

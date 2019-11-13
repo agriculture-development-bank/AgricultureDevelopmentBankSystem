@@ -1,0 +1,497 @@
+<style>
+    .flow-container{
+        width: 100%;
+        padding: 10px 20px;
+    }
+    .flow-sel{
+        width: 720px;
+        margin: 20px auto;
+    }
+    .flow-sel .flow-wait,.flow-sel .flow-selected{
+        float: left;
+        width: 350px;
+    }
+    .flow-sel .flow-selected{
+        margin-left: 20px;
+    }
+    .flow-sel .flow-sel-title{
+        background: #bbccff;
+        padding: 8px;
+        text-align: center;
+        font-size: 16px;
+    }
+    .flow-sel .flow-sel-list{
+        height: 280px;
+        border: solid 2px #bbccff;
+        overflow-y: scroll;
+        scrollbar-width: none;
+        padding: 5px;
+    }
+    .flow-sel .flow-sel-list::-webkit-scrollbar{
+        width: 0;
+    }
+    .flow-sel table{
+        width: 100%;
+    }
+    .flow-sel table td{
+        width: 33%;
+        text-align: center;
+        padding: 5px 0;
+        border: solid 1px;
+    }
+    .flow-comment textarea{
+        height: 60px;
+        resize: none;
+        vertical-align: top;
+    }
+    .flow-sel-tpl{
+        position: absolute;
+        display: none;
+    }
+    .red{
+        color: #ff0000;
+        display: inline-block;
+        font-size: 20px;
+    }
+</style>
+<script>
+    function candidateSel(obj) {
+        var $this = $(obj);
+        var $tr = $this.closest("tr");
+        var userId = $this.attr("user-id");
+        var userName = $.trim($tr.find("td").eq(0).html());
+        var deptName = $.trim($tr.find("td").eq(1).html());
+        var tr = '<tr><td>'+userName+'</td><td>'+deptName+'</td><td><a user-id="'+userId+'" onclick="javascript:candidateRemove(this)">取消</a></td></tr>';
+        $tr.remove();
+        $(".flow-sel.active .flow-selected .flow-sel-list tbody").append(tr);
+    }
+    function candidateRemove(obj) {
+        var $this = $(obj);
+        var $tr = $this.closest("tr");
+        var userId = $this.attr("user-id");
+        var userName = $.trim($tr.find("td").eq(0).html());
+        var deptName = $.trim($tr.find("td").eq(1).html());
+        var tr = '<tr><td>'+userName+'</td><td>'+deptName+'</td><td><a user-id="'+userId+'" onclick="javascript:candidateSel(this)">选择</a></td></tr>';
+        $tr.remove();
+        $(".flow-sel.active .flow-wait .flow-sel-list tbody").append(tr);
+    }
+
+    function getFormProperty() {
+        var formProperty = {};
+        $.each($(".flow-form input,.flow-form select,.flow-form textarea"),function(index,element){
+            var $this = $(element);
+            var key = $this.attr("name");
+            var val = $this.val();
+            if($this.attr("type") == 'checkbox'){
+                if($this.is(':checked') == true){
+                    if(formProperty[key] == undefined){
+                        formProperty[key] = val;
+                    }else{
+                        var oldData = formProperty[key];
+                        formProperty[key] = oldData + "," + val;
+                    }
+                }
+            }else{
+                formProperty[key] = val;
+            }
+        })
+
+        //获取开关按钮值
+        $.each($(".flow-form .onoffswitch input"),function(index,element){
+            var $this = $(element);
+            var key = $this.attr("name");
+            formProperty[key] = $this.is(':checked') == true ? 0 : 1;
+        })
+
+        return formProperty;
+    }
+
+    function getSelectedUsers() {
+        var userList = "";
+        var $selModule = $(".flow-sel.active");
+        var $sel = $(".flow-sel.active .flow-selected a");
+        $.each($sel,function (index,element) {
+            var userId = $(element).attr("user-id");
+            if(userId && $.trim(userId)!=""){
+                userList += userId+","
+            }
+        })
+        return userList;
+    }
+
+    function closeLastDialog(obj) {
+        var eles =  $("div[id^='layui-layer'][type='page']");
+        if(eles!=null && eles.length>0){
+            for(var i=0;i<eles.length;i++){
+                var id = $(eles[i]).attr("id");
+                var index = id.substring(11);
+                layer.close(index);
+            }
+        }
+    }
+
+    function flowsubmit() {
+        var userList = getSelectedUsers();
+        if(userList != ""){
+            submitApply(userList);
+        }else{
+            layer.msg("请选择处理人！",
+                {
+                    time: 1000,
+                }
+            )
+        }
+    }
+
+    function submitApply(userList) {
+        var arr = new Array();
+        arr = userList.split(',');
+         if(arr.length > 2){
+            $.modal.msg("不能选择多个审批人！")
+            return;
+        }
+        var formProperty = getFormProperty();
+        var comment=$("#comment").val();
+        var commentArray =$("#commentArray").val();
+        var enableCommentStore =$("#enableCommentStore").val();
+        $.ajax({
+            url: ctx + 'workflow/submitApply',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                "taskId" : "[[${taskId}]]",
+                "proId" : "[[${proId}]]",
+                "userList" : userList,
+                "comment" : comment,
+                "condition" : "[[${condition}]]",
+                "conditionVar" : "[[${conditionVar}]]",
+                "entityId" : "[[${entityId}]]",
+                "formJson" : JSON.stringify(formProperty),
+                "commentArray":commentArray,
+                "enableCommentStore":enableCommentStore,
+                "decideFlag" : "[[${decideFlag}]]"
+            },
+            success: function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    layer.msg("操作成功！",
+                        {
+                            time: 1000,
+                        },
+                        function () {
+                            //刷新个人申请页面
+                            refreshMenuItem('/sastind/apply');
+                            //刷新审批页面
+                            refreshMenuItem('/sastind/approval');
+                            //刷新主页面待办任务
+                            refreshMenuItem('/sastind/main');
+                            var curUrl = window.location.pathname + window.location.search;
+                            var tabs = $(".menuTabs .menuTab",window.parent.document);
+                            var targetUrl = ""
+                            $.each(tabs,function (i,el) {
+                                var dataId = $(el).data("id");
+                                if(dataId){
+                                    if(curUrl.indexOf(dataId)>=0){
+                                        var df = curUrl.length - dataId.length;
+                                        if(df < 2){
+                                            targetUrl = dataId;
+                                        }
+                                    }
+                                }
+                            })
+                            $.modal.closeTab(targetUrl);
+                        }
+                    )
+                } else {
+                    layer.msg("操作失败！",
+                        {
+                            time: 1000,
+                        },
+                        function () {
+                            location.reload();
+                        }
+                    )
+                }
+
+            }
+        })
+
+    }
+
+    function flowApproval() {
+        //初始选择人dialog
+        if(!$(".flow-sel-tpl .flow-sel").hasClass("active")){
+            $(".flow-sel-tpl .flow-sel").addClass("active");
+        }
+        var HTMLtpl = $(".flow-sel-tpl").html();
+        $(".flow-sel-tpl .flow-sel").removeClass("active");
+
+        var index = layer.open({
+            type : 1,
+            title : '选择审批人员',
+            shadeClose: true,
+            move: false,
+            resize:false,
+            shade: 0.3,
+            offset: "10%",
+            shadeClose : false,
+            area: ['750px', '460px'],
+            content: HTMLtpl
+        });
+    }
+</script>
+
+<div class="flow-container">
+    <div class="flow-history" th:if="${processRecordList.size()>0}">
+        <div class="history-form">
+            <form class="form-horizontal m">
+                <th:block th:each="field : ${processRecordList.get(0).form}">
+                    <th:block th:if="${field.type == 'text'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">[[${field.value}]]</label>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'integer' || field.type == 'decimal'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">[[${field.value}]]</label>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'password'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">[[${field.value}]]</label>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'dropdown'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <th:block th:each="option : ${field.options}">
+                                    <th:block th:if="${option.id==field.value}">
+                                        <label class="control-label">[[${option.name}]]</label>
+                                    </th:block>
+                                </th:block>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'radio-buttons'}">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <th:block th:each="option : ${field.options}">
+                                <label class="check-box" >
+                                    <input type="checkbox" th:name="${field.id}" th:value="${option.id}" disabled="disabled" th:checked="${@dict.StrIsContains(field.value,option.id)}"/>
+                                    [[${option.name}]]
+                                </label>
+                            </th:block>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'boolean'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <th:block th:if="${field.value==0}">
+                                    <label class="control-label">是</label>
+                                </th:block>
+                                <th:block th:if="${field.value==1}">
+                                    <label class="control-label">否</label>
+                                </th:block>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'date'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">[[${field.value}]]</label>
+                            </div>
+                        </div>
+                    </th:block>
+                    <th:block th:if="${field.type == 'multi-line-text'}">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                            <div class="col-sm-8">
+                                <label class="control-label">[[${field.value}]]</label>
+                            </div>
+                        </div>
+                    </th:block>
+                </th:block>
+            </form>
+        </div>
+    </div>
+    <div class="flow-form">
+        <form class="form-horizontal m">
+            <th:block th:each="field : ${form}">
+                <th:block th:if="${field.type == 'text'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <input th:name="${field.id}" class="form-control" type="text">
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'integer' || field.type == 'decimal'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <input th:name="${field.id}" class="form-control" type="number">
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'password'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <input th:name="${field.id}" class="form-control" type="password">
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'dropdown'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <select th:name="${field.id}" class="form-control m-b">
+                                <option th:each="option : ${field.options}" th:text="${option.name}" th:value="${option.id}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'radio-buttons'}">
+                    <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                    <div class="col-sm-8">
+                        <th:block th:each="option : ${field.options}">
+                            <label class="check-box">
+                                <input type="checkbox" th:name="${field.id}" th:value="${option.id}" />
+                                [[${option.name}]]
+                            </label>
+                        </th:block>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'boolean'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <div class="onoffswitch">
+                                <input type="checkbox" th:checked="true" class="onoffswitch-checkbox" th:id="${field.id}" th:name="${field.id}">
+                                <label class="onoffswitch-label" th:for="${field.id}">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'date'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" class="form-control" th:name="${field.id}" />
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${field.type == 'multi-line-text'}">
+                    <div class="form-group clearfix">
+                        <label class="col-sm-3 control-label">[[${field.name}]]：</label>
+                        <div class="col-sm-8">
+                            <textarea th:name="${field.id}" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </th:block>
+            </th:block>
+        </form>
+    </div>
+
+
+    <div class="flow-sel-tpl">
+        <div class="flow-sel clearfix">
+            <div class="flow-wait">
+                <div class="flow-sel-title">
+                    待选区
+                </div>
+                <div class="flow-sel-list">
+                    <table>
+                        <thead>
+                        <tr>
+                            <td>
+                                姓名
+                            </td>
+                            <td>
+                                部门
+                            </td>
+                            <td>
+                                操作
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="candidate : ${candidateList}">
+                            <tr>
+                                <td th:text="${candidate.userName}">
+                                    姓名
+                                </td>
+                                <td th:text="${candidate.dept.deptName}">
+                                    部门
+                                </td>
+                                <td>
+                                    <a th:attr="user-id=${candidate.userId}" th:onclick="javascript:candidateSel(this)">选择</a>
+                                </td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="flow-selected">
+                <div class="flow-sel-title">
+                    已选区
+                </div>
+                <div class="flow-sel-list">
+                    <table>
+                        <thead>
+                        <tr>
+                            <td>
+                                姓名
+                            </td>
+                            <td>
+                                部门
+                            </td>
+                            <td>
+                                操作
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-btn-box text-center">
+            <a class="btn btn-success" onclick="javascript:flowsubmit()" >提交</a>
+            <a class="btn btn-success" onclick="javascript:closeLastDialog(this)" >关闭</a>
+        </div>
+    </div>
+    <div class="flow-btn-box text-center">
+        <a class="btn btn-success" onclick="javascript:flowApproval()" >提交</a>
+        <a th:if="${backTarget!=''}" class="btn btn-success" th:attr="backTarget=${backTarget}" onclick="javascript:flowback(this) " >驳回</a>
+        <a class="btn btn-success" onclick="javascript:closeLastDialog(this)" >关闭</a>
+    </div>
+   <input type="hidden" id="comment" name="comment" th:value="${comment}"/>
+   <input type="hidden" id="commentArray" name="commentArray" th:value="${commentArray}"/>
+   <input type="hidden" id="enableCommentStore" name="commentArray" th:value="${enableCommentStore}"/>
+</div>
+<script th:src="@{/ajax/libs/datapicker/bootstrap-datepicker.js}"></script>
+<script>
+    $(".input-group.date").datepicker({todayBtn: "linked",keyboardNavigation: !1,forceParse: !1,calendarWeeks: !0,autoclose: !0});
+</script>

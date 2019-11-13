@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-resource-edit" th:object="${resource}">
+            <input id="id" name="id" th:field="*{id}" type="hidden">
+            <input id="treeId" name="parentId" type="hidden" th:field="*{parentId}" />
+            
+            <div class="form-group">
+				<label class="col-sm-3 control-label ">父资源：</label>
+				<div class="col-sm-8">
+					<input class="form-control" type="text" onclick="selectMenuTree()" id="treeName" th:value="${resource.parentName == null ? 'ROOT' : resource.parentName}" readonly/>
+				</div>
+			</div>
+
+			<!--
+            <div class="form-group">
+				<label class="col-sm-3 control-label">所属应用：</label>
+				<div class="col-sm-8">
+					<div class="radio-box" th:each="syscfg : ${@authSystem.getSysCodeList('')}">
+						<input type="radio" th:id="${syscfg.sysCode}" id="sysCode" name="sysCode" th:value="${syscfg.sysCode}" th:field="*{sysCode}">
+						<label th:for="${syscfg.sysCode}" th:text="${syscfg.sysName}"></label>
+					</div>
+				</div>
+			</div>
+			-->
+
+			<div class="form-group">
+				<label class="col-sm-3 control-label">资源类型：</label>
+				<div class="col-sm-8">
+					<div class="radio-box" th:each="dict : ${@dict.getType('mirco_resource_type')}">
+						<input type="radio" th:id="${dict.dictCode}" name="type" th:value="${dict.dictValue}" th:field="*{type}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+				</div>
+			</div>
+			
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">访问方式：</label>
+				<div class="col-sm-8">
+					<div class="radio-box" th:each="dict : ${@dict.getType('mirco_resource_access_type')}">
+						<input type="radio" th:id="${dict.dictCode}" name="method" th:value="${dict.dictValue}" th:field="*{method}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+				</div>
+			</div>-->
+			
+			 <div class="form-group">	
+                <label class="col-sm-3 control-label">资源名称：</label>
+                <div class="col-sm-8">
+                    <input id="name" name="name" th:field="*{name}" class="form-control" type="text">
+                </div>
+            </div>
+            
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">资源代码：</label>
+                <div class="col-sm-8">
+                    <input id="code" name="code" th:field="*{code}" class="form-control" type="text">
+                </div>
+            </div>
+            
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">URL：</label>
+                <div class="col-sm-8">
+                    <input id="uri" name="uri" th:field="*{uri}" class="form-control" type="text">
+                </div>
+            </div>
+
+			<div class="form-group">
+				<label class="col-sm-3 control-label">权限标识：</label>
+				<div class="col-sm-8">
+					<input id="perms" name="perms" th:field="*{perms}" class="form-control" type="text">
+				</div>
+			</div>
+           
+            
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">图标：</label>
+                <div class="col-sm-8">
+                    <input id="icon" name="icon" th:field="*{icon}" class="form-control" type="text">
+                </div>
+            </div>
+            
+            <div class="form-group">
+				<label class="col-sm-3 control-label">状态：</label>
+				<div class="col-sm-8">
+					<div class="radio-box" th:each="dict : ${@dict.getType('sys_show_hide')}">
+						<input type="radio" th:id="${dict.dictCode}" name="status" th:value="${dict.dictValue}" th:field="*{status}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+				</div>
+			</div>
+          	
+		</form>
+    </div>
+    
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "auth/resource";
+		
+		$("#form-resource-edit").validate({
+			rules:{
+				code:{
+					required:true,
+				}
+			}
+		});
+		
+		function submitHandler() {
+			var jsonResource = $('#form-resource-edit').serialize();
+// 			console.info(jsonResource);
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/edit", jsonResource);
+	        }
+	    }
+		
+		 /*菜单管理-新增-选择菜单树*/
+        function selectMenuTree() {
+        	var resId = $("#id").val();
+        	var treeId = $("#treeId").val();
+        	if(treeId > 0) {
+        		var url = prefix + "/selectMenuTree/" + resId+"/edit";
+    			var options = {
+    				title: '菜单选择',
+    				width: "380",
+    				url: url,
+    				callBack: doSubmit
+    			};
+    			$.modal.openOptions(options);
+        	} else {
+        		$.modal.alertError("主菜单不能选择");
+        	}
+        	
+		}
+	    
+        function doSubmit(index, layero){
+			var body = layer.getChildFrame('body', index);
+   			$("#treeId").val(body.find('#id').val());
+   			$("#treeName").val(body.find('#name').val());
+   			layer.close(index);
+		}
+        
+        
+       
+        
+	</script>
+</body>
+</html>

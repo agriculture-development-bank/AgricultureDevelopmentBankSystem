@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="resumeList-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            操作人：<input id="userName" name="userName" type="text" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('resumeList-form')"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/fileDetail";
+    var flowStatusDatas = [[${@dict.getType('flow_status')}]];
+    //初始化查询条件使用
+    var fileDetailId = [[${fileDetailId}]];
+    $(function () {
+        //初始化查询条件
+        var options = {
+            url: prefix + "/resumeList?fileId=" + fileDetailId,
+            showExport: false,
+            showToggle: false,
+            search: false,
+            showSearch: true,
+            showColumns: true,
+            showRefresh: true,
+            pageSize: 20,
+            pageList: [10, 20, 30, 50],
+            columns: [
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'userId',
+                    title: '操作人',
+                    align: "center"
+                },
+                {
+                    field: 'belongDept',
+                    title: '所属部门',
+                    align: "center"
+                },
+                {
+                    field: 'receiveDept',
+                    title: '接收部门',
+                    align: "center"
+                },
+                {
+                    field: 'operateResult',
+                    title: '操作结果',
+                    align: "center",
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(flowStatusDatas, value);
+                    }
+                },
+                {
+                    field: 'operateTime',
+                    title: '操作时间',
+                    align: "center"
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

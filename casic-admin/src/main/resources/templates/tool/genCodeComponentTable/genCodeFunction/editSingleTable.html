@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-genCodeFunction-edit" th:object="${genCodeFunction}">
+        <input type="hidden" name="id" id="id" th:field="*{id}">
+        <input type="hidden" name="treeId" id="treeId" th:value="${genCodeComponent.clientId}">
+        <input type="hidden" id="funcMenuId" name="funcMenuId" th:field="*{funcMenuId}">
+        <input type="hidden" id="tableIds" name="tableIds" th:value="${tableIds}">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属组件：</label>
+            <div class="col-sm-8">
+                <input id="conmponentName" th:value="${genCodeComponent.conmponentName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">组件编码：</label>
+            <div class="col-sm-8">
+                <input id="conmponentCode" th:value="${genCodeComponent.conmponentCode}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">功能所需表：</label>
+            <div class="col-sm-3">
+                <select id="brand_sel" multiple="multiple" class="form-control" style="min-height: 150px">
+                    <option th:each="tableInfo:${genCodeComponentTables}" th:value="${tableInfo.id}" th:text="${tableInfo.tableEnName}"></option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <ul class="list-group" style="margin: 10px auto">
+                    <li class="list-group-item" style="text-align: center;"><a href="#" onclick="rightMove()">==></a></li>
+                    <li class="list-group-item" style="text-align: center;"><a href="#" onclick="leftMove()"><== </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-3">
+                <select id="choose_sel" multiple="multiple" class="form-control" style="min-height: 150px">
+                    <option th:each="table:${tables}" th:value="${table['componentTableId']}" th:text="${table['componentTableName']}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">功能名称：</label>
+            <div class="col-sm-8">
+                <input id="funcName" name="funcName" th:field="*{funcName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">英文名称：</label>
+            <div class="col-sm-8">
+                <input id="funcEnName" name="funcEnName" th:field="*{funcEnName}"  class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">映射包名：</label>
+            <div class="col-sm-8">
+                <input id="packageName" name="packageName" th:field="*{packageName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">功能类型：</label>
+            <div class="col-sm-8">
+                <input id="categoryId" name="categoryId" th:field="*{categoryId}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">功能注释：</label>
+            <div class="col-sm-8">
+                <input id="funcSimpleName" name="funcSimpleName" th:field="*{funcSimpleName}"  class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">作者注释：</label>
+            <div class="col-sm-8">
+                <input id="funcAuthor" name="funcAuthor" th:field="*{funcAuthor}"  class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对应菜单：</label>
+            <div class="col-sm-8">
+                <input class="form-control" id="funcMenuName" th:value="${resource1.name}"  type="text" name="funcMenuName" onclick="selectMenuTree()" readonly="true">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">表描述：</label>
+            <div class="col-sm-8">
+                <input id="remark" name="remark" th:field="*{remark}"  class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="fade_layer"></div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeFunction";
+    var arr = [[${tableIds}]];
+    var tableIds = arr.split(',');
+    $("#form-genCodeFunction-edit").validate({
+        rules:{
+            funcName:{
+                required:true,
+            },
+            funcEnName:{
+                required:true,
+            },
+            packageName:{
+                required:true,
+            },
+            categoryId:{
+                required:true,
+            }
+        }
+    });
+
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            console.log(tableIds);
+            var unique = unique22(tableIds);
+            $('#tableIds').val(unique.join(','));
+            $.operate.save(prefix + "/edit", $('#form-genCodeFunction-edit').serialize());
+        }
+    }
+
+    /**
+     * 数组去重
+     * */
+    function unique22(arr){
+        var hash=[];
+        for (var i = 0; i < arr.length; i++) {
+            if(arr.indexOf(arr[i])==arr.lastIndexOf(arr[i])){
+                hash.push(arr[i]);
+            }
+        }
+        return hash;
+    }
+
+    Array.prototype.indexOf = function(val) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] == val) return i;
+        }
+        return -1;
+    };
+
+    Array.prototype.remove = function(val) {
+        var index = this.indexOf(val);
+        if (index > -1) {
+            this.splice(index, 1);
+        }
+    };
+
+
+    function rightMove(){
+        var brand_sel = document.getElementById("brand_sel");
+        var choose_sel = document.getElementById("choose_sel");
+        var brand_options = brand_sel.options;
+        var s = choose_sel.options.length;
+        for(var i=0;i<brand_options.length;i++){
+            var is_selected = brand_options[i].selected;
+            if(is_selected){
+                var option  = new Option(brand_options[i].text  ,brand_options[i].value);
+                if(!contains(choose_sel,option)){
+                    choose_sel.options[s++] = new Option(brand_options[i].text  ,brand_options[i].value);
+                    tableIds.push(brand_options[i].value);
+                }
+            }
+        }
+    }
+
+    function leftMove(){
+        var choose_sel = document.getElementById("choose_sel");
+        var s = choose_sel.options.length;
+        for(var i=0;i<s;i++){
+            var is_selected = choose_sel.options[i].selected;
+            if (is_selected) {
+                tableIds.remove(choose_sel.options[i].value);
+                choose_sel.options[i].remove();
+            }
+        }
+    }
+
+    function clean(){
+        $("#choose_sel>option").each(function(){
+            $(this).remove();
+        });
+    }
+    function selectChoose(){
+        $("#choose_sel>option").attr("selected","true");
+        return true;
+    }
+
+
+    function  contains(obj_sel,option){
+        var options = obj_sel.options;
+        for(var i=0;i<options.length;i++){
+            if(options[i].value == option.value){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*单表功能-新增-对应菜单*/
+    function selectMenuTree() {
+        var clientId = $("#treeId").val();
+        var url = prefix + "/selectMenuTree/" + clientId;
+        var options = {
+            title: '菜单选择',
+            width: "380",
+            url: url,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+
+    function doSubmit(index, layero){
+        var body = layer.getChildFrame('body', index);
+        $("#funcMenuId").val(body.find('#treeId').val());
+        $("#funcMenuName").val(body.find('#treeName').val());
+        layer.close(index);
+    }
+</script>
+</body>
+</html>

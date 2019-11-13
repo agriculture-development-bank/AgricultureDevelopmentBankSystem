@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+        background-color: #ffffff;
+        opacity: 1;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" role="form" id="form-equipment-edit" th:object="${bankEquipment}">
+        <input id="equipmentId" name="id" th:field="*{id}"  type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">载体柜名称：</label>
+            <div class="col-sm-8">
+                <input id="equipmentName" name="equipmentName" class="form-control" type="text" th:field="*{equipmentName}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">载体柜类型：</label>
+            <div class="col-sm-8">
+                <select id="equipmentType" name="equipmentType" class="form-control m-b"
+                        th:with="type=${@dict.getType('equipment_type')}" th:field="*{equipmentType}" disabled="disabled">
+                    <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}" th:selected="${dict.isDefault == 'Y' ? true : false}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">载体柜单元数：</label>
+            <div class="col-sm-8">
+                <input id="unitLevel" name="unitLevel" class="form-control" type="text" th:field="*{unitLevel}" readonly="readonly"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">部署位置：</label>
+            <div class="col-sm-8">
+                <select id="position" name="position" th:field="*{position}" class="form-control">
+                    <option th:each="location:${bankLocations}" th:text="${location?.locationName}" th:value="${location?.id}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">设备IP：</label>
+            <div class="col-sm-8">
+                <input id="ip" name="ip" class="form-control" type="text" th:field="*{ip}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属部门：</label>
+            <div class="col-sm-8">
+                <input type="hidden" id="deptId" name="deptId" class="form-control" th:field="*{deptId}">
+                <input id="deptName" name="deptName" th:field="*{deptName}" class="form-control" type="text" placeholder="部门" onclick="$('#tree').show()" tabindex="2" onfocus="this.blur();">
+                <div id="tree" style="display: none;position: absolute;z-index: 1010;background-color: white;margin-left: 0px; width:94.2%;"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">责任人：</label>
+            <div class="col-sm-8">
+                <select id="userId" name="userId" class="form-control" th:field="*{userId}">
+                    <option th:each="user:${sysUsers}" th:text="${user?.userName}" th:value="${user?.userId}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">设备状态：</label>
+            <div class="col-sm-8">
+                <select id="equipmentStatus" name="equipmentStatus" class="form-control m-b"
+                        th:with="type=${@dict.getType('equipment_statue')}" th:field="*{equipmentStatus}">
+                    <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/bank/bootstrap-treeview.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/equipment";
+
+    $(function () {
+        var url = ctx + 'system/dept/getSysDeptTree/';
+        var config = {
+            url: url,
+            type: 'get',
+            contentType: 'application/json',
+            async: false,
+            success: function (result) {
+                if (result != null) {
+                    var options = {
+                        levels: 1,
+                        data: result,
+                        onNodeSelected: function (event, data) {
+                            $('#deptName').val(data.text);
+                            $('#deptId').val(data.href);
+                            $('#tree').hide();//选中树节点后隐藏
+                        }
+                    };
+                    $('#tree').treeview(options);
+                }
+            }, error: function () {
+                layer.msg("下拉部门加载失败");
+            }
+        };
+        $.ajax(config);
+    });
+
+    $("#form-equipment-edit").validate({
+        rules: {
+            equipmentName: {
+                required: true
+            },
+            equipmentType:{
+                required: true
+            },
+            unitLevel:{
+                required: true,
+                digits: true,
+                min: 0
+            },
+            position: {
+                required: true
+            },
+            ip: {
+                required: true,
+                remote:{
+                    url: prefix + "/checkEquipmentIpUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "id": function() {
+                            return $("#equipmentId").val();
+                        },
+                        "ip" : function() {
+                            return $.common.trim($("#ip").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            deptId: {
+                required: true
+            },
+            userId: {
+                required: true
+            },
+            equipmentStatus: {
+                required: true
+            }
+        },
+        messages: {
+            "ip": {
+                remote: "设备IP已存在"
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-equipment-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

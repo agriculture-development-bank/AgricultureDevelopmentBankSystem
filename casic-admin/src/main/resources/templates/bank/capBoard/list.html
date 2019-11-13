@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bank:bankCapBoard:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('bank:bankCapBoard:remove')}]];
+    var prefix = ctx + "bank/bankCapBoard";
+    var equipmentId = [[${equipmentId}]];
+    $(function () {
+        var options = {
+            url: prefix + "/list?equipmentId=" + equipmentId,
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            sortName: "capBoardCode",
+            sortOrder: "asc",
+            uniqueId: "id",
+            modalName: "载体柜单元门信息",
+            showToggle: false,
+            search: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            showExport: false,
+            columns: [
+                {
+                    field: 'capBoardName',
+                    title: '载体柜单元门名称',
+                    align: 'center'
+                },
+                {
+                    field: 'capBoardCode',
+                    title: '载体柜单元门编号',
+                    align: 'center'
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

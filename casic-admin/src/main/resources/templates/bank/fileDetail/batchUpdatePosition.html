@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" role="form" id="form-bankFileDetailPostion-edit">
+        <input id="fileDetailIds" name="id" th:value="${ids}"  type="hidden">
+        <fieldset>
+            <legend>重新选择位置信息</legend>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">所属载体柜：</label>
+                    <div class="col-sm-8">
+                        <select id="equipmentId" name="equipmentId" type="text" class="form-control">
+                            <option value="">请选择载体柜</option>
+                            <option th:each="equipment: ${bankEquipments}" th:value="${equipment?.id}" th:text="${equipment?.equipmentName}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">所属载体柜单元门：</label>
+                    <div class="col-sm-8">
+                        <select id="capBoardId" name="capBoardId" type="text" class="form-control" disabled="disabled"></select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/bank/bootstrap-treeview.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/fileDetail";
+    function empty_capBoardId(){
+        $("#capBoardId").empty();
+        $("#capBoardId").attr("disabled", false);
+        $("#capBoardId").append("<option value=''>请选择载体柜单元门</option>");
+    }
+    $(function () {
+        $("#equipmentId").bind("change",function(){
+            var equipmentId = $(this).val();
+            var url = ctx + "bank/bankCapBoard/selectBankCapBoardByEquipmentId";
+            $.post(url,{"equipmentId":equipmentId},function(dataObj){
+                console.log(dataObj);
+                if(dataObj == undefined){
+                    layer.msg("未查询到载体柜分类数据！");
+                }else{
+                    empty_capBoardId();
+                    for(var i=0;i<dataObj.length;i++){
+                        //更新门的分类
+                        var capBoardId = dataObj[i].id;
+                        var capBoardName=dataObj[i].capBoardName;
+                        $("#capBoardId").append("<option value='"+capBoardId+"'>"+capBoardName+"</option>");
+                    }
+                }
+            })
+        });
+    });
+
+    $("#form-bankFileDetailPostion-edit").validate({
+        rules: {
+            equipmentId: {
+                required: true
+            },
+            capBoardId: {
+                required: true
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/batchUpdatePosition", $('#form-bankFileDetailPostion-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

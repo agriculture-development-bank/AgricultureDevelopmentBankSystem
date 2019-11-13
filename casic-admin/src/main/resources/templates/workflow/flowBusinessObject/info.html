@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-striped">
+            <h2 class="text-center">资产详情</h2>
+            <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">名称：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${businessObject.name}" class="form-control"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">编码：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${businessObject.code}" class="form-control"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">设备sn号码：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${businessObject.sn}" class="form-control"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">设备价格：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${businessObject.amount}" class="form-control"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">入库时间：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${inputDateStr}" class="form-control"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3 control-label text-right">出库时间：</label>
+                    <div class="col-sm-8">
+                        <label th:text="${outputDateStr}" class="form-control"></label>
+                    </div>
+                </div>
+
+                <!-- 流程工具栏 -->
+                <div class="btn-group-sm hidden-xs text-center" id="workflowToolbar" role="group"></div>
+                <!-- 流程工具栏 -->
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script language="JavaScript">
+    $(document).ready(function () {
+        var params = {};
+        params.container = "#workflowToolbar";
+        params.btnData = '[[${routeList}]]';
+        params.activeTaskId = "[[${activeTaskId}]]";
+        params.processInstanceId = "[[${processInstanceId}]]";
+        params.entityId = '[[${businessObject.id}]]'
+        //候选人配置中如果需要从业务中读取信息需要配置该参数
+        params.candidateVar = {
+            "deptVar" : '052',
+            "careerVar" : "CAREER1"
+        };
+        params.conditionVar = {
+            "amountFlag" : [[${businessObject.amount}]],
+        }
+        $.workflow.buildButtons(params);
+
+        //根据业务去除多余的流程按钮
+        var amount = '[[${businessObject.amount}]]';
+        if(amount < 1000){
+            $("#workflowToolbar .btn[condition='${amountFlag>=1000}']").remove();
+        }
+        if(amount >= 1000){
+            $("#workflowToolbar .btn[condition='${amountFlag<1000}']").remove();
+        }
+    })
+</script>
+</body>
+</html>

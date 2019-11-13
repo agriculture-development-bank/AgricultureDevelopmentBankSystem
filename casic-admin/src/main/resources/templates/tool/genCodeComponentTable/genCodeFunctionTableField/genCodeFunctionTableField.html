@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group" th:each="map:${maps}">
+            <a>[[${map.tableName}]] （[[${map.tableEnName}]]）</a>
+            <a class="btn btn-success" th:onclick="addTemplateField([[${id}]],[[${map.table_id}]]);" shiro:hasPermission="tool:genCodeFunctionTableField:add">
+                添加字段
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped" th:each="map:${maps}">
+            <table th:id="${'bootstrap-table-'+ map.table_id}" data-mobile-responsive="true"></table>
+        </div>
+
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var editFlag = [[${@permission.hasPermi('tool:genCodeFunctionTableField:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('tool:genCodeFunctionTableField:remove')}]];
+    var prefix = ctx + "tool/genCodeFunctionTableField";
+    var functionId = [[${id}]];
+    var tables = [[${maps}]];
+
+    var isList_datas = [[${@dict.getType('tool_genCodeTemplateCfgColumns_isList')}]];
+    var isQuery_datas = [[${@dict.getType('tool_genCodeTemplateCfgColumns_isQuery')}]];
+    var isEdit_datas = [[${@dict.getType('tool_genCodeTemplateCfgColumns_isEdit')}]];
+    var isInsert_datas = [[${@dict.getType('tool_genCodeTemplateCfgColumns_isInsert')}]];
+    var isNull_datas = [[${@dict.getType('tool_genCodeTableColumns_isNull')}]];
+
+    $(function() {
+        tables.forEach(v => {
+            initTable(v.table_id);
+        });
+    });
+
+    function initTable(tableId) {
+        var functionId = [[${id}]];
+        var option = {
+            url: prefix + '/list' ,
+            createUrl: '',
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            queryParams: queryParams,
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            dataType: 'json',
+            cache: false,                                       // 是否使用缓存
+            method: 'post',//请求方式（*）
+            toolbar: '#toolbar',//工具按钮用哪个容器
+            striped: true,//是否显示行间隔色
+            showRefresh: true,//是否显示刷新按钮
+            clickToSelect: true,//是否启用点击选中行
+            uniqueId: "id",//每一行的唯一标识，一般为主键列
+            showColumns: true,
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 100,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],
+            sidePagination: "server",
+            modalName: "字段",
+            sortName: "createTime",
+            sortOrder: "desc",
+            search: false,
+            columns: [{
+                checkbox: true,
+                visible: true
+            },
+                {
+                    field: 'remark',
+                    title: '字段名称',
+                    sortable: true
+                },
+                {
+                    field: 'columnName',
+                    title: '字段英文名',
+                    sortable: true
+                },
+                {
+                    field: 'jdbcType',
+                    title: '数据库类型',
+                    sortable: true
+                },
+                {
+                    field: 'isNull',
+                    title: '是否必填',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(isNull_datas, item.isNull);
+                    }
+                },
+                {
+                    field: 'isList',
+                    title: '是否列表显示',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(isList_datas, item.isList);
+                    }
+                },
+                {
+                    field: 'isQuery',
+                    title: '是否可查询',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(isQuery_datas, item.isQuery);
+                    }
+                },
+                {
+                    field: 'isInsert',
+                    title: '是否可新增',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(isInsert_datas, item.isInsert);
+                    }
+                },
+                {
+                    field: 'isEdit',
+                    title: '是否可编辑',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(isEdit_datas, item.isEdit);
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-edit"></i>删除</a> ');
+                        return actions.join('');
+                    }
+                }],
+            onLoadSuccess: function(data){
+                console.log(data);
+            }
+        };
+        function queryParams(params) {
+            return {
+                tableId:        tableId,
+                functionId:     functionId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+
+        $.table._option = option;
+        $('#bootstrap-table-' + tableId).bootstrapTable(option);
+    }
+
+    /**
+     * 新增功能
+     * */
+    function addTemplateField(functionId, tableId) {
+        var createUrl = prefix + '/add/' + tableId + "/" + functionId;
+        $.table._option.createUrl = createUrl;
+        $.table._option.modalName = '字段';
+        $.operate.add();
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

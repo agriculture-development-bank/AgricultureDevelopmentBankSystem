@@ -1,0 +1,484 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+
+<link th:href="@{/ajax/libs/jquery-layout/jquery.layout-latest.css}" rel="stylesheet"/>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+
+<body class="gray-bg">
+	<div class="ui-layout-west">
+		<div class="main-content">
+			<div class="box box-main">
+				<input id="treeId"   name="treeId"    type="hidden" />
+				<input id="treeName" name="treeName"  type="hidden" />
+				<input id="treePId" name="treePId"  type="hidden" />
+				<div class="box-header">
+					<div class="box-title">
+						<i class="fa icon-grid"></i> 领域/组件
+					</div>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" id="btnExpand" title="展开" style="display:none;"><i class="fa fa-chevron-up"></i></button>
+						<button type="button" class="btn btn-box-tool" id="btnCollapse" title="折叠"><i class="fa fa-chevron-down"></i></button>
+						<button type="button" class="btn btn-box-tool" id="btnRefresh" title="刷新"><i class="fa fa-refresh"></i></button>
+					</div>
+				</div>
+				<div class="ui-layout-content">
+					<div id="tree" class="ztree"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <div class="container-div ui-layout-center">
+		<div class="col-sm-12 search-collapse">
+			<form id="component-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							组件名称：<input type="text" name="conmponentName"/>
+						</li>
+						<li>
+							组件编码：<input type="text" name="conmponentCode"/>
+						</li>
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-success" onclick="componentAdd()" shiro:hasPermission="tool:genCodeComponent:add">
+				<i class="fa fa-plus"></i> 添加
+			</a>
+			<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="tool:genCodeComponent:edit">
+	            <i class="fa fa-edit"></i> 修改
+	        </a>
+			<a class="btn btn-danger btn-del btn-del disabled" onclick="componentRemoveAll()" shiro:hasPermission="tool:genCodeComponent:remove">
+				<i class="fa fa-remove"></i> 删除
+			</a>
+		</div>
+			
+		<div class="col-sm-12 select-table table-striped no-scroll">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+	<script th:src="@{/ajax/libs/jquery-layout/jquery.layout-latest.js}"></script>
+	<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('tool:genCodeComponent:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('tool:genCodeComponent:remove')}]];
+        var prefix = ctx + "tool/genCodeComponent";
+
+        var tableEditFlag = [[${@permission.hasPermi('tool:genCodeComponentTable:edit')}]];
+        var tableRemoveFlag = [[${@permission.hasPermi('tool:genCodeComponentTable:remove')}]];
+        var tablePrefix = ctx + "tool/genCodeComponentTable";
+        var componentId = "";
+
+        $(function() {
+            $('body').layout({ west__size: 185 });
+            queryComponentList();
+            queryDomainComponentTree();
+        });
+
+        function queryComponentList(treeId) {
+            $.ajax({
+                url : ctx + "tool/genCodeComponent/listView",
+                type : 'get',
+                data : {},
+                dataType : 'html',
+                success : function (result) {
+                    var content = result;
+                    $(".ui-layout-center").empty().append(content);
+
+                    if(!treeId){
+                        treeId = "";
+                    }
+                    var options = {
+                        url: prefix + "/list?domainId=" + treeId,
+                        createUrl: prefix + "/add",
+                        updateUrl: prefix + "/edit/{id}",
+                        removeUrl: prefix + "/remove",
+                        modalName: "组件配置",
+                        search: false,
+                        showSearch: false,
+                        showRefresh: false,
+                        showColumns: false,
+                        showToggle: false,
+                        showExport: false,
+                        uniqueId:'id',
+                        columns: [{
+                            checkbox: true
+                        },
+                            {
+                                field : 'conmponentName',
+                                title : '组件名称'
+                            },
+                            {
+                                title : '所属领域',
+                                formatter: function(value, row, index) {
+                                    var value = "";
+                                    value = row.domain.domainName + '(' + row.domain.domainCode + ')';
+                                    return value;
+                                }
+                            },
+                            {
+                                field : 'conmponentCode',
+                                title : '组件编码'
+                            },
+                            {
+                                field : 'createBy',
+                                title : '创建人',
+                                formatter: function(value, row, index) {
+                                    if(value && value != ""){
+                                        value = row.createUser.userName;
+                                    }
+                                    return value;
+                                }
+                            },
+                            {
+                                field : 'updateBy',
+                                title : '跟新人',
+                                formatter: function(value, row, index) {
+                                    if(value && value != ""){
+                                        value = row.updateUser.userName;
+                                    }
+                                    return value;
+                                }
+                            },
+                            {
+                                field : 'updateTime',
+                                title : '最后更新时间'
+                            },
+                            {
+                                title: '操作',
+                                align: 'center',
+                                formatter: function(value, row, index) {
+                                    var actions = [];
+                                    actions.push('<div class="btn-group">' +
+                                        '<a type="button" class="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                                        '数据编辑<span class="caret"></span>' +
+                                        '</a>' +
+                                        '<ul class="dropdown-menu right">' +
+                                        '<li class="'+ editFlag +'"><a href="#" onclick="$.operate.edit(\'' + row.id + '\')">修改</a></li>' +
+                                        '<li><a href="#" onclick="componentTableDesign(\'' + row.conmponentName + '\',\'' + row.id + '\')"> 数据表设计</a></li>' +
+                                        //'<li><a href="#" onclick="componentMenuDesign(\'' + row.conmponentName + '\',\'' + row.clientId + '\')">组件菜单设计</a></li>' +
+                                        '<li><a href="#" onclick="funcDesign(\'' + row.id + '\')">功能设计</a></li>' +
+                                        '<li><a href="#" onclick="componentCodeGenerator(\'' + row.id + '\', \'' + row.conmponentName + '\')">组件源码生成</a></li>' +
+                                        '<li><a href="#" onclick="copyComponent(\'' + row.id + '\')">复制组件</a></li>' +
+                                        '<li class="'+ removeFlag +'"><a href="#" onclick="componentRemove(\'' + row.id + '\')">删除</a></li>' +
+                                        '</ul>' +
+                                        '</div>');
+                                    return actions.join('');
+                                }
+                            }]
+                    };
+
+					$.table.init(options);
+                }
+            })
+        }
+
+        function queryComponentTableList(treeId) {
+            componentId = treeId;
+			$.ajax({
+				url : ctx + "tool/genCodeComponent/componentTableListView",
+                type : 'get',
+                data : {},
+                dataType : 'html',
+				success : function (result) {
+					var content = result;
+                    $(".ui-layout-center").empty().append(content);
+
+                    var options = {
+                        url: tablePrefix + "/list",
+                        createUrl: tablePrefix + "/add/{" + componentId +  "}",
+                        updateUrl: tablePrefix + "/edit/{id}",
+                        removeUrl: tablePrefix + "/remove",
+                        queryParams: function(params) {
+							return {
+								componentId:    componentId,
+								pageSize:       params.limit,
+								pageNum:        params.offset / params.limit + 1,
+								searchValue:    params.search,
+								orderByColumn:  params.sort,
+								isAsc:          params.order
+							};
+                    	},
+                        modalName: "数据表",
+                        sortName: "createTime",
+                        sortOrder: "desc",
+                        search: false,
+                        showSearch: false,
+                        showRefresh: false,
+                        showColumns: false,
+                        showToggle: false,
+                        showExport: false,
+                        columns: [{
+                            checkbox: true
+                        },
+                            {
+                                field: 'tableName',
+                                title: '表名称',
+                                sortable: true
+                            },
+                            {
+                                field: 'tableEnName',
+                                title: '表英文名称',
+                                sortable: true
+                            },
+                            {
+                                field: 'componentName',
+                                title: '所属组件',
+                                sortable: true
+                            },
+                            {
+                                field: 'tableType',
+                                title: '所属分类',
+                                sortable: true,
+                                formatter: function(value, row, index){
+                                    if (value == "r") {
+                                        return "关联表";
+                                    } else if (value == "s") {
+                                        return "普通表";
+                                    } else {
+                                        return "未知";
+                                    }
+                                }
+                            },
+                            {
+                                field: 'dataSourceName',
+                                title: '所属数据源',
+                                sortable: true
+                            },
+                            {
+                                field: 'createTime',
+                                title: '发布时间',
+                                sortable: true
+                            },
+                            {
+                                title: '操作',
+                                align: 'center',
+                                formatter: function(value, row, index) {
+                                    var actions = [];
+                                    actions.push('<a class="btn btn-success btn-xs ' + tableEditFlag + '" href="#" onclick="FieldMaintenanceFunc(\'' + row.tableType + '\',\'' + row.id + '\')"><i class="fa fa-edit"></i>字段维护</a> ');
+                                    actions.push('<a class="btn btn-success btn-xs ' + tableEditFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                                    actions.push('<a class="btn btn-danger btn-xs ' + tableRemoveFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    return actions.join('');
+                                }
+                            }]
+                    };
+                    $.table.init(options);
+                }
+			})
+        }
+
+        function queryDomainComponentTree()
+        {
+            var url = ctx + "tool/genCodeComponent/domainComponentTreeData";
+            var options = {
+                url: url,
+                expandLevel: 2,
+                onClick : zOnClick
+            };
+            $.tree.init(options);
+
+            function zOnClick(event, treeId, treeNode) {
+            	var id = treeNode.id;
+            	var pid = treeNode.pId;
+            	var name = treeNode.name;
+            	$("#treeId").val(id);
+            	$("#treeName").val(name);
+            	$("#treePId").val(pid);
+            	if(pid == null){
+                    queryComponentList(id);
+				}else{
+                    queryComponentTableList(id);
+				}
+            }
+        }
+		$('#btnExpand').click(function() {
+			$._tree.expandAll(true);
+		    $(this).hide();
+		    $('#btnCollapse').show();
+		});
+
+		$('#btnCollapse').click(function() {
+		    $._tree.expandAll(false);
+		    $(this).hide();
+		    $('#btnExpand').show();
+		});
+
+		$('#btnRefresh').click(function() {
+		    queryDomainComponentTree();
+		});
+		/**
+		 * 数据库表设计
+		 * @param conmponentName 组件名称
+		 * @param id  组件id
+		 */
+		function componentTableDesign(conmponentName, id) {
+			var url = ctx + 'tool/genCodeComponentTable' + '/componentTableDesign/' + id;
+			createMenuItem(url, conmponentName + "-数据表设计");
+		}
+
+		/**
+		 * 功能设计
+		 * @param id  组件id
+		 * */
+		function funcDesign(id) {
+			var url = ctx + 'tool/genCodeFunction' + '/fun/' + id;
+			createMenuItem(url, '功能设计');
+		}
+
+        /**
+		 * 组件添加
+         */
+        function componentAdd() {
+			var treeId = $("#treeId").val();
+			var treeName = $("#treeName").val();
+			var pId = $("#treePId").val();
+			if(!pId || pId == ""){
+                var url = prefix + "/add?domainId=" + treeId + "&domainName=" + treeName;
+                $.modal.open("添加组件配置", url);
+			}
+        }
+
+        /**
+		 *组件删除
+         */
+        function componentRemoveAll() {
+            var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.confirm("确认要删除选中的" + rows.length + "条数据吗?", function() {
+                var url = $.table._option.removeUrl;
+                var data = { "ids": rows.join() };
+                $.modal.loading("正在处理中，请稍后...");
+                var config = {
+                    url: url,
+                    type: "post",
+                    dataType: "json",
+                    data: data,
+                    success: function(result) {
+                        $.operate.ajaxSuccess(result);
+                        queryDomainComponentTree();
+                    }
+                };
+                $.ajax(config)
+            });
+        }
+
+        function componentRemove(id){
+            $.modal.confirm("确定删除该条" + $.table._option.modalName + "信息吗？", function() {
+                var url = $.common.isEmpty(id) ? $.table._option.removeUrl : $.table._option.removeUrl.replace("{id}", id);
+                var data = { "ids": id };
+                $.modal.loading("正在处理中，请稍后...");
+                var config = {
+                    url: url,
+                    type: "post",
+                    dataType: "json",
+                    data: data,
+                    success: function(result) {
+                        $.operate.ajaxSuccess(result);
+                        queryDomainComponentTree();
+                    }
+                };
+                $.ajax(config)
+            });
+		}
+
+        /**
+         * 组件菜单设计
+         * @param conmponentName 组件名称
+         * @param clientId  应用id
+         */
+        function componentMenuDesign(conmponentName, clientId) {
+            if(clientId && clientId != "" && clientId != "null"){
+                var url = ctx + 'auth/resource/componentResource/' + clientId;
+                createMenuItem(url, conmponentName + "-菜单设计");
+			}else{
+                $.modal.msg("该组件未设置应用");
+			}
+        }
+
+        /** componentTable所需方法  start */
+
+        /**
+         * 新增数据库
+         * */
+        function addTableByType(tableLabel, tableType) {
+            var modalName = "数据" + tableLabel, createUrl = tablePrefix + "/add/" + componentId + "/" + tableType, updateUrl = "";
+            $.table._option.modalName = modalName;
+            $.table._option.createUrl = createUrl;
+            $.operate.add();
+        }
+
+        /**
+         * 字段维护
+         * @param tableType 表类型
+         * @param id  组件id
+         */
+        function FieldMaintenanceFunc(tableType, id) {
+            console.log(tableType);
+            var url = ctx + 'tool/genCodeComponentTableColumns' + '/tableFieldMaintenance/' + id;
+            var tableTypeName = '';
+            if (tableType =="r") {
+                tableTypeName = "关联表";
+            } else if (tableType == "s") {
+                tableTypeName = "普通表";
+            }
+            createMenuItem(url, "表结构设计-" + tableTypeName);
+        }
+
+        /** componentTable所需方法  end */
+
+		/**
+		 * 组件源码生成
+		 *
+		 * @param  组件id
+		 * @param  组件名称
+		 */
+		function componentCodeGenerator(id, conmponentName) {
+            var url = ctx + "tool/genCodeFunction/genComponentCode/" + id;
+			$.modal.confirm("确定要生成" + conmponentName + "组件代码吗？", function() {
+				location.href = url;
+				layer.msg('执行成功,正在生成组件代码请稍后…', { icon: 1 });
+			});
+		}
+
+		/**
+		 * 生成项目结构
+		 *
+		 * @param componentId 组件id
+		 */
+		function genProjectStructure(conmponentName, componentId) {
+            var url = ctx + "tool/genCodeFunction/genProjectStructure/" + componentId;
+			$.modal.confirm("确定要生成" + conmponentName + "组件项目结构吗？", function() {
+				layer.msg('执行成功,正在项目结构请稍后…', { icon: 1 });
+				$.ajax({
+					url: url,
+					type: "get",
+					success:function (result) {
+						layer.msg("项目结构生成成功！", {icon: 1});
+					}
+				});
+			})
+		}
+
+		/**
+		 * 复制组件
+		 * @param id
+		 */
+		function copyComponent(id) {
+			layer.msg("很抱歉，该功能正在开发中", {icon: 5});
+		}
+	</script>
+</body>
+</html>

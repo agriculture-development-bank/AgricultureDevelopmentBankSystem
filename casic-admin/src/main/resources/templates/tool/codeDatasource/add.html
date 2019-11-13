@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-codeDatasource-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">数据源名称：</label>
+				<div class="col-sm-8">
+					<input id="sourceName" name="sourceName" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">数据源类型：</label>
+				<div class="col-sm-8">
+				    <select id="sourceType" name="sourceType" class="form-control">
+				    	<option value="1">MySQL</option>
+				    	<option value="2">Oracle</option>
+				    	<option value="3">SQL Server</option>
+				    </select>
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">jdbc类名：</label>
+				<div class="col-sm-8">
+					<input id="sourceClass" name="sourceClass" value="com.mysql.jdbc.Driver" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">链接url：</label>
+				<div class="col-sm-8">
+					<input id="sourceUrl" name="sourceUrl" class="form-control" type="text" value="jdbc:mysql://172.16.0.77:3306/xxxx?useUnicode=true&characterEncoding=utf8">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">数据库名称：</label>
+				<div class="col-sm-8">
+					<input id="databaseName" name="databaseName" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">用户名：</label>
+				<div class="col-sm-8">
+					<input id="sourceUser" name="sourceUser" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">密码：</label>
+				<div class="col-sm-8">
+					<input id="sourcePass" name="sourcePass" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">数据源描述：</label>
+				<div class="col-sm-8">
+					<input id="sourceRemark" name="sourceRemark" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "tool/codeDatasource"
+		$("#form-codeDatasource-add").validate({
+			rules:{
+				sourceClass:{
+					required:true,
+				},
+				sourceName:{
+					required:true,
+				},
+				sourceUrl:{
+					required:true,
+				},
+				databaseName: {
+					required: true
+				},
+				sourceUser: {
+					required:true
+				},
+				sourcePass: {
+					required:true
+				}
+			}
+		});
+		
+    	$('#sourceType').on('change',function(){
+    		var value = $(this).val();
+    		if(value==1){
+    			$("#sourceClass").val("com.mysql.jdbc.Driver");
+    			$("#sourceUrl").val("jdbc:mysql://127.0.0.1:3306/xxxx?useUnicode=true&characterEncoding=utf8");    			
+    		}else if(value==2){
+    			$("#sourceClass").val("oracle.jdbc.driver.OracleDriver");
+    			$("#sourceUrl").val("jdbc:oracle:thin:@127.0.0.1:1251:xxxx");    			
+    		}else if(value==3){
+    			$("#sourceClass").val("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    			$("#sourceUrl").val("jdbc:sqlserver://127.0.0.1:1433");    			
+    		}
+    	});
+
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-codeDatasource-add').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

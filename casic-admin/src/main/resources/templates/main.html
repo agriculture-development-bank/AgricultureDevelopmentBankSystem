@@ -1,0 +1,323 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/css/custom.css}" rel="stylesheet"/>
+<body class="gray-bg">
+  <div class="container-div">
+    <!-- 统计数量 start-->
+    <div class="top_tiles clearfix">
+      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="tile-stats">
+          <div class="icon"><i class="fa fa-database"></i></div>
+          <div class="count">[[${accountNum}]]</div>
+          <h3>资产数量</h3>
+          <p>自己名下的资产数量</p>
+        </div>
+      </div>
+      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="tile-stats">
+          <div class="icon"><i class="fa fa-cube"></i></div>
+          <div class="count">[[${applyNum}]]</div>
+          <h3>申请数量</h3>
+          <p>自己正在申请的资产数量</p>
+        </div>
+      </div>
+      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="tile-stats">
+          <div class="icon"><i class="fa fa-clock-o"></i></div>
+          <div class="count">[[${waitReturnNum}]]</div>
+          <h3>待归还数量</h3>
+          <p>临近归还日期的资产数量</p>
+        </div>
+      </div>
+      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="tile-stats">
+          <div class="icon"><i class="fa fa-cny"></i></div>
+          <div class="count">[[${assetValue}]]</div>
+          <h3>资产原值</h3>
+          <p>自己名下资产的原值</p>
+        </div>
+      </div>
+    </div>
+    <!-- 统计数量 end-->
+
+    <!-- 待办任务 start -->
+    <div class="col-md-12">
+      <div class="x_panel">
+        <div class="x_title clearfix">
+          <h2>待办任务</h2>
+          <h3 class="more">
+            更多
+            <span class="fa fa-angle-double-right"></span>
+          </h3>
+        </div>
+        <div class="x_content">
+          <div class="col-md-12">
+            <ul th:each="task : ${waitTaskList}" class="task_list">
+              <li class="clearfix" th:attr="data-id=${task.id},data-req-type=${task.reqType},data-req-status=${task.reqStatus}">
+                <span class="alignleft">
+                  [[${task.reqUserName}]]的[[${task.reqName}]]
+                </span>
+                <span class="alignright">
+                  [[${#dates.format(task.approvalTime, 'yyyy-MM-dd HH:mm:ss')}]]
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 待办任务 end -->
+
+    <!-- 统计图 & 提醒 start-->
+    <div class="col-md-12">
+      <div class="x_panel">
+        <div class="x_title clearfix">
+          <h2>资产统计</h2>
+        </div>
+        <div class="x_content">
+          <div class="col-md-9 col-sm-12 col-xs-12">
+            <div class="demo-container" style="height:390px">
+              <canvas id="mybarChart"></canvas>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-12 col-xs-12">
+            <div>
+              <div class="x_title">
+                <h2>提醒</h2>
+                <ul class="nav navbar-right panel_toolbox" style="min-width: unset;margin: 13px 0 6px 0;font-size: 16px;">
+                  <li onclick="warningView()">
+                    更多
+                    <span class="fa fa-angle-double-right"></span>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <ul class="list-unstyled top_profiles scroll-view warning-list">
+
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 统计图 & 提醒 end-->
+  </div>
+<div th:include="include :: footer"></div>
+  <script th:src="@{/ajax/libs/vendors/Chart.js/dist/Chart.min.js}"></script>
+  <script th:inline="javascript">
+      $(document).ready(function () {
+        var message = [[${message}]];
+        if (message) {
+          layer.msg(message, function () {
+          });
+        }
+
+          //待办任务点击事件
+          $(document).on("click",".x_content .task_list li",function () {
+              var cur = $(this);
+              var id = cur.data("id");
+              var reqType = cur.data("req-type");
+              var reqStatus = cur.data("req-status");
+              if(reqStatus == -1 || reqStatus == 3 || reqStatus == 4){
+                  if ("BF" == reqType) {
+                      //跳转至报废编辑页面
+
+                      url = "/sastind/sastindAssetAbandon?id=" + id;
+                      createMenuItem(url, "修改报废申请");
+                  }
+                  if ("GH" == reqType) {
+                      //跳转至报废编辑页面
+                      url = "/sastind/sastindAssetReturn/edit/" + id;
+                      createMenuItem(url, "修改归还申请");
+                  }
+
+                  if ("JY" == reqType) {
+                      //跳转至借用编辑页面,idValue为主表id
+                      url = "/sastind/sastindAssetBorrow/edit/" + id +"/" + reqType;
+                      createMenuItem(url, "修改借用申请");
+                  }
+                  if ("SL" == reqType) {
+                      //跳转至借用编辑页面,idValue为主表id
+                      url = "/sastind/sastindAssetBorrow/edit/" + id +"/" + reqType;
+                      createMenuItem(url, "修改申领申请");
+                  }
+                  if("WX" == reqType){
+                      url = "/sastind/sastindAssetRepair/edit/" + id;
+                      createMenuItem(url, "修改维修申请");
+                  }
+                  if("BU" == reqType){
+                      url = "/sastind/sastindAssetChange/edit/" + id;
+                      createMenuItem(url, "修改责任人变更申请");
+                  }
+                  if("BD" == reqType){
+                      url = "/sastind/sastindAssetDeptChange/edit/" + id;
+                      createMenuItem(url, "修改责任部门变更申请");
+                  }
+              }else{
+                  if("JY"==reqType){
+                      //跳转至借用审批页面
+                      url="sastind/sastindAssetBorrow/borrowApprove?id="+id + "&type=" + reqType;
+                      createMenuItem(url, "借用审批");
+                  }
+                  if("SL"==reqType){
+                      //跳转至申领审批页面
+                      url="sastind/sastindAssetBorrow/borrowApprove?id="+ id + "&type=" + reqType;
+                      createMenuItem(url, "申领审批");
+                  }
+                  if("BF"==reqType){
+                      //跳转至报废审批
+                      url = "/sastind/sastindAssetAbandon/abandonApprove?id=" + id;
+                      createMenuItem(url, "审批报废");
+                  }
+                  if("GH"==reqType){
+                      url="sastind/sastindAssetReturn/audit/"+id;
+                      createMenuItem(url, "归还审批");
+                  }
+                  if('BU' == reqType){//跳转至变更审批页面
+                      url="/sastind/sastindAssetChange/changeApprove?id="+id;
+                      createMenuItem(url, "责任人变更审批");
+                  }
+                  if('BD' == reqType){
+                      url="/sastind/sastindAssetDeptChange/changeApprove?id="+id;
+                      createMenuItem(url, "责任部门变更审批");
+                  }
+              }
+          })
+
+          //更多待办任务点击事件
+          $(document).on("click",".x_title .more",function () {
+              url = "/sastind/waitTask";
+              createMenuItem(url, "待办任务");
+          })
+
+          //统计图
+          if ($("#mybarChart").length){
+              var container = $("#mybarChart").closest(".demo-container");
+              var canvas = document.getElementById("mybarChart");
+              canvas.width = container.width();
+              canvas.height = container.height();
+              var labels = [];
+              var data = [];
+              var statisticsAssetListJson = [[${statisticsAssetListJson}]];
+              if(!$.common.isEmpty(statisticsAssetListJson)){
+                  var statisticsAssetList = JSON.parse(statisticsAssetListJson);
+                  $.each(statisticsAssetList,function (index,element) {
+                      labels.push(element["SUBJECT_NAME"]);
+                      data.push(element["NUM"]);
+                  })
+              }
+              var mybarChart = new Chart(canvas, {
+                  type: 'bar',
+                  data: {
+                      labels: labels,
+                      datasets: [{
+                          label: '资产数量',
+                          backgroundColor: "#26B99A",
+                          data: data
+                      }]
+                  },
+
+                  options: {
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                                  beginAtZero: true
+                              }
+                          }]
+                      }
+                  }
+              });
+
+          }
+          //加载提醒列表
+          var warningListJson = [[${warningList}]];
+          var warningList = JSON.parse(warningListJson);
+          var warningContainer = $(".warning-list");
+          var warningListHtml = "";
+          $.each(warningList,function (index,element) {
+              var html = '<li class="media event">' +
+                            '<a class="pull-left border-aero profile_thumb" >' +
+                              '<i class="fa fa-bell blue"></i>' +
+                            '</a>' +
+                            '<div class="media-body" style="padding-top: 6px;font-size: 14px">' +
+                              '<a class="title" onclick="clickByRole(\''+element.SN+'\')">' +
+                                '$WARNINGCONTENT'
+                              '</a>' +
+                            '</div>' +
+                          '</li>';
+              var warningContent = '';
+              if(element.WARNING_TYPE == 'ZJ'){
+                  if(element.WARNING_SCOPE == 0){
+                      warningContent = '['+ element.SN + ']' + element.NAME + '已到折旧年限';
+                  }
+                  if(element.WARNING_SCOPE == 1){
+                      if(element.DEPT_NAME!=null && element.DEPT_NAME!='' && element.USER_NAME!=null && element.USER_NAME!=''){
+                          warningContent = '['+ element.SN + ']' + element.NAME + '已到折旧年限(责任人:' + element.DEPT_NAME + '的' + element.USER_NAME + ')';
+                      }else{
+                          warningContent = '['+ element.SN + ']' + element.NAME + '已到折旧年限';
+                      }
+                  }
+                  if(element.WARNING_SCOPE == 2){
+                      if(element.DEPT_NAME!=null && element.DEPT_NAME!='' && element.USER_NAME!=null && element.USER_NAME!=''){
+                          warningContent = '['+ element.SN + ']' + element.NAME + '已到折旧年限(责任人:' + element.DEPT_NAME + '的' + element.USER_NAME + ')';
+                      }else{
+                          warningContent = '['+ element.SN + ']' + element.NAME + '已到折旧年限';
+                      }
+                  }
+              }
+              if(element.WARNING_TYPE == 'GH'){
+                  if(element.WARNING_SCOPE == 0){
+                      warningContent = '['+ element.SN + ']' + element.NAME + '定于' + formatDate(element.RETURN_DATE) +'归还';
+                  }
+                  if(element.WARNING_SCOPE == 1){
+                      if(element.DEPT_NAME!=null && element.DEPT_NAME!='' && element.USER_NAME!=null && element.USER_NAME!=''){
+                          warningContent = '['+ element.SN + ']' + element.NAME + '定于' + formatDate(element.RETURN_DATE) +'归还(责任人:' + element.DEPT_NAME + '的' + element.USER_NAME + ')';
+                      }else{
+                          warningContent = '['+ element.SN + ']' + element.NAME + '定于' + formatDate(element.RETURN_DATE) +'归还';
+                      }
+                  }
+                  if(element.WARNING_SCOPE == 2){
+                      if(element.DEPT_NAME!=null && element.DEPT_NAME!='' && element.USER_NAME!=null && element.USER_NAME!=''){
+                          warningContent = '['+ element.SN + ']' + element.NAME + '定于' + formatDate(element.RETURN_DATE) +'归还(责任人:' + element.DEPT_NAME + '的' + element.USER_NAME + ')';
+                      }else{
+                          warningContent = '['+ element.SN + ']' + element.NAME + '定于' + formatDate(element.RETURN_DATE) +'归还';
+                      }
+                  }
+              }
+
+              html = html.replace("$WARNINGCONTENT",warningContent);
+              warningListHtml += html;
+          })
+          warningContainer.append(warningListHtml);
+      })
+      
+      function clickByRole(sn) {
+        var flag = [[${roleKey}]];
+        var queryParams = {};
+          queryParams.sn = sn;
+        if(flag){
+            createMenuItem("sastind/commonSelectView/selectAccountViewWarning?1=1&sn="+sn,"台账列表");
+        }else{
+
+        }
+      }
+
+      function warningView() {
+          createMenuItem('/sastind/warningView', '提醒列表');
+      }
+
+      function formatDate(timeStamp) {
+          var time = new Date(timeStamp);
+          var y = time.getFullYear();
+          var m = time.getMonth()+1;
+          var d = time.getDate();
+          var h = time.getHours();
+          var mm = time.getMinutes();
+          var s = time.getSeconds();
+          return y+'-'+m+'-'+d;
+      }
+  </script>
+</body>
+</html>

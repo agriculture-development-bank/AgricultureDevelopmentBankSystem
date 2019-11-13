@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-systemCode-edit" th:object="${systemCode}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">系统名称：</label>
+                <div class="col-sm-8">
+                    <input id="sysName" name="sysName" th:field="*{sysName}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">系统编码：</label>
+                <div class="col-sm-8">
+                    <input id="sysCode" name="sysCode" th:field="*{sysCode}" class="form-control" type="text">
+                </div>
+            </div>
+           
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input id="remark" name="remark" th:field="*{remark}" class="form-control" type="text">
+                </div>
+            </div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "auth/systemCode"
+		$("#form-systemCode-edit").validate({
+			rules:{
+				sysCode:{
+					required:true
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/edit", $('#form-systemCode-edit').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .treeview .list-group-item {
+        cursor: pointer;
+        width: 280px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+</style>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="equipment-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            载体柜名称：<input type="text" name="equipmentName" autocomplete="off"/>
+                        </li>
+                        <li>
+                            载体柜类型：
+                            <select id="equipmentType" name="equipmentType"
+                                    th:with="type=${@dict.getType('equipment_type')}">
+                                <option value="">所有</option>
+                                <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            所属部门：
+                            <input type="hidden" id="deptId" name="deptId">
+                            <input id="deptName" class="form-control" style="display: inline;" type="text" placeholder="所属部门" onclick="$('#tree').show()" tabindex="2" onfocus="this.blur();">
+                            <div id="tree" style="display: none;position: absolute;z-index: 1010;background-color: #ffffff;margin-left: 68px;width: 280px;border: 1px solid #f3f3f4;-moz-box-shadow: 1px 1px 5px #888888; box-shadow: 1px 1px 5px #888888;"></div>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="bank:equipment:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:src="@{/bank/bootstrap-treeview.js}"></script>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bank:equipment:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('bank:equipment:remove')}]];
+    var detailFlag = [[${@permission.hasPermi('bank:equipment:detail')}]];
+    var equipmentStatueDatas = [[${@dict.getType('equipment_statue')}]];
+    var equipmentTypeDatas = [[${@dict.getType('equipment_type')}]];
+    var prefix = ctx + "bank/equipment";
+
+    $(function () {
+
+        var url = ctx + 'system/dept/getSysDeptTree/';
+        var config = {
+            url: url,
+            type: 'get',
+            contentType: 'application/json',
+            async: false,
+            success: function (result) {
+                if (result != null) {
+                    var options = {
+                        levels: 1,
+                        data: result,
+                        onNodeSelected: function (event, data) {
+                            $('#deptName').val(data.text);
+                            $('#deptId').val(data.href);
+                            $('#tree').hide();//选中树节点后隐藏
+                        }
+                    };
+                    $('#tree').treeview(options);
+                }
+            }, error: function () {
+                layer.msg("下拉部门加载失败");
+            }
+        };
+        $.ajax(config);
+
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            detailUrl: prefix + "/detail/{id}",
+            exportUrl: prefix + "/export",
+            sortName: "createTime",
+            sortOrder: "desc",
+            uniqueId: "id",
+            modalName: "设备信息",
+            search: false,
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'equipmentName',
+                    title: '载体柜名称',
+                    align: 'center'
+                },
+                {
+                    field: 'equipmentType',
+                    title: '载体柜类型',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(equipmentTypeDatas, value);
+                    }
+                },
+                {
+                    field: 'unitLevel',
+                    title: '载体柜单元数',
+                    align: 'center'
+                },
+                {
+                    field: 'ip',
+                    title: '设备IP',
+                    align: 'center'
+                },
+                {
+                    field: 'deptName',
+                    title: '所属部门',
+                    align: 'center'
+                },
+                {
+                    field: 'locationName',
+                    title: '部署位置',
+                    align: 'center'
+                },
+                {
+                    field: 'userName',
+                    title: '责任人',
+                    align: 'center'
+
+                },
+                {
+                    field: 'equipmentStatus',
+                    title: '设备状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(equipmentStatueDatas, value);
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-info btn-xs ' + detailFlag + '" href="#" onclick="$.operate.detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;载体柜详情</a> ');
+                        actions.push('<a class="btn btn-warning btn-xs" href="#" onclick="bankCapBoard(\'' + row.id + '\')"><i class="fa fa-bandcamp"></i>&nbsp;载体柜单元门详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>&nbsp;编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-trash-o"></i>&nbsp;删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    /**
+     * 载体柜单元门详情
+     *
+     * @param equipmentId 载体柜id
+     */
+    function bankCapBoard(equipmentId) {
+        var url = ctx + "bank/bankCapBoard?equipmentId=" + equipmentId;
+        createMenuItem(url, "载体柜单元门列表");
+    }
+</script>
+</body>
+</html>

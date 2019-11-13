@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<body class="white-bg">
+	<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+		<form class="form-horizontal m" id="form-role-edit" th:object="${authRole}">
+			<input id="roleId" name="roleId" type="hidden" th:field="*{id}"/>
+			<input id="sysCode" name="sysCode" type="hidden" th:field="*{sysCode}"/>
+			<div class="form-group" id="roleRule">
+				<label class="col-sm-3 control-label">操作权限</label>
+				<div class="col-sm-8">
+					<div id="deptTrees" class="ztree"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div th:include="include::footer"></div>
+	<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+	<script type="text/javascript">
+		
+	    $(function() {
+			var url = ctx + "auth/role/roleResourceTreeData?roleId=" + $("#roleId").val()+"&sysCode="+$("#sysCode").val();
+			var options = {
+				id: "deptTrees",
+		        url: url,
+
+		        check: { enable: true, nocheckInherit: true, chkboxType: { "Y": "ps", "N": "ps" } },
+		        expandLevel: 2
+		    };
+			$.tree.init(options);
+	    });
+
+		function submitHandler() {
+	        if ($.validate.form()) {
+	        	saveOperate();
+	        }
+	    }
+		
+		function saveOperate() {
+			var roleId = $("#roleId").val();
+            var resourceIds = $.tree.getCheckedNodes();
+			$.ajax({
+				cache : true,
+				type : "POST",
+				url : ctx + "auth/role/saveOperate",
+				data : {
+					"roleId": roleId,
+					"resourceIds": resourceIds
+				},
+				async : false,
+				error : function(request) {
+					$.modal.alertError("系统错误");
+				},
+				success : function(data) {
+					$.operate.saveSuccess(data);
+				}
+			});
+		}
+	</script>
+</body>
+</html>

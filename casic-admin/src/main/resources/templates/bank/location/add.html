@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" role="form" id="form-location-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属部门：</label>
+            <div class="col-sm-8">
+                <input type="hidden" id="belongDept" name="belongDept" class="form-control">
+                <input id="deptName" name="deptName" class="form-control" type="text" placeholder="所属部门" onclick="$('#tree').show()" tabindex="2" onfocus="this.blur();">
+                <div id="tree" style="display: none;position: absolute;z-index: 1010;background-color: white;margin-left: 0px;width: 240px;"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">位置名称：</label>
+            <div class="col-sm-8">
+                <input id="locationName" name="locationName" class="form-control" type="text" placeholder="位置名称" autocomplete="off"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">位置编码：</label>
+            <div class="col-sm-8">
+                <input id="locationCode" name="locationCode" class="form-control" type="text" placeholder="位置编码" autocomplete="off"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否为存储位置：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('sys_dept_flag')}">
+                    <input type="radio" th:id="${dict.dictCode}" name="store" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">位置描述：</label>
+            <div class="col-sm-8">
+                <textarea id="description" name="description" class="form-control" type="text" placeholder="位置描述" autocomplete="off"></textarea>
+            </div>
+        </div>
+
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/bank/bootstrap-treeview.js}"></script>
+<script th:inline="javascript">
+
+    $(function () {
+        var url = ctx + 'system/dept/getSysDeptTree/';
+        var config = {
+            url: url,
+            type: 'get',
+            contentType: 'application/json',
+            async: false,
+            success: function (result) {
+                if (result != null) {
+                    var options = {
+                        levels: 1,
+                        data: result,
+                        onNodeSelected: function (event, data) {
+                            $('#deptName').val(data.text);
+                            $('#belongDept').val(data.href);
+                            $('#tree').hide();//选中树节点后隐藏
+
+                            validate_form.resetForm();
+                            validate_form.valid();
+                            if ($('#locationName').val().trim() != null && $('#locationName').val().trim() != '' && $('#locationName').val().trim() != undefined ) {
+                                validate_form.element($('#locationName'));
+                            }
+                        }
+                    };
+                    $('#tree').treeview(options);
+                }
+            }, error: function () {
+                layer.msg("下拉部门加载失败");
+            }
+        };
+        $.ajax(config);
+    });
+
+    var prefix = ctx + "bank/location";
+    var validate_form = $("#form-location-add").validate({
+        rules: {
+            belongDept: {
+                required: true
+            },
+            deptName: {
+                required: true
+            },
+            locationName: {
+                required: true,
+                remote: {
+                    depends: function (element) {
+                        return $('#deptName').val().length > 0;
+                    },
+                    param: {
+                        async: false,async: false,
+                        url: prefix + "/checkDeptLocationUnique",     //后台处理程序
+                        cache: false,
+                        type: "post",               //数据发送方式
+                        dataType: "json",           //接受数据格式
+                        data: {                     //要传递的数据
+                            belongDept: function () {
+                                return $('#belongDept').val();
+                            },
+                            locationName: function () {
+                                return $('#locationName').val();
+                            }
+                        },
+                        dataFilter: function(data, type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                }
+            },
+            locationCode: {
+                required: true,
+                remote:{
+                    url: prefix + "/checkLocationCodeUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "locationCode" : function() {
+                            return $.common.trim($("#locationCode").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            store: {
+                required: true
+            }
+        },
+        messages: {
+            "locationName": {
+                remote: "该部门下已经存在相同名称的位置"
+            },
+            "locationCode": {
+                remote: "位置编码已存在"
+            }
+        }
+    });
+
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-location-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>

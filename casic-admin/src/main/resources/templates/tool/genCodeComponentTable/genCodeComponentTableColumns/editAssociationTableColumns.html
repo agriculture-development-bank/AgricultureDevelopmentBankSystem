@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-genCodeComponentTableColumns-edit" th:object="${genCodeTableColumns}">
+        <input id="id" name="id" th:field="*{id}"  type="hidden">
+        <input type="hidden" id="tableType" th:value="${genCodeComponentTable.tableType}">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属表：</label>
+            <div class="col-sm-8">
+                <input id="tableEnName" name="tableEnName" th:value="${genCodeComponentTable.tableEnName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">表中文名称：</label>
+            <div class="col-sm-8">
+                <input id="tableName" name="tableName" th:value="${genCodeComponentTable.tableName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">字段中文名：</label>
+            <div class="col-sm-8">
+                <input id="columnZhName" name="columnZhName" th:field="*{columnZhName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">字段英文名：</label>
+            <div class="col-sm-8">
+                <input id="columnName" name="columnName" th:field="*{columnName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">实体中名称：</label>
+            <div class="col-sm-8">
+                <input id="javaField" name="javaField" th:field="*{javaField}" class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 注：自动生成可修改</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">实体数据类型：</label>
+            <div class="col-sm-8">
+                <select id="javaType" name="javaType" th:field="*{javaType}" class="form-control" th:with="type=${@dict.getType('tool_genCodeTableColumns_javaType')}">
+                    <option value="">请选择</option>
+                    <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">数据库类型：</label>
+            <div class="col-sm-8">
+                <input id="jdbcType" name="jdbcType" th:field="*{jdbcType}" class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 注：自动生成可修改</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">长度：</label>
+            <div class="col-sm-8">
+                <input id="len" name="len" th:field="*{len}"  class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 注：日期类型可不填，数字类型填写小数点位数</span>
+            </div>
+        </div>
+        <div class="form-group" id="dic">
+            <label class="col-sm-3 control-label">字典类型：</label>
+            <div class="col-sm-8">
+                <input id="dictType" name="dictType" th:field="*{dictType}" class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 注：如果是字典类型取值，填写字典type</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否主键：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTableColumns_isPK')}">
+                    <input type="radio" th:field="*{isPk}" th:id="${dict.dictCode}" name="isPk" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否为空：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTableColumns_isNull')}">
+                    <input type="radio" th:field="*{isNull}"  th:id="${dict.dictCode}" name="isNull" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否外键：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTableColumns_isFK')}">
+                    <input type="radio" th:field="*{isFK}" th:id="${dict.dictCode}" name="isFK" th:value="${dict.dictValue}"  th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" id="masterTable">
+            <label class="col-sm-3 control-label">外键对应表：</label>
+            <div class="col-sm-8">
+                <select id="fkTableName" name="fkTableName" class="form-control" th:field="*{fkTableName}">
+                    <option value="">请选择</option>
+                    <option th:each="tableInfo:${list}" th:value="${tableInfo.id}" th:text="${tableInfo.tableEnName}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group" id="slaveTable">
+            <label class="col-sm-3 control-label">外键对应字段：</label>
+            <div class="col-sm-8">
+                <select id="fkFieldName" name="fkFieldName" class="form-control" th:field="*{fkFieldName}">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">排序：</label>
+            <div class="col-sm-8">
+                <input id="sort" name="sort" th:field="*{sort}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">字段描述：</label>
+            <div class="col-sm-8">
+                <input id="comments" name="comments" th:field="*{comments}" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeComponentTableColumns";
+    $("#form-genCodeComponentTableColumns-edit").validate({
+        rules:{
+            columnZhName:{
+                required:true,
+            },
+            columnName:{
+                required:true,
+                remote: {
+                    url: prefix + "/checkFieldUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        tableId: $.common.trim($("#tableId").val()),
+                        "filedName": "column_name",
+                        "fieldValue": function () {
+                            return $.common.trim($("#columnName").val());
+                        },
+                        id:function () {
+                            return $.common.trim($("#id").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            javaField:{
+                required:true,
+                remote: {
+                    url: prefix + "/checkFieldUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        tableId: $.common.trim($("#tableId").val()),
+                        "filedName": "java_field",
+                        "fieldValue": function () {
+                            return $.common.trim($("#javaField").val());
+                        },
+                        id:function () {
+                            return $.common.trim($("#id").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            javaType:{
+                required:true,
+            },
+            jdbcType:{
+                required:true,
+            },
+            isPk:{
+                required:true
+            },
+            isNull: {
+                required:true
+            },
+            isFK:{
+                required:true
+            }
+        },
+        messages: {
+            "columnName": {
+                remote: "字段英文名已经存在"
+            },
+            "javaField": {
+                remote: "实体中名称已经存在"
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-genCodeComponentTableColumns-edit').serialize());
+        }
+    }
+
+    $('#javaType').on('change', function () {
+        var value = $(this).val();
+        if (value == '') {
+            $('#dic').hide();
+            $('#dictType').prop("required", false);
+            return;
+        } else if (value == "dict") {
+            $('#dic').show();
+            $('#dictType').prop("required", true);
+        } else {
+            $('#dic').hide();
+            $('#dictType').prop("required", false);
+        }
+    });
+
+    $("input:radio[name='isFK']").on('ifChecked', function(){
+        var flag = $(this).val();
+        if (flag == 1)  {
+            $("#masterTable").show();
+            $("#slaveTable").show();
+            $('#fkTableName').prop("required", true);
+            $('#fkFieldName').prop("required", true);
+        } else if (flag == 0) {
+            $("#masterTable").hide();
+            $("#slaveTable").hide();
+            $('#fkTableName').prop("required", false);
+            $('#fkFieldName').prop("required", false);
+        }
+    });
+
+    $(function () {
+        $('#dic').hide();
+        var tableType = $('#tableType').val();
+        var flag = tableType == "s" ? true : false;
+
+        var ftype = $("input:radio[name='isFK']:checked").val();
+        if (ftype == 1)  {
+            $("#masterTable").show();
+            $("#slaveTable").show();
+            $('#fkTableName').prop("required", true);
+            $('#fkFieldName').prop("required", true);
+        } else if (ftype == 0) {
+            $("#masterTable").hide();
+            $("#slaveTable").hide();
+            $('#fkTableName').prop("required", false);
+            $('#fkFieldName').prop("required", false);
+        }
+    });
+
+    $('#fkTableName').on('change', function () {
+        var value = $(this).val();
+        if (value == '') {
+            return;
+        }
+        $.ajax({
+            url: prefix + '/selectTableFieldByTableId/' + value ,
+            async: false,
+            type: 'post',
+            success: function (data) {
+                var fkFieldName = $("#fkFieldName").empty();
+                for (var i = 0; i < data.length; i++) {
+                    fkFieldName.append("<option value='"+data[i].id+"'>"+ data[i].columnName+"</option>")
+                }
+            }
+        });
+    });
+
+    //判断字符是否为空的方法
+    function isEmpty(obj){
+        if(typeof obj == "undefined" || obj == null || obj == ""){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    var fkTableName_options = $("#fkTableName option:selected");
+    var fkFieldName_options = $("#fkFieldName option:selected");
+    var fkTableName_val = [[${genCodeTableColumns.fkTableName}]];
+    if (!isEmpty(fkTableName_options.val()) && isEmpty(fkFieldName_options.val())) {
+        $.ajax({
+            url: prefix + '/selectTableFieldByTableId/' + fkTableName_options.val() ,
+            async: false,
+            type: 'post',
+            success: function (data) {
+                var fkFieldName = $("#fkFieldName").empty();
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].id == fkTableName_val) {
+                        fkFieldName.append("<option value='"+data[i].id+"' selected>"+ data[i].columnName+"</option>");
+                    } else {
+                        fkFieldName.append("<option value='"+data[i].id+"'>"+ data[i].columnName+"</option>");
+                    }
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

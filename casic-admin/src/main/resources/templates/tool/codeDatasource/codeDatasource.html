@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    <div class="container-div">
+
+		<div class="col-sm-12 search-collapse">
+			<form id="user-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							数据源名称：<input type="text" name="sourceName"/>
+						</li>
+						<li>
+							状态：<select name="delFlag" th:with="type=${@dict.getType('sys_common_status')}">
+							<option value="">所有</option>
+							<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+						</select>
+						</li>
+
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>查询</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="tool:codeDatasource:add">
+				<i class="fa fa-plus"></i> 添加
+			</a>
+			<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="tool:codeDatasource:edit">
+	            <i class="fa fa-edit"></i> 修改
+	        </a>
+			<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="tool:codeDatasource:remove">
+				<i class="fa fa-remove"></i> 删除
+			</a>
+		</div>
+			
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('tool:codeDatasource:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('tool:codeDatasource:remove')}]];
+        var prefix = ctx + "tool/codeDatasource";
+
+        $(function() {
+        	
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "数据源管理",
+				search : false,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'id', 
+					title : '主键ID',
+					visible: false
+				},
+				{
+					field : 'sourceName', 
+					title : '数据源名称'
+				},
+				{
+					field: 'databaseName',
+					title: '数据库名称'
+				},
+				{field: 'sourceUser',
+					title: '登录名'
+				},
+				{
+					field : 'sourceType', 
+					title : '数据源类型',
+					formatter: function(value, row, index){
+						if(value==1){
+							return "MySQL";
+						}else if(value==2){
+							return "Oracle";
+						}else if(value==3){
+							return "SQL Server";
+						}else{
+							return "未知";
+						}
+					}
+				},
+				{
+					field : 'sourceClass', 
+					title : 'jdbc类名',
+				    visible: false
+				},
+				{
+					field : 'sourceUrl', 
+					title : '链接url' 
+				},
+				{
+					field : 'sourceRemark', 
+					title : '数据源描述',
+					visible: false
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

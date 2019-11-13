@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    btn-xs {
+        padding: 4px 5px;
+    }
+</style>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12  search-collapse">
+            <form id="fileReceive-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label style="width: 80px;text-align: right;">登记号：</label>
+                            <input type="text" name="registrationNum" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">文号：</label>
+                            <input type="text" name="documentNum" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">标题：</label>
+                            <input type="text" name="title" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">来文单位：</label>
+                            <input type="text" name="communicationUnit" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">联合单位：</label>
+                            <input type="text" name="jointUnit" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">份数：</label>
+                            <input type="number" name="numOfCopies" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">文件密级：</label>
+                            <select name="secretLevel" th:with="type=${@dict.getType('secrecy_level')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <label style="width: 80px;text-align: right;">文件状态：</label>
+                            <select name="status" th:with="type=${@dict.getType('file_receive_status')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="createMenuItem('/bank/receive/add', '添加收文登记')" shiro:hasPermission="bank:receive:add">
+                <i class="fa fa-plus"></i> 收文登记
+            </a>
+            <a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="bank:receive:remove">
+                <i class="fa fa-trash-o"></i> 删除
+            </a>
+            <a class="btn btn-warning btn-del disabled" shiro:hasPermission="bank:receive:dispense" id="confirmFile">
+                <i class="fa fa-comment"></i> 文件分发
+            </a>
+            <a class="btn btn-info btn-del disabled" shiro:hasPermission="bank:receive:print" id="printTag">
+                <i class="fa fa-print"></i> 打印标签
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+
+        <!-- RFID打印托盘程序iframe -->
+        <div style="display: none">
+            <iframe id="rfidFrame" src="http://127.0.0.1:888/postek/index.html" frameborder="1"></iframe>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" th:src="@{/js/jquery.jqprint-0.3.js}"></script>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bank:receive:edit')}]];
+    var detailFlag = [[${@permission.hasPermi('bank:fileDetail:view')}]];
+    var removeFlag = [[${@permission.hasPermi('bank:receive:remove')}]];
+    var printFlag = [[${@permission.hasPermi('bank:receive:print')}]];
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    var fileStatusDatas = [[${@dict.getType('file_receive_status')}]];
+    var prefix = ctx + "bank/receive";
+    var sysVersion = [[${sysVersion}]];
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            detailUrl: prefix + "/detail/{id}",
+            sortName: "createTime",
+            sortOrder: "desc",
+            uniqueId: "id",
+            modalName: "收文登记",
+            search: false,
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '文件ID',
+                    align: 'center',
+                    visible: false
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: 'center'
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: 'center'
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'numOfCopies',
+                    title: '文件总份数',
+                    align: 'center',
+
+                },
+                {
+                    field: 'analysisCount',
+                    title: '已清退份数',
+                    align: 'center',
+                },
+                {
+                    field: 'communicationUnit',
+                    title: '来文单位',
+                    align: 'center'
+                },
+                {
+                    field: 'jointUnit',
+                    title: '联合单位',
+                    align: 'center',
+                    visible: false
+                },
+                {
+                    field: 'createTime',
+                    title: '收文时间',
+                    align: 'center'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-inverse btn-xs ' + printFlag + '" href="#" onclick="print(\'' + row.id + '\')"><i class="fa fa-print"></i>&nbsp;打印</a>');
+                        actions.push('<a class="btn btn-info btn-xs " href="#" id="detail" onclick="detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;文件详情</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>&nbsp;编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-trash-o"></i>&nbsp;删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    $('#confirmFile').on('click', function () {
+        var row = $('#bootstrap-table').bootstrapTable('getSelections');
+        if (row.length > 0) {
+            var ids = $.map(row, function (item) {
+                return item.id;
+            });
+            confirm(ids);
+        } else {
+            $.modal.alertWarning("请至少选择一条记录");
+            return;
+        }
+    });
+
+    $('#print').on('click', function () {
+
+    });
+
+    $('#printTag').on('click', function (e) {
+        printQrcode();
+    });
+
+   function detail(fileId) {
+       var url = ctx + "bank/fileDetail?fileId=" + fileId;
+       createMenuItem(url, "文件详情");
+   }
+
+   function edit(id) {
+       var url = prefix + "/edit/" + id;
+       createMenuItem(url, "编辑");
+   }
+
+    function confirm(ids) {
+        console.log(ids);
+        var url = prefix + '/confirm/' + ids;
+        var config = {
+            url: url,
+            type: 'post',
+            success: function (result) {
+                $.operate.ajaxSuccess(result);
+            }
+        };
+        $.ajax(config);
+    }
+
+    function print(id) {
+        var printDiv = "";
+        printDiv = $('<div id="printDiv" ></div>');
+        $.modal.loading("正在加载，请稍后...");
+            $.ajax({
+                url : ctx + "bank/receive/print",
+                type : 'post',
+                data: {
+                    "id":id
+                },
+                dataType: 'html',
+                success: function (htmlResult) {
+                    $.modal.closeLoading();
+                    printDiv.append(htmlResult);
+                    printDiv.jqprint();
+                }
+            })
+    }
+
+    function printQrcode() {
+        var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+       if(rows.length>0){
+        var ids = rows.join();
+        $(".qr_code_box").remove();
+        var qrCodeBox = $("<div class='qr_code_box'></div>");
+        var rowData;
+            $.ajax({
+                url: prefix + "/selectByIds",
+                data: {
+                    ids: ids,
+                },
+                type: "post",
+                success: function (result) {
+
+                    rowData = result.data;
+
+                    if (rowData != "undefined" && rowData != null && rowData.length > 0) {
+                         var imgDiv = "";
+                         imgDiv = $('<div id="imgDiv" ></div>');//TSC打印机用
+                         var printerDatas = [];
+                         for (var i = 0; i < rowData.length; i++) {
+
+                            qrCodeBox.append("<div class='qr_code'></div>");
+
+                            var rfid;
+                            if (rowData[i].rfid == null || rowData[i].rfid == "") {
+                                rfid = "rfid编号:无";
+                            } else {
+                                rfid = rowData[i].rfid;
+                            }
+                            var flowId;
+                            if (rowData[i].flowId == null || rowData[i].flowId == "") {
+                                flowId = "文件编号:无";
+                            } else {
+                                flowId = rowData[i].flowId;
+                            }
+                            var title;
+                            if (rowData[i].title == null || rowData[i].title == "") {
+                                title = "文件标题:无";
+                            } else {
+                                title = rowData[i].title;
+                            }
+                            var secretLevel;
+                            if (rowData[i].secretLevel == null || rowData[i].secretLevel == "") {
+                                secretLevel = "密级:无";
+                            } else {
+                                secretLevel = rowData[i].secretLevel ;
+                            }
+                            $.ajax({
+                                url: prefix + "/encodingToGBK",
+                                async:false,
+                                type: "post",
+                                data:{
+                                    rfid:rfid,
+                                    flowId:flowId,
+                                    title:title
+                                },
+                                success: function (result) {
+                                    var printerData = {
+                                        flowId: flowId,
+                                        rfid: rfid,
+                                        title: title,
+                                        secretLevel: secretLevel,
+                                        finaStr: result.finaStr
+                                    };
+                                    printerDatas.push(printerData);
+                                    console.log(printerDatas);
+                                }
+                            })
+                         }
+                        console.log(printerDatas);
+                         if(sysVersion == 0){
+                             var data = {
+                                 barcodeList: printerDatas
+                             }
+                            $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:888");
+                         } else {
+                             var data = {
+                                 barcodeList: JSON.stringify(printerDatas)
+                             }
+                             $.ajax({
+                                 url:prefix + "/printTag",
+                                 data: data,
+                                 type:"post",
+                                 success:function(result){
+
+                                 }
+                             })
+                         }
+                    }
+
+                }
+
+            });
+    }else{
+           $.modal.alertWarning("请至少选择一条记录");
+       }
+    }
+
+
+
+</script>
+</body>
+</html>

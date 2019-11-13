@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-genCodeFunctionTableField-edit" th:object="${genCodeTemplateCfgColumns}">
+        <input id="id" name="id" th:field="*{id}"  type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属表：</label>
+            <div class="col-sm-8">
+                <input id="tableName" name="tableName" th:value="${genCodeComponentTable.tableName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">中文名：</label>
+            <div class="col-sm-8">
+                <input id="columnZhName" name="columnZhName" th:field="*{remark}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">英文名：</label>
+            <div class="col-sm-8">
+                <input id="columnName" name="columnName" th:field="*{columnName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">字典类型：</label>
+            <div class="col-sm-8">
+                <input id="dictType" name="dictType" th:field="*{dictType}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">实体名称：</label>
+            <div class="col-sm-8">
+                <input id="javaField" name="javaField" th:field="*{javaField}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">数据类型：</label>
+            <div class="col-sm-8">
+                <input id="javaType" name="javaType" th:field="*{javaType}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">数据库类型：</label>
+            <div class="col-sm-8">
+                <input id="jdbcType" name="jdbcType" th:field="*{jdbcType}" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否主键：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTableColumns_isPK')}">
+                    <input type="radio" th:field="*{isPk}" th:id="${dict.dictCode}" name="isPk" th:value="${dict.dictValue}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否为空：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTableColumns_isNull')}">
+                    <input type="radio" th:field="*{isNull}" th:id="${dict.dictCode}" name="isNull" th:value="${dict.dictValue}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否列表显示：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTemplateCfgColumns_isList')}">
+                    <input type="radio" th:field="*{isList}" th:id="${dict.dictCode}" name="isList" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否可新增：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTemplateCfgColumns_isInsert')}">
+                    <input type="radio" th:field="*{isInsert}" th:id="${dict.dictCode}" name="isInsert" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否可编辑：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTemplateCfgColumns_isEdit')}">
+                    <input type="radio" th:field="*{isEdit}" th:id="${dict.dictCode}" name="isEdit" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否可查询：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeTemplateCfgColumns_isQuery')}">
+                    <input type="radio" th:field="*{isQuery}" th:id="${dict.dictCode}" name="isQuery" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="queryShow">
+            <label class="col-sm-3 control-label">查询匹配方式：</label>
+            <div class="col-sm-8">
+                    <select id="queryType" name="queryType" class="form-control" th:with="queryTypes=${@dict.getType('tool_genCodeTemplateCfgColumns_queryType')}">
+                    <option th:each="item:${queryTypes}" th:value="${item.dictValue}" th:utext="${item.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">表单类型：</label>
+            <div class="col-sm-8">
+                <select id="showType" name="showType" class="form-control" th:with="queryTypes=${@dict.getType('tool_genCodeTemplateCfgColumns_showType')}">
+                    <option th:each="item:${queryTypes}" th:value="${item.dictValue}" th:text="${item.dictLabel}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">字段描述：</label>
+            <div class="col-sm-8">
+                <input id="comments" name="comments" th:field="*{comments}" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "tool/genCodeFunctionTableField";
+    $("#form-genCodeFunctionTableField-edit").validate({
+        rules:{
+            columnName:{
+                required:true
+            },
+            javaType:{
+                required:true
+            },
+            jdbcType:{
+                required:true
+            },
+            isPk: {
+              required:true
+            },
+            isNull: {
+              required:true
+            },
+            isList:{
+                required:true
+            },
+            isQuery:{
+              required:true
+            },
+            isInsert:{
+              required:true
+            },
+            isEdit: {
+              required:true
+            },
+            showType: {
+                required:true
+            },
+            queryType: {
+                required: true
+            },
+            comments:{
+                required:true
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-genCodeFunctionTableField-edit').serialize());
+        }
+    }
+
+
+    $(function () {
+        var $type = $("input:radio[name='isQuery']:checked").val();
+        if ($type == 1)  {
+            $("#queryShow").show();
+        } else if ($type == 0) {
+            $("#queryShow").hide();
+        }
+    });
+
+
+    $("input:radio[name='isQuery']").on('ifChecked', function(){
+        var flag = $(this).val();
+        if (flag == 1)  {
+            $("#queryShow").show();
+        } else if (flag == 0) {
+            $("#queryShow").hide();
+        }
+    });
+</script>
+</body>
+</html>

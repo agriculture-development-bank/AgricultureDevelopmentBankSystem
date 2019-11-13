@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-oauthClientDetails-edit" th:object="${oauthClientDetails}">
+            <input id="clientId" name="clientId" th:field="*{clientId}"  type="hidden">
+            <input id="scope" name="scope" th:field="*{scope}"  type="hidden">
+            <input id="autoapprove" name="autoapprove" th:field="*{autoapprove}"  type="hidden">
+            <input id="authorizedGrantTypes" name="authorizedGrantTypes" th:field="*{authorizedGrantTypes}"  type="hidden">
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">应用名称：</label>
+                <div class="col-sm-8">
+                    <input id="clientName" name="clientName" th:field="*{clientName}" class="form-control" type="text">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">访问密钥：</label>
+                <div class="col-sm-8">
+                    <input id="clientSecret" name="clientSecret" th:field="*{clientSecret}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">客户端回调地址：</label>
+                <div class="col-sm-8">
+                    <input id="webServerRedirectUri" name="webServerRedirectUri" th:field="*{webServerRedirectUri}" class="form-control" type="text">
+                </div>
+            </div>
+
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">token访问时长：</label>
+                <div class="col-sm-8">
+                    <input id="accessTokenValidity" name="accessTokenValidity" th:field="*{accessTokenValidity}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">token刷新时长：</label>
+                <div class="col-sm-8">
+                    <input id="refreshTokenValidity" name="refreshTokenValidity" th:field="*{refreshTokenValidity}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">附加信息：</label>
+                <div class="col-sm-8">
+                    <input id="additionalInformation" name="additionalInformation" th:field="*{additionalInformation}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">简介：</label>
+                <div class="col-sm-8">
+                    <textarea id = "clientIntroduce" name="clientIntroduce" th:field="*{clientIntroduce}" class="form-control"></textarea>
+                </div>
+            </div>
+
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "auth/oauthClientDetails"
+		$("#form-oauthClientDetails-edit").validate({
+            rules:{
+                clientId:{
+                    required:true
+                },
+                clientName:{
+                    required:true
+                },
+                clientSecret:{
+                    required:true
+                },
+                webServerRedirectUri:{
+                    required:true
+                }
+            }
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/edit", $('#form-oauthClientDetails-edit').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

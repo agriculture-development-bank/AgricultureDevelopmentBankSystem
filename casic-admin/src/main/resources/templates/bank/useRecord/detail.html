@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+
+    <form class="form-horizontal m" role="form" id="form-location-detail">
+        <input id="id" name="id" th:value="${id}" type="hidden" disabled="disabled">
+
+        <li style="float: left">
+            监控设备：<input th:value="${equipment}" style="border: none; background: white"  disabled="disabled"/>
+        </li>
+        <li style="float: left">
+            操作文件数量：<input th:value="${countNum}"  style="border: none; background: white"  disabled="disabled"/>
+        </li>
+        <li style="float: left">
+            开柜时间：<input th:value="${timeStart}"  style="border: none; background: white"  disabled="disabled"/>
+        </li>
+    </form>
+    <div class="col-sm-12 select-table table-bordered">
+        <table id="bootstrap-table" data-mobile-responsive="true"></table>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/useRecord";
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+     $(function () {
+         var options = {
+             url: prefix + "/detailList/"+[[${id}]],
+             modalName: "查看详情",
+             search: false,
+             showExport: false,
+             columns: [
+                 {
+                     filed: 'Number',
+                     title: '序号',
+                     align: 'center',
+                     formatter: function (value, row, index) {
+                         return index + 1;
+                     }
+                 },
+                 {
+                     filed: 'id',
+                     title: 'id',
+                     align: 'center',
+                     visible: false
+                 },
+                 {
+                     field: 'registrationNum',
+                     title: '登记号',
+                     align: 'center'
+                 },
+                 {
+                     field: 'documentNum',
+                     title: '文号',
+                     align: 'center'
+                 },
+                 {
+                     field: 'flowId',
+                     title: '文件编号',
+                     align: 'center'
+                 },
+                 {
+                     field: 'title',
+                     title: '标题',
+                     align: 'center'
+                 },
+                /* {
+                     field: 'communicationUnit',
+                     title: '来文单位',
+                     align: 'center'
+                 },
+                 {
+                     field: 'jointUnit',
+                     title: '联合单位',
+                     align: 'center'
+                 },
+                 {
+                     field: 'secretLevel',
+                     title: '密级',
+                     align: 'center',
+                     formatter: function (value, row, index) {
+                         return $.table.selectDictLabel(secrecyLevelDatas, value);
+                     }
+                 },
+                 {
+                     field: 'contact',
+                     title: '联系人',
+                     align: 'center'
+                 },
+                 {
+                     field: 'deptName',
+                     title: '部门',
+                     align: 'center'
+                 },
+                 {
+                     field: 'phone',
+                     title: '电话',
+                     align: 'center'
+                 },*/
+
+                 {
+                     field: 'opeType',
+                     title: '操作',
+                     align: 'center',
+                     formatter:function(value){
+                         if(value == 1){
+                             return "放入";
+                         }else{
+                             return "取出";
+                         }
+                     }
+                 }]
+         };
+         $.table.init(options);
+     });
+
+</script>
+</body>
+</html>

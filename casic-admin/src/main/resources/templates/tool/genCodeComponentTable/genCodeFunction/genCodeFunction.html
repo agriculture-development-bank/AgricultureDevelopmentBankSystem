@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="gen-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            表名称：<input type="text" name="tableName"/>
+                        </li>
+                        <li>
+                            所属分类：<select type="text" name="tableType" th:with="tbl_type=${@dict.getType('tool_genCodeComponentTable_tableType')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${tbl_type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="addTableByType(1)" shiro:hasPermission="tool:genCodeComponentTable:add">
+                单表功能
+            </a>
+
+            <a class="btn btn-success" onclick="addTableByType(2)" shiro:hasPermission="tool:genCodeComponentTable:add">
+                父子表功能
+            </a>
+            <a class="btn btn-success" onclick="addTableByType(3)" shiro:hasPermission="tool:genCodeComponentTable:add">
+                树形表功能
+            </a>
+            <a class="btn btn-success" onclick="addTableByType(4)" shiro:hasPermission="tool:genCodeComponentTable:add">
+                一父多子表功能
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var editFlag = [[${@permission.hasPermi('tool:genCodeFunction:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('tool:genCodeFunction:remove')}]];
+    var prefix = ctx + "tool/genCodeFunction";
+    var componentId = [[${id}]];
+    var categoryId_datas = [[${@dict.getType('tool_genCodeFunction_categoryId')}]];
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add/{" + componentId +  "}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            queryParams: queryParams,
+            modalName: "功能模块",
+            sortName: "createTime",
+            sortOrder: "desc",
+            search: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'funcName',
+                    title: '功能名称',
+                    sortable: true
+                },
+                {
+                    field: 'funcEnName',
+                    title: '功能英文名称',
+                    sortable: true
+                },
+                {
+                    field: 'categoryId',
+                    title: '功能类型',
+                    sortable: true,
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(categoryId_datas, item.categoryId);
+                    }
+                },
+                {
+                    field: 'componentName',
+                    title: '所属组件',
+                    sortable: true
+                },
+                {
+                    field: 'tableIds',
+                    title: '包含数据表',
+                    sortable: true
+                },
+                {
+                    field: 'createTime',
+                    title: '发布时间',
+                    sortable: true
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs "  href="#" onclick="FieldDesignFunc(\'' + row.componentName + '\',\'' + row.funcName + '\',\'' + row.id + '\')"><i class="fa fa-edit"></i>字段设计</a> ');
+                        actions.push('<a class="btn btn-success btn-xs "  href="#" onclick="generatorSqlScript(\'' + row.id + '\')"><i class="fa fa-edit"></i>生成脚本</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="generatorCode(\''+ row.funcName +'\', \'' + row.categoryId + '\',\'' + row.id + '\')"><i class="fa fa-edit"></i>生成源码</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function queryParams(params) {
+        return {
+            componentId:    componentId,
+            pageSize:       params.limit,
+            pageNum:        params.offset / params.limit + 1,
+            searchValue:    params.search,
+            orderByColumn:  params.sort,
+            isAsc:          params.order
+        };
+    }
+
+    /**
+     * 新增功能
+     * */
+    function addTableByType(type) {
+        var createUrl = prefix + '/add/' + componentId + "/" + type;
+        $.table._option.createUrl = createUrl;
+        $.operate.add();
+    }
+
+    /**
+     * 字段设计
+     * @param componentName 组件名称
+     * @param funcName 功能名称
+     * @param id  功能id
+     */
+    function FieldDesignFunc(componentName, funcName, id) {
+        var url = ctx + 'tool/genCodeFunctionTableField' + '/fieldDesign/' + id;
+        createMenuItem(url, componentName + "-" + funcName);
+    }
+
+    /**
+     * 代码生成
+     * */
+    function generatorCode(funcName, categoryId, id) {
+        var url = prefix + '/generatorCode/' + id + "/" + categoryId;
+        $.modal.confirm("确定要生成" + funcName + "功能代码吗？", function() {
+            location.href = url;
+            layer.msg('执行成功,正在生成代码请稍后…', { icon: 1 });
+        })
+    }
+
+    /**
+     * 生成脚本
+     * @param id 功能id
+     **/
+    function generatorSqlScript(id) {
+        var url = prefix + '/generatorSqlScript/' + id;
+        $.modal.confirm("确定要生成SQL脚本吗？", function() {
+            location.href = url;
+            layer.msg('执行成功,正在生成sql脚本请稍后…', { icon: 1 });
+        });
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

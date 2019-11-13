@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>管理系统</title>
+    <meta name="description" content="Ela Admin - HTML5 Admin Template">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/css/bank.css}">
+    <script>
+        if(window.top !== window.self){
+            window.top.location = window.location;
+        }
+    </script>
+</head>
+<body class="bg-dark">
+<div class="banner" id="banner">
+    <div class="dowebok">
+        <img th:src="@{/img/bank/logo.png}">
+        <form  id="signupForm" class="signupForm">
+            <div class="form-item">
+                <input id="username" name="username" type="text" autocomplete="off" placeholder="用户名">
+            </div>
+            <div class="form-item">
+                <input id="password" name="password" type="password" autocomplete="off" placeholder="密码">
+            </div>
+            <div class="form-item"><button id="btnSubmit" data-loading="正在验证登录，请稍后...">登 录</button></div>
+        </form>
+    </div>
+</div>
+<script th:inline="javascript">
+    var ctx = [[@{/}]];
+</script>
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script type="text/javascript" th:src="@{/ajax/libs/validate/jquery.validate.min.js}"></script>
+<script type="text/javascript" th:src="@{/ajax/libs/validate/messages_zh.min.js}"></script>
+<script type="text/javascript" th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+<script type="text/javascript" th:src="@{/westcredit/js/westcredit-ui.js}"></script>
+<script type="text/javascript" th:src="@{/westcredit/login.js}"></script>
+<script th:inline="javascript">
+    function divMiddle(){
+        var dairyBox = document.getElementById('banner');
+        var divHeight = dairyBox.offsetHeight;
+        let divWidth = dairyBox.offsetWidth;
+        var bodyHeight = document.body.offsetHeight;
+        var bodyWidth = document.body.offsetWidth;
+
+        if(bodyHeight > divHeight){
+            var endHeight = parseInt(bodyHeight - divHeight)/2;
+            dairyBox.style.marginTop = endHeight + "px";
+        }else{
+            dairyBox.style.marginTop = 0;
+            dairyBox.style.top = 0;
+        }
+        if (bodyWidth > divWidth) {
+            var endWidth = parseInt(bodyWidth - divWidth)/2;
+            dairyBox.style.marginLeft = endWidth + "px";
+        }
+    }
+
+    if(document.all){
+        window.attachEvent('onload',divMiddle);
+    }else{
+        window.addEventListener('load',divMiddle,false);
+    }
+
+    var resizeTimer = null;
+    window.onresize = function(){
+        resizeTimerresizeTimer = resizeTimer ? null: setTimeout(divMiddle,0);
+    }
+</script>
+</body>
+</html>

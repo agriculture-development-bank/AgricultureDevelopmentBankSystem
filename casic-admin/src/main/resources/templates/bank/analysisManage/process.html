@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style type="text/css">
+    .btn-group .btn {
+        width: 90px;
+        display: block;
+    }
+    .dropdown-menu {
+        min-width: unset;
+        width: 100%;
+    }
+    .dropdown-menu li {
+        text-align: center;
+        cursor: pointer;
+    }
+    .dropdown-menu li:hover {
+        color: #fff;
+        background: #398439;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    var analysisStatue = [[${@dict.getType('analysis_statue')}]];
+    var prefix = ctx + "bank/analysisManage";
+    var planId = [[${id}]];
+    $(function () {
+        var options = {
+            url: prefix + "/returnList?planId=" + planId,
+            sortName: "c.sort",
+            sortOrder: "asc",
+            uniqueId: "detailId",
+            search: false,
+            showExport: false,
+            showToggle: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            columns: [
+                {
+                    field: 'detailId',
+                    title: '文件id',
+                    visible: false
+                },
+                {
+                    field: 'flowId',
+                    title: '文件编号'
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: 'center'
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: 'center'
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '清退状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(analysisStatue, value);
+                    }
+                },
+                {
+                    field: 'handleTime',
+                    title: '收文时间',
+                    align: 'center'
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

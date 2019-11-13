@@ -1,0 +1,482 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal edit-form" id="form-bankAnalysisManage-add">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">登记号：</label>
+                    <div class="col-md-9">
+                        <input  name="registrationNum" class="form-control" type="text" placeholder="登记号" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">标题：</label>
+                    <div class="col-md-9">
+                        <input  name="title" class="form-control" type="text" placeholder="标题" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">来文单位：</label>
+                    <div class="col-md-9">
+                        <input  name="communicationUnit" class="form-control" type="text" placeholder="来文单位" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">联合单位：</label>
+                    <div class="col-md-9">
+                        <input  name="jointUnit" class="form-control" type="text" placeholder="联合单位" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">份数：</label>
+                    <div class="col-md-9">
+                        <input name="numOfCopies" class="form-control" type="number" placeholder="份数" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="width: 100%;">
+                    <label class="col-md-3 control-label">文件密级：</label>
+                    <div class="col-md-9">
+                        <select id="secretLevel" name="secretLevel" th:with="type=${@dict.getType('secrecy_level')}">
+                            <option value="">所有</option>
+                            <option th:each="dict: ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="controls" style="text-align: right;margin-right: 32px;">
+                    <a class="btn btn-primary btn-rounded btn-sm true" onclick="$.table.search()"><i class="fa fa-search"></i>查询</a>
+                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                            class="fa fa-refresh"></i>&nbsp;重置</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="form-group-separator" style="height: 1px;background: #eee;margin-bottom: 15px;"></div>
+    <fieldset>
+        <legend>待选文件列表
+        </legend>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="col-sm-12 select-table table-bordered">
+                        <table id="bootstrap-table" data-mobile-responsive="true"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="form-group-separator" style="height: 1px;background: #eee;margin-bottom: 15px;"></div>
+    <fieldset>
+        <legend>已选文件列表</legend>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="col-sm-12 select-table table-bordered">
+                        <table id="bootstrap-table_selected" data-mobile-responsive="true"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="row" style="margin-top: 50px;">
+        <div class="col-sm-12">
+            <div class="control-group">
+                <div class="controls" style="text-align: center">
+                    <button type="button" class="btn btn-primary" id="save">保存</button>
+                    <button type="button" class="btn btn-primary" id="cancel">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/analysisManage";
+    var secrecyLevelDatas = [[${@dict.getType('secrecy_level')}]];
+    var selected_option;
+    function selectTableItem() {
+        selected_option = {
+            method: "post",
+            url: "",
+            contentType: "application/x-www-form-urlencoded",
+            striped: false,
+            pagination: false,
+            uniqueId: "id",
+            clickToSelect: true,
+            singleSelect: false,
+            maintainSelected: true,
+            sortable: true,
+            columns: [{
+                field: 'id',
+                title: 'ID',
+                visible: false,
+                align: 'center'
+            }, {
+                field: 'registrationNum',
+                title: '登记号',
+                align: 'center'
+            }, {
+                field: 'documentNum',
+                title: '文号',
+                align: 'center'
+            },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: 'center',
+                    editable: {
+                        type: 'text'
+                    },
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'numOfCopies',
+                    title: '总份数',
+                    align: 'center'
+                },
+                {
+                    field: 'selectedNum',
+                    title: '已选清退份数',
+                    align: 'center'
+                },
+                {
+                    field: 'communicationUnit',
+                    title: '来文单位',
+                    align: 'center'
+                },
+                {
+                    field: 'jointUnit',
+                    title: '联合单位',
+                    align: 'center'
+                },
+                {
+                    field: 'createTime',
+                    title: '收文时间',
+                    align: 'center'
+                }]
+        };
+        var selectedBootstrapTable = $("#bootstrap-table_selected").bootstrapTable(selected_option);
+    }
+    (function ($) {
+        var options = {
+            url: prefix + "/receiveList",
+            sortName: "a.create_time",
+            sortOrder: "desc",
+            uniqueId: 'id',
+            idField: 'id',
+            search: false,
+            showExport: false,
+            showToggle: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 15, 20],
+            maintainSelected: true,
+            modalName: '选择文件',
+            editable: true,
+            columns: [
+                {
+                    checkbox: true,
+                    title: '全选',
+                    valign: 'middle'
+                },
+                {
+                    field: 'id',
+                    title: 'ID',
+                    visible: false,
+                    align: 'center'
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: 'center'
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: 'center'
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center'
+                },
+                {
+                    field: 'secretLevel',
+                    title: '密级',
+                    align: 'center',
+                    editable: {
+                        type: 'text'
+                    },
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(secrecyLevelDatas, value);
+                    }
+                },
+                {
+                    field: 'numOfCopies',
+                    title: '总份数',
+                    align: 'center'
+                },
+                {
+                    field: 'selectedNum',
+                    title: '已选清退份数',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        console.log(value);
+                        return value ? value : 0;
+                    }
+                },
+                {
+                    field: 'communicationUnit',
+                    title: '来文单位',
+                    align: 'center'
+                },
+                {
+                    field: 'jointUnit',
+                    title: '联合单位',
+                    align: 'center'
+                },
+                {
+                    field: 'createTime',
+                    title: '收文时间',
+                    align: 'center'
+                },
+                {
+                    field: 'fileDetailIds',
+                    title: '已选文件编号',
+                    align: 'center',
+                    visible: false
+                },
+                {
+                    title: '操作',
+                    field: 'operate',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-rounded btn-xs" href="#" onclick="selectFile(\'' + row.id + '\', \'' + index + '\', \'' + row.fileDetailIds + '\')"><i class="fa fa-google-wallet"></i>&nbsp;选择文件</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+        selectTableItem();
+    })(jQuery);
+
+    /**
+     * 选择文件
+     * @param id: 台账id
+     * @param index: 索引
+     * @param fileDetailIds : 已选中的文件id
+     *
+     * */
+    function selectFile(id, tableIndex, fileDetailIds) {
+        var url = ctx + "bank/fileDetail/fileSelect?fileId=" + id + "&fileDetailIds=" + fileDetailIds + "&type=" + 0;
+        layer.open({
+            title: "选择文件",
+            type: 2,
+            content: url,
+            area: [1000 + 'px', 600 + 'px'],
+            fix: false,
+            //不固定
+            maxmin: true,
+            shade: 0.3,
+            btn: ['确定', '关闭'],
+            // 弹层外区域关闭
+            shadeClose: true,
+            yes: function(index, layero) {
+                var iframeWin = layero.find('iframe')[0];
+                var selectionRows = iframeWin.contentWindow.selectionRows();
+                $.map(!$.isArray(selectionRows) ? [selectionRows] : selectionRows, function (row) {
+                    return row.id;
+                });
+                var selectionIds = $.map(selectionRows, function (item) {
+                    return item.id;
+                });
+                console.log(selectionIds);
+                console.log(selectionRows);
+                //将数据插入已选列表
+                insertSelectedList(id,tableIndex, selectionIds);
+                layer.close(index);
+            },
+            cancel: function(index) {
+                return true;
+            }
+        })
+    }
+
+    function insertSelectedList(id, tableIndex, selectionIds) {
+        var length = selectionIds.length;
+        var $bootstrap = $("#bootstrap-table");
+        var row = $bootstrap.bootstrapTable("getRowByUniqueId", id);
+        row["selectedNum"] = length;
+        //删除之前的行
+        $("#bootstrap-table_selected").bootstrapTable('removeByUniqueId', id);
+        if (length > 0) {
+            $("#bootstrap-table_selected").bootstrapTable('prepend', row);
+        }
+        //插入新的行
+        if (length >= 0) {
+            row["fileDetailIds"] = selectionIds.join(",");
+            $bootstrap.bootstrapTable('updateRow', {
+                index: tableIndex,
+                row: row
+            });
+        }
+    }
+
+    /**
+     * 保存清退计划
+     */
+    $('#save').on('click', function () {
+        var $bootstrap = $("#bootstrap-table_selected");
+        //获取包含分页的数据
+        var row = $bootstrap.bootstrapTable("getData", false);
+        if (row.length > 0) {
+            $.modal.loading("正在处理中，请稍后...");
+            var config = {
+                url: prefix + "/add",
+                type: "post",
+                dataType: "json",
+                data: {
+                    "bankAnalysisVOs" : JSON.stringify(row)
+                },
+                success: function(result) {
+                    if (result.code == 0) {
+                        $.modal.msgReload("保存成功,正在刷新数据请稍后……","success");
+                        refreshMenuItem(prefix);
+                        var dataUrl = prefix + '/add';
+                        $.modal.closeTab(dataUrl);
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                    $.modal.closeLoading();
+                }
+            };
+            $.ajax(config)
+        } else {
+            layer.msg("请至少选择一条数据")
+        }
+    });
+
+    $('#cancel').on('click', function () {
+        //关闭tab页
+        var dataUrl = prefix + '/add';
+        $.modal.closeTab(dataUrl);
+    });
+
+    $('#bootstrap-table')
+        .on("check-all.bs.table",(event,rows)=>{
+            rows.forEach(function(item){
+                batchSelectFile(item);
+            });
+        }).on("uncheck-all.bs.table",(event,rows)=>{
+            rows.forEach(function(item){
+                batchCancelFile(item);
+            });
+            $("#bootstrap-table").bootstrapTable('refresh');
+
+        }).on("check.bs.table",(event,row)=>{
+            batchSelectFile(row);
+        }).on("uncheck.bs.table",(event,row)=>{
+            batchCancelFile(row);
+        });
+
+    function batchSelectFile(row) {
+        var accountId = row.id;
+        var url = prefix + '/selectBankReceiveFilesDetailByAccountAndPlanId?fileId=' + accountId;
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: url,
+            dataType: 'json',
+            contentType  : 'application/json',
+            data: {},
+        }).done(function (result) {
+            console.log(result);
+            if (result.length > 0) {
+                var selectionIds = $.map(result, function (item) {
+                    return item.id;
+                });
+                var length = selectionIds.length;
+                var $bootstrap = $("#bootstrap-table");
+                var row = $bootstrap.bootstrapTable("getRowByUniqueId", accountId);
+                row["selectedNum"] = length;
+                //删除之前的行
+                $("#bootstrap-table_selected").bootstrapTable('removeByUniqueId', accountId);
+                if (length > 0) {
+                    $("#bootstrap-table_selected").bootstrapTable('prepend', row);
+                }
+                //插入新的行
+                if (length >= 0) {
+                    row["fileDetailIds"] = selectionIds.join(",");
+                    $bootstrap.bootstrapTable('updateByUniqueId', {
+                        id: accountId,
+                        row: row
+                    });
+                }
+            }
+        }).fail(function (result) {
+            layer.msg("数据加载失败", {icon: 2, time: 2000, shift: 5});
+        });
+    }
+
+    function batchCancelFile(row) {
+        var $bootstrap = $("#bootstrap-table");
+        var accountId = row.id;
+        //删除已选中行
+        $("#bootstrap-table_selected").bootstrapTable('removeByUniqueId', accountId);
+        //查询在计划中的数量
+        var url = prefix + '/selectBankReceiveFilesDetailByAccountAndPlanIdOnEdit?fileId=' + accountId;
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: url,
+            dataType: 'json',
+            contentType  : 'application/json',
+            data: {},
+            success: function (result) {
+                row["selectedNum"] = result.length;
+                var map = $.map(result, function (item) {
+                    return item.id;
+                });
+                row["fileDetailIds"] = map;
+                $bootstrap.bootstrapTable('updateByUniqueId', {
+                    id: accountId,
+                    row: row
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>

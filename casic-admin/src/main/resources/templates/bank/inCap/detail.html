@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header">
+</head>
+<style type="text/css">
+    .btn-group .btn {
+        width: 90px;
+        display: block;
+    }
+    .dropdown-menu {
+        min-width: unset;
+        width: 100%;
+    }
+    .dropdown-menu li {
+        text-align: center;
+        cursor: pointer;
+    }
+    .dropdown-menu li:hover {
+        color: #fff;
+        background: #398439;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:src="@{/js/jquery.qrcode.min.js}"></script>
+<script th:src="@{/js/jquery.jqprint-0.3.js}"></script>
+<script th:inline="javascript">
+
+    var prefix = ctx + "bank/inCap/detail";
+    //初始化查询条件使用
+    var id = [[${id}]];
+    $(function () {
+        //初始化查询条件
+        var options = {
+            url:  prefix +  "/list?id=" + id,
+            modalName: "文件详情",
+            showExport:false,
+            showToggle: false,
+            search: false,
+            showSearch: false,
+            showColumns: false,
+            showRefresh: false,
+            pageSize:20,
+            pageList:[10,20,30,50],
+            columns: [
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'flowId',
+                    title: '文件编号',
+                    align: "center"
+                },
+                {
+                    field: 'registrationNum',
+                    title: '登记号',
+                    align: "center"
+                },
+                {
+                    field: 'documentNum',
+                    title: '文号',
+                    align: "center"
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    align: "center"
+                },
+
+            ]
+        };
+        $.table.init(options);
+    });
+
+
+</script>
+<script>
+
+
+    function isEmpty(obj) {
+        if (typeof obj == "undefined" || obj == null || obj == "") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+</script>
+</body>
+</html>

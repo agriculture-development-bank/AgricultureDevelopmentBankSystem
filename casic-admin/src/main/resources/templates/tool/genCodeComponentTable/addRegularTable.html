@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-genCodeComponentTable-add" th:object="${genCodeComponent}">
+            <input type="hidden" id="componentId" name="componentId" th:value="${componentId}" >
+         <div class="form-group">
+            <label class="col-sm-3 control-label">所属领域：</label>
+            <div class="col-sm-8">
+                <input id="domainName" name="domainName" th:field="*{domain.domainName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">领域编码：</label>
+            <div class="col-sm-8">
+                <input id="domainCode" name="domainCode" th:field="*{domain.domainCode}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">所属组件：</label>
+            <div class="col-sm-8">
+                <input id="conmponentName" name="conmponentName" th:field="*{conmponentName}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">中文表名：</label>
+            <div class="col-sm-8">
+                <input id="tableName" name="tableName" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">英文表名：</label>
+            <div class="col-sm-8">
+                <input id="tableEnName" name="tableEnName"  class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">映射包名：</label>
+            <div class="col-sm-8">
+                <input id="packageName" name="packageName" class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 例如：com.casic706.api</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">映射类名：</label>
+            <div class="col-sm-8">
+                <input id="className" name="className" class="form-control" type="text">
+                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 例如：TSystemUser 跟模块的包名结合</span>
+            </div>
+        </div>
+        <div class="form-group">
+             <label class="col-sm-3 control-label">普通表类型：</label>
+             <div class="col-sm-8">
+                 <div class="radio-box" th:each="dict : ${@dict.getType('tool_genCodeComponentTable_tableType_isParent')}">
+                     <input type="radio" th:id="${dict.dictValue}" id="tableType" name="tableType" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+                     <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                 </div>
+             </div>
+         </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">表描述：</label>
+            <div class="col-sm-8">
+                <input id="comments" name="comments" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "tool/genCodeComponentTable";
+    $("#form-genCodeComponentTable-add").validate({
+        rules:{
+            tableName:{
+                required:true,
+                remote: {
+                    url: prefix + "/checkFieldUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "filedName": "table_name",
+                        "fieldValue": function () {
+                            return $.common.trim($("#tableName").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            tableEnName:{
+                required:true,
+                remote: {
+                    url: prefix + "/checkFieldUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "filedName": "table_en_name",
+                        "fieldValue": function () {
+                            return $.common.trim($("#tableEnName").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            packageName:{
+                required:true,
+            },
+            className:{
+                required:true,
+                remote: {
+                    url: prefix + "/checkFieldUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "filedName": "class_name",
+                        "fieldValue": function () {
+                            return $.common.trim($("#className").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            tableType: {
+                required:true
+            }
+        },
+        messages: {
+            "tableEnName": {
+                remote: "表英文名称已经存在"
+            },
+            "tableName": {
+                remote: "表中文名称已经存在"
+            },
+            "className":{
+                remote: "映射类名已经存在"
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-genCodeComponentTable-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>
