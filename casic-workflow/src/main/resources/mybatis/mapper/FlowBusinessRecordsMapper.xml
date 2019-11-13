@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.casic.workflow.mapper.FlowBusinessRecordsMapper">
+
+    <resultMap type="org.casic.workflow.domain.FlowBusinessRecords" id="BusinessRecordsResult">
+        <result property="id"    column="id"    />
+        <result property="processId"    column="process_id"    />
+        <result property="instanceId"    column="instance_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userComment"    column="user_comment"    />
+        <result property="optionDate"    column="option_date"    />
+        <result property="objId"    column="obj_id"    />
+        <result property="formJson"    column="form_json"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="type"     column="type"   />
+    </resultMap>
+
+    <sql id="selectBusinessRecordsVo">
+        select id, process_id, instance_id, task_id, user_id, user_comment, option_date, obj_id, form_json, del_flag, create_by, create_time, update_by, update_time, remark,type from flow_business_records
+    </sql>
+
+    <select id="selectBusinessRecordsList" parameterType="org.casic.workflow.domain.FlowBusinessRecords" resultMap="BusinessRecordsResult">
+        <include refid="selectBusinessRecordsVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="processId != null  and processId != '' "> and process_id = #{processId}</if>
+            <if test="instanceId != null  and instanceId != '' "> and instance_id = #{instanceId}</if>
+            <if test="taskId != null  and taskId != '' "> and task_id = #{taskId}</if>
+            <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+            <if test="userComment != null  and userComment != '' "> and user_comment = #{userComment}</if>
+            <if test="optionDate != null "> and option_date = #{optionDate}</if>
+            <if test="objId != null  and objId != '' "> and obj_id = #{objId}</if>
+            <if test="formJson != null  and formJson != '' "> and form_json = #{formJson}</if>
+            <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+            <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="type != null  and type != '' "> and type = #{type}</if>
+        </where>
+        order by option_date asc
+    </select>
+
+    <select id="selectBusinessRecordsListByProInstanceId" parameterType="String" resultMap="BusinessRecordsResult">
+        <include refid="selectBusinessRecordsVo"/>
+        <where>
+            instance_id = #{proInstanceId}
+        </where>
+        order by option_date asc
+    </select>
+
+    <select id="selectBusinessRecordsById" parameterType="String" resultMap="BusinessRecordsResult">
+        <include refid="selectBusinessRecordsVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertBusinessRecords" parameterType="org.casic.workflow.domain.FlowBusinessRecords">
+        insert into flow_business_records
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="processId != null  and processId != ''  ">process_id,</if>
+            <if test="instanceId != null  and instanceId != ''  ">instance_id,</if>
+            <if test="taskId != null  and taskId != ''  ">task_id,</if>
+            <if test="userId != null  and userId != ''  ">user_id,</if>
+            <if test="userComment != null  and userComment != ''  ">user_comment,</if>
+            <if test="optionDate != null  ">option_date,</if>
+            <if test="objId != null  and objId != ''  ">obj_id,</if>
+            <if test="formJson != null  and formJson != ''  ">form_json,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="type != null  and type != ''  ">type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">#{id},</if>
+            <if test="processId != null  and processId != ''  ">#{processId},</if>
+            <if test="instanceId != null  and instanceId != ''  ">#{instanceId},</if>
+            <if test="taskId != null  and taskId != ''  ">#{taskId},</if>
+            <if test="userId != null  and userId != ''  ">#{userId},</if>
+            <if test="userComment != null  and userComment != ''  ">#{userComment},</if>
+            <if test="optionDate != null  ">#{optionDate},</if>
+            <if test="objId != null  and objId != ''  ">#{objId},</if>
+            <if test="formJson != null  and formJson != ''  ">#{formJson},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="type != null  and type != ''  ">#{type},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBusinessRecords" parameterType="org.casic.workflow.domain.FlowBusinessRecords">
+        update flow_business_records
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="processId != null  and processId != ''  ">process_id = #{processId},</if>
+            <if test="instanceId != null  and instanceId != ''  ">instance_id = #{instanceId},</if>
+            <if test="taskId != null  and taskId != ''  ">task_id = #{taskId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="userComment != null  and userComment != ''  ">user_comment = #{userComment},</if>
+            <if test="optionDate != null  ">option_date = #{optionDate},</if>
+            <if test="objId != null  and objId != ''  ">obj_id = #{objId},</if>
+            <if test="formJson != null  and formJson != ''  ">form_json = #{formJson},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBusinessRecordsById" parameterType="String">
+        delete from flow_business_records where id = #{id}
+    </delete>
+
+    <delete id="deleteBusinessRecordsByIds" parameterType="String">
+        delete from flow_business_records where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

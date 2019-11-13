@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.casic.workflow.mapper.FlowBusinessCountMapper">
+    
+    <resultMap type="org.casic.workflow.domain.FlowBusinessCount" id="BusinessCountResult">
+        <result property="id"    column="id"    />
+        <result property="processId"    column="process_id"    />
+        <result property="instanceId"    column="instance_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="optionResult"    column="option_result"    />
+        <result property="optionDate"    column="option_date"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="objId"    column="obj_id"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectBusinessCountVo">
+        select id, process_id, instance_id, task_id, user_id, option_result, option_date, table_name, obj_id, del_flag, create_by, create_time, update_by, update_time, remark from flow_business_count
+    </sql>
+	
+    <select id="selectBusinessCountList" parameterType="org.casic.workflow.domain.FlowBusinessCount" resultMap="BusinessCountResult">
+        <include refid="selectBusinessCountVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="processId != null  and processId != '' "> and process_id = #{processId}</if>
+             <if test="instanceId != null  and instanceId != '' "> and instance_id = #{instanceId}</if>
+             <if test="taskId != null  and taskId != '' "> and task_id = #{taskId}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="optionResult != null  and optionResult != '' "> and option_result = #{optionResult}</if>
+             <if test="optionDate != null "> and option_date = #{optionDate}</if>
+             <if test="tableName != null  and tableName != '' "> and table_name = #{tableName}</if>
+             <if test="objId != null  and objId != '' "> and obj_id = #{objId}</if>
+             <if test="delFlag != null  and delFlag != '' "> and del_flag = #{delFlag}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectBusinessCountById" parameterType="String" resultMap="BusinessCountResult">
+        <include refid="selectBusinessCountVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBusinessCount" parameterType="org.casic.workflow.domain.FlowBusinessCount">
+        insert into flow_business_count
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="processId != null  and processId != ''  ">process_id,</if>
+			<if test="instanceId != null  and instanceId != ''  ">instance_id,</if>
+			<if test="taskId != null  and taskId != ''  ">task_id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="optionResult != null  and optionResult != ''  ">option_result,</if>
+			<if test="optionDate != null  ">option_date,</if>
+			<if test="tableName != null  and tableName != ''  ">table_name,</if>
+			<if test="objId != null  and objId != ''  ">obj_id,</if>
+			<if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="processId != null  and processId != ''  ">#{processId},</if>
+			<if test="instanceId != null  and instanceId != ''  ">#{instanceId},</if>
+			<if test="taskId != null  and taskId != ''  ">#{taskId},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="optionResult != null  and optionResult != ''  ">#{optionResult},</if>
+			<if test="optionDate != null  ">#{optionDate},</if>
+			<if test="tableName != null  and tableName != ''  ">#{tableName},</if>
+			<if test="objId != null  and objId != ''  ">#{objId},</if>
+			<if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateBusinessCount" parameterType="org.casic.workflow.domain.FlowBusinessCount">
+        update flow_business_count
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="processId != null  and processId != ''  ">process_id = #{processId},</if>
+            <if test="instanceId != null  and instanceId != ''  ">instance_id = #{instanceId},</if>
+            <if test="taskId != null  and taskId != ''  ">task_id = #{taskId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="optionResult != null  and optionResult != ''  ">option_result = #{optionResult},</if>
+            <if test="optionDate != null  ">option_date = #{optionDate},</if>
+            <if test="tableName != null  and tableName != ''  ">table_name = #{tableName},</if>
+            <if test="objId != null  and objId != ''  ">obj_id = #{objId},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteBusinessCountById" parameterType="String">
+        delete from flow_business_count where id = #{id}
+    </delete>
+	
+    <delete id="deleteBusinessCountByIds" parameterType="String">
+        delete from flow_business_count where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>
