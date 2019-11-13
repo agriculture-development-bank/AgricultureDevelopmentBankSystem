@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankRecordMapper">
+
+    <resultMap type="com.casic.bank.domain.BankRecord" id="bankRecordResult">
+        <id property="id" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="belongDept" column="belong_dept"/>
+        <result property="receiveDept" column="receive_dept"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="operateResult" column="operate_result"/>
+        <result property="analysisDetailId" column="analysis_detail_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="BASE_COLUMN_LIST">
+        select id, user_id, belong_dept, receive_dept, operate_time, operate_result, analysis_detail_id, create_by,
+        create_time, update_by, update_time, remark, file_id FROM bank_record
+    </sql>
+
+    <!-- 保存设备实体 -->
+    <insert id="insertBankRecord">
+        insert into bank_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="fileId != null  and fileId != ''  ">file_id,</if>
+            <if test="userId != null  and userId != ''  ">user_id,</if>
+            <if test="belongDept != null  and belongDept != ''  ">belong_dept,</if>
+            <if test="receiveDept != null  and receiveDept != ''  ">receive_dept,</if>
+            <if test="operateTime != null ">operate_time,</if>
+            <if test="operateResult != null and operateResult != ''  ">operate_result,</if>
+            <if test="analysisDetailId != null and analysisDetailId != ''  ">analysis_detail_id,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="fileId != null  and fileId != ''  ">#{fileId},</if>
+            <if test="userId != null  and userId != '' ">#{userId},</if>
+            <if test="belongDept != null and belongDept != ''  ">#{belongDept},</if>
+            <if test="receiveDept != null  and receiveDept != ''  ">#{receiveDept},</if>
+            <if test="operateTime != null ">#{operateTime},</if>
+            <if test="operateResult != null  and operateResult != ''  ">#{operateResult},</if>
+            <if test="analysisDetailId != null and analysisDetailId != ''  ">#{analysisDetailId},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新流程记录 -->
+    <update id="updateBankRecord">
+        update bank_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != '' ">user_id = #{userId},</if>
+            <if test="belongDept != null  and belongDept != '' ">belong_dept = #{belongDept},</if>
+            <if test="receiveDept != null  and receiveDept != '' ">receive_dept = #{receiveDept},</if>
+            <if test="operateTime != null ">operate_time = #{operateTime},</if>
+            <if test="operateResult != null  and operateResult != '' ">operate_result = #{operateResult},</if>
+            <if test="analysisDetailId != null  and analysisDetailId != '' ">analysis_detail_id = #{analysisDetailId},</if>
+            <if test="fileId != null  and fileId != '' ">file_id = #{fileId},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除设备信息 -->
+    <delete id="deleteBankRecord" parameterType="string">
+        delete from bank_record where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据主键查询 -->
+    <select id="selectBankRecordById" parameterType="string" resultMap="bankRecordResult">
+        <include refid="BASE_COLUMN_LIST"/>,
+
+        where id = #{id}
+    </select>
+
+    <!-- 获取设备列表数据 -->
+    <select id="findBankRecordList" resultMap="bankRecordResult">
+        <include refid="BASE_COLUMN_LIST"/>,
+        <where>
+            <if test="fileId != null and fileId != ''">
+                file_id = #{fileId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findCountRecordByFileId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM bank_record WHERE
+        file_id IN
+        <foreach item="id" collection="list" index="index" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 查询流程记录 -->
+    <select id="selectBankRecord" resultType="com.casic.bank.domain.vo.BankRecordVO">
+        select
+        a.id as "id",
+        a.file_id as "fileId",
+        a.user_id as "userId",
+        a.belong_dept as "belongDept",
+        a.receive_dept as "receiveDept",
+        a.operate_result as "operateResult",
+        a.analysis_detail_id as "analysisDetailId",
+        a.operate_time as "operateTime"
+        from BANK_RECORD as a
+        where 1=1 and a.file_id = #{fileId}
+        <if test="userName != null and userName != ''">
+            and a.user_id like concat('%', #{userName}, '%')
+        </if>
+    </select>
+
+    <select id="selectCountRecordByDept" resultType="java.util.Map">
+        SELECT
+        a . dept_name AS "name" ,
+        nvl(b . counts, 0) AS "value"
+        FROM
+        (
+        SELECT
+        dept_id,
+        dept_name
+        FROM
+        sys_dept
+        where parent_id = (select dept_id from sys_dept where parent_id = '0')
+        ) AS a
+        LEFT JOIN
+        (
+        SELECT
+        receive_dept,
+        count (*) as counts
+        FROM
+        bank_record
+        <where>
+            <choose>
+                <when test="type == 2">
+                    and operate_time is not null and  datediff(4,operate_time,getdate()) = 0
+                </when>
+                <when test="type == 1">
+                    and operate_time is not null and datediff(4,operate_time,getdate()) &lt; 7 and datediff(4,operate_time,getdate()) &gt;= 0
+                </when>
+                <otherwise>
+                    and operate_time is not null and datediff(4,operate_time,getdate()) &lt; 30 and datediff(4,operate_time,getdate()) &gt;= 0
+                </otherwise>
+            </choose>
+        </where>
+        GROUP BY
+        receive_dept
+        ) b
+        ON b . receive_dept = a . dept_name
+    </select>
+</mapper>

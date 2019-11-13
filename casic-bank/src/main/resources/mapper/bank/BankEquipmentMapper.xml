@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankEquipmentMapper">
+
+    <resultMap type="com.casic.bank.domain.vo.BankEquipmentVO" id="BankEquipmentResult">
+        <id property="id" column="id"/>
+        <result property="equipmentName" column="equipment_name"/>
+        <result property="equipmentType" column="equipment_type"/>
+        <result property="unitLevel" column="unit_level"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="equipmentStatus" column="equipment_status"/>
+        <result property="ip" column="ip"/>
+        <result property="userId" column="user_id"/>
+        <result property="position" column="position"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+
+        <result property="userName" column="userName"/>
+        <result property="deptName" column="deptName"/>
+        <result property="locationName" column="locationName" />
+    </resultMap>
+
+    <sql id="BASE_COLUMN_LIST">
+        select a.id, a.equipment_name, equipment_type, unit_level, a.equipment_status, a.position, a.dept_id, a.user_id, a.ip, a.create_by, a.create_time, a.update_by, a.update_time, a.remark
+    </sql>
+
+    <!-- 保存设备实体 -->
+    <insert id="insertBankEquipment">
+        insert into BANK_EQUIPMENT
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="equipmentName != null  and equipmentName != ''  ">equipment_name,</if>
+            <if test="equipmentType != null  and equipmentType != ''  ">equipment_type,</if>
+            <if test="unitLevel != null">unit_level,</if>
+            <if test="deptId != null  and deptId != ''  ">dept_id,</if>
+            <if test="equipmentStatus != null  and equipmentStatus != ''  ">equipment_status,</if>
+            <if test="ip != null  and ip != ''  ">ip,</if>
+            <if test="userId != null  and userId != ''  ">user_id,</if>
+            <if test="position != null and position != ''  ">position,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="equipmentName != null  and equipmentName != ''  ">#{equipmentName},</if>
+            <if test="equipmentType != null  and equipmentType != ''  ">#{equipmentType},</if>
+            <if test="unitLevel != null">#{unitLevel},</if>
+            <if test="deptId != null  and deptId != '' ">#{deptId},</if>
+            <if test="equipmentStatus != null and equipmentStatus != ''  ">#{equipmentStatus},</if>
+            <if test="ip != null  and ip != ''  ">#{ip},</if>
+            <if test="userId != null  and userId != ''  ">#{userId},</if>
+            <if test="position != null  and position != ''  ">#{position},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+    </insert>
+
+    <!-- 编辑设备实体 -->
+    <update id="updateBankEquipment" parameterType="com.casic.bank.domain.BankEquipment">
+        update BANK_EQUIPMENT
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="equipmentName != null  and equipmentName != ''  ">equipment_name = #{equipmentName},</if>
+            <if test="equipmentType != null  and equipmentType != ''  ">equipment_type = #{equipmentType},</if>
+            <if test="unitLevel != null">unit_level = #{unitLevel},</if>
+            <if test="deptId != null  and deptId != '' ">dept_id = #{deptId},</if>
+            <if test="equipmentStatus != null and equipmentStatus != ''  ">equipment_status = #{equipmentStatus},</if>
+            <if test="ip != null  and ip != ''  ">ip = #{ip},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="position != null  and position != ''  ">position = #{position},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 删除设备信息 -->
+    <delete id="deleteBankEquipmentByIds" parameterType="string">
+        delete from BANK_EQUIPMENT where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据id删除设备信息 -->
+    <delete id="deleteBankEquipmentById" parameterType="string">
+        delete from BANK_EQUIPMENT where id = #{id}
+    </delete>
+
+    <!-- 根据主键查询 -->
+    <select id="selectBankEquipmentById" parameterType="string" resultMap="BankEquipmentResult">
+        <include refid="BASE_COLUMN_LIST"/>,
+        (select u.user_name from sys_user as u where u.user_id = a.user_id) as userName,
+        (select d.dept_name from sys_dept as d where d.dept_id = a.dept_id) as deptName,
+        (SELECT l.location_name FROM bank_location AS l WHERE l.id = a.position) AS locationName
+        from BANK_EQUIPMENT as a
+        where a.id = #{id}
+    </select>
+
+    <!-- 获取设备列表数据 -->
+    <select id="selectBankEquipmentList" resultMap="BankEquipmentResult">
+        <include refid="BASE_COLUMN_LIST"/>,
+        (select u.user_name from sys_user as u where u.user_id = a.user_id) as userName,
+        (select d.dept_name from sys_dept as d where d.dept_id = a.dept_id) as deptName,
+        (SELECT l.location_name FROM bank_location AS l WHERE l.id = a.position) AS locationName
+        from BANK_EQUIPMENT as a
+        where 1=1
+        <if test="id != null and id != ''">
+            and a.id = #{id}
+        </if>
+        <if test="equipmentName != null and equipmentName != ''">
+            and a.equipment_name like concat('%', #{equipmentName}, '%')
+        </if>
+        <if test="equipmentType != null and equipmentType != ''">
+            and a.equipment_type = #{equipmentType}
+        </if>
+        <if test="deptId != null and deptId != ''">
+            and a.dept_id = #{deptId}
+        </if>
+    </select>
+
+    <!-- 根据设备IP查询设备信息 -->
+    <select id="selectBankEquipmentByIp" parameterType="string" resultMap="BankEquipmentResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        from BANK_EQUIPMENT as a
+        where a.ip = #{ip}
+    </select>
+
+    <!-- 查询部门是否存在设备 -->
+    <select id="CheckDeptExistEquipement" parameterType="string" resultType="java.lang.Integer">
+        select count(1) from BANK_EQUIPMENT where dept_id = #{deptId}
+    </select>
+
+    <!-- 检测设备中存在位置信息 -->
+    <select id="checkEquipementExistLocation" parameterType="string" resultType="java.lang.Integer">
+        select count(1) from BANK_EQUIPMENT where position = #{locationId}
+    </select>
+
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.bank.mapper.UseRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.casic.bank.domain.UseRecord">
+        <id column="id" property="capuseid"/>
+        <result column="usename"  property="usename"/>
+        <result column="time_start"  property="timeStart"/>
+        <result column="time_end"  property="timeEnd"/>
+        <result column="equipment"  property="equipment"/>
+        <result column="pro_code"  property="proCode"/>
+        <result column="ser_num" property="serNum"/>
+        <result column="dictionaryType"  property="dictionaryType"/>
+        <result column="model"  property="model"/>
+        <result column="application" property="application"/>
+        <result column="rfid_code"  property="rfidCode"/>
+        <result column="deptname"  property="deptname"/>
+        <result column="outin" property="outin"/>
+        <result column="seIp"  property="seIp"/>
+        <result column="device_name"  property="deviceName"/>
+    </resultMap>
+
+    <resultMap id="fileResultMap" type="com.casic.bank.domain.vo.BankFileVo">
+        <result column="id" property="id" />
+        <result column="OutIn" property="opeType" />
+        <result column="location_name" property="locationName" />
+        <result column="document_num" property="documentNum" />
+        <result column="registration_num" property="registrationNum" />
+        <result column="title" property="title" />
+        <result column="flow_id" property="flowId" />
+        <result column="rfid" property="rfid" />
+        <result column="secret_level" property="secretLevel" />
+        <result column="communication_unit" property="communicationUnit" />
+        <result column="joint_unit" property="jointUnit" />
+        <result column="phone" property="phone" />
+        <result column="contact" property="contact" />
+        <result property="deptName" column="dept_name" />
+    </resultMap>
+
+    <select id="selectPageByUseRecord" parameterType="com.casic.bank.domain.UseRecord" resultMap="BaseResultMap">
+        SELECT DISTINCT
+         cap.id,
+        sys_user.user_name AS usename,
+        beq.equipment_name AS equipment,
+        beq.ip AS seIp,
+        cap.time_start,
+        cap.time_end,
+        dep.dept_name AS deptname,
+        COUNT(CASE pson.OutIn WHEN '0'THEN true ELSE NULL END ) AS productOut,
+        COUNT(CASE pson.OutIn WHEN '1'THEN true ELSE NULL END ) AS productIn
+        FROM
+        capuserecord cap
+        LEFT JOIN bank_equipment beq ON cap.sys_equipment_id = beq.id
+        LEFT JOIN sys_user ON beq.user_id = sys_user.user_id
+        LEFT JOIN productuserecord pson ON pson.capuserecord_id = cap.id
+--         LEFT JOIN bank_receive_files_detail bat ON bat.id = pson.product_id
+        LEFT JOIN sys_dept dep ON sys_user.dept_id = dep.dept_id
+
+        <where>
+            <if test="capuseid != null and capuseid != ''">
+                cap.id = #{capuseid}
+            </if>
+            <if test="equipment != null and equipment != ''">
+                beq.equipment_name = #{equipment}
+            </if>
+            <if test="seIp !=null and seIp !=''">
+                beq.ip = #{seIp}
+            </if>
+        </where>
+        GROUP BY cap.id,usename,equipment,seIp,cap.time_start,
+        cap.time_end,deptname,pson.OutIn
+        order by cap.time_start DESC
+    </select>
+
+    <select id="getBankFileVo" parameterType="java.lang.String" resultMap="fileResultMap">
+        SELECT DISTINCT cap . id ,pson . outin ,bat . flow_id ,brf . document_num ,brf . registration_num ,brf . title ,
+        bat . rfid ,brf.communication_unit,
+    brf.joint_unit, brf.phone, brf.contact, brf.secret_level, sys_dept.dept_name
+FROM
+    capuserecord cap
+    LEFT JOIN
+        bank_equipment beq
+        ON cap . sys_equipment_id = beq . id
+    LEFT JOIN
+        sys_user
+        ON beq . user_id = sys_user . user_id
+    LEFT JOIN
+        productuserecord pson
+        ON pson . capuserecord_id = cap . id
+    LEFT JOIN
+        bank_receive_files_detail bat
+        ON bat . id = pson . product_id
+    LEFT JOIN
+        bank_receive_files brf
+        ON brf . id = bat . file_id
+        left join SYS_DEPT
+        on brf.dept_id = sys_dept.dept_id
+        WHERE cap.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.bank.mapper.NotifyMessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.casic.bank.domain.NotifyMessage">
+        <id column="id"  property="id"/>
+        <result column="message"  property="message"/>
+        <result column="field_id"  property="fieldId"/>
+        <result column="user_id"  property="userId"/>
+        <result column="is_read"  property="isRead"/>
+        <result column="create_time"  property="createDate"/>
+        <result column="read_time" property="readTime"/>
+        <result column="dept_id"  property="deptId"/>
+        <result column="handlerecord"  property="handlerecord"/>
+        <result column="capuserecord_id"  property="capuserecordId"/>
+        <result column="product_id"  property="productId"/>
+        <result column="device_ip"  property="deviceIp"/>
+    </resultMap>
+
+    <resultMap id="SelectResultMap" type="com.casic.bank.domain.vo.NotifyMessageVo" extends="BaseResultMap">
+        <!--<result column="dept_name" jdbcType="VARCHAR" property="deptName"/>-->
+        <result column="user_name" property="userName" />
+        <result column="equipment_name" property="equipmentName" />
+    </resultMap>
+
+    <select id="selectInfoByVO2" parameterType="com.casic.bank.domain.vo.NotifyMessageVo"  resultMap="SelectResultMap">
+        SELECT nm.id, nm.message, nm.field_id, nm.user_id, nm.is_read,
+        nm.create_time, nm.read_time, nm.dept_id, nm.handlerecord,
+        nm.capuserecord_id, nm.product_id, sysu.user_name, s.equipment_name, nm.device_ip
+        FROM
+        notifymessage nm
+        LEFT JOIN sys_dept dep ON nm.dept_id = dep.dept_id
+        LEFT JOIN sys_user sysu ON nm.user_id = sysu.user_id
+        LEFT JOIN bank_equipment s ON s.IP=nm.device_ip
+
+      <where>
+        <if test="isRead!=null and isRead!=''">
+            and nm.is_read =#{isRead}
+        </if>
+
+        <if test='fieldId!=null and fieldId!=""'>
+            and nm.field_id =#{fieldId}
+        </if>
+          <if test='message!=null and message!=""'>
+              and nm.message =#{message}
+          </if>
+          <if test='deviceIp!=null and deviceIp!=""'>
+              and nm.device_ip =#{deviceIp}
+          </if>
+          <if test='useName!=null and useName!=""'>
+              and sysu.user_name =#{useName}
+          </if>
+
+      </where>
+        ORDER BY nm.create_time DESC
+        <!--<if test='fieldIdList != null and fieldIdList.size>0'>-->
+            <!--AND nm.field_id in-->
+            <!--<foreach collection="fieldIdList" open="(" close=")" separator="," item="item">-->
+                <!--#{item}-->
+            <!--</foreach>-->
+        <!--</if>-->
+    </select>
+
+    <delete id="deleteMessage" parameterType="string">
+        delete from notifymessage where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankAnalysisDetailMapper">
+
+    <resultMap id="BankAnalysisDetailResult" type="com.casic.bank.domain.BankAnalysisDetail">
+        <id property="id" column="id"/>
+        <result property="planId" column="plan_id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <resultMap type="com.casic.bank.domain.vo.BankAnalysisVO" id="BankAnalysisVOResult">
+        <result property="id" column="id"/>
+        <result property="registrationNum" column="registration_num"/>
+        <result property="urgency" column="urgency"/>
+        <result property="documentNum" column="document_num"/>
+        <result property="numOfCopies" column="num_of_copies"/>
+        <result property="communicationUnit" column="communication_unit"/>
+        <result property="jointUnit" column="joint_unit"/>
+        <result property="title" column="title"/>
+        <result property="contact" column="contact"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="phone" column="phone"/>
+        <result property="secretLevel" column="secret_level"/>
+        <result property="handleTime" column="handle_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+        <result property="selectedNum" column="selectedNum"/>
+        <result property="fileDetailIds" column="fileDetailIds"/>
+    </resultMap>
+
+    <sql id="BASE_COLUMN_LIST">
+        select a.id, a.registration_num, a.urgency, a.document_num, a.num_of_copies, a.communication_unit, a.joint_unit, a.title, a.secret_level, a.handle_time,  a.contact, a.dept_id,
+        a.phone, a.create_time, a.create_by, a.update_time, a.update_by, a.remark
+    </sql>
+
+
+    <!-- 保存文件清退计划子表数据 -->
+    <insert id="insertBankAnalysisDetail" parameterType="com.casic.bank.domain.BankAnalysisDetail">
+        insert into bank_analysis_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">id,</if>
+            <if test="planId != null  and planId != ''  ">plan_id,</if>
+            <if test="accountId != null  and accountId != '' ">account_id,</if>
+            <if test="fileId != null and fileId != '' ">file_id,</if>
+            <if test="status != null and status != ''">status,</if>
+
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="planId != null  and planId != '' ">#{planId},</if>
+            <if test="accountId != null  and accountId != '' ">#{accountId},</if>
+            <if test="fileId != null  and fileId != '' ">#{fileId},</if>
+            <if test="status != null and status != '' ">#{status},</if>
+
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+
+        </trim>
+    </insert>
+
+    <!-- 更新文件清退子表数据 -->
+    <update id="analysisBankAnalysisDetailByIds">
+        <foreach collection="array" item="id" index="index" open="" close="" separator=";">
+            update BANK_ANALYSIS_DETAIL
+            <set>
+                status = 1
+            </set>
+            where id = #{id}
+        </foreach>
+    </update>
+
+    <!--  取消已清退的文件 -->
+    <update id="cancelAnalysisBankAnalysisManageByIds">
+        <foreach collection="array" item="id" index="index" open="" close="" separator=";">
+            update BANK_ANALYSIS_DETAIL
+            <set>
+                status = 0
+            </set>
+            where id = #{id}
+        </foreach>
+    </update>
+
+    <update id="analysisBankAnalysisDetailById">
+        update BANK_ANALYSIS_DETAIL
+        <set>
+            status = 1
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据文件清退计划id删除子表信息 -->
+    <delete id="deleteBankAnalysisDetailByAnalysisManageId">
+        delete from BANK_ANALYSIS_DETAIL where PLAN_ID = #{id}
+    </delete>
+
+    <!-- 根据文件清退计划id批量删除子表信息 -->
+    <delete id="deleteBankAnalysisDetailByAnalysisManageIds">
+        delete from BANK_ANALYSIS_DETAIL where PLAN_ID in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据id取消清退文件 -->
+    <update id="cancelAnalysisBankAnalysisManageById">
+        update BANK_ANALYSIS_DETAIL
+        <set>
+            status = 0
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据文件清退计划id查询清退文件列表数据 -->
+    <select id="selectBankAnalysisDetail" parameterType="string" resultMap="BankAnalysisDetailResult">
+        select id, plan_id, account_id, file_id, status, create_by,  create_time, update_by, update_time, remark  from BANK_ANALYSIS_DETAIL where PLAN_ID = #{id}
+    </select>
+
+    <!-- 查询台账信息 -->
+    <select id="selectBankReceiveFilesList" resultMap="BankAnalysisVOResult">
+       <include refid="BASE_COLUMN_LIST"/>, nvl(c.selectedNum, 0) as selectedNum, nvl(c.fileDetailIds, '') as fileDetailIds
+        from BANK_RECEIVE_FILES as a
+        left join (select b.account_id, ifnull(count(*), 0) as selectedNum, wmsys.wm_concat(b.id) as fileDetailIds from  BANK_ANALYSIS_DETAIL as b group by b.account_id) as c on c.account_id  = a.id
+        where 1=1
+        <if test="urgency != null and urgency != ''">
+            and a.urgency like concat('%', #{urgency}, '%')
+        </if>
+        <if test="registrationNum != null and registrationNum != ''">
+            and a.registration_num like concat('%', #{registrationNum}, '%')
+        </if>
+        <if test="documentNum != null and documentNum != ''">
+            and a.document_num like concat('%', #{documentNum}, '%')
+        </if>
+        <if test="secretLevel != null and secretLevel != ''">
+            and a.secret_level = #{secretLevel}
+        </if>
+        <if test="title != null and title != ''">
+            and a.title like concat('%', #{title}, '%')
+        </if>
+        <if test="communicationUnit != null and communicationUnit != ''">
+            and a.communication_unit like concat('%', #{communicationUnit}, '%')
+        </if>
+        <if test="jointUnit != null and jointUnit != ''">
+            and a.joint_unit like concat('%', #{jointUnit}, '%')
+        </if>
+        <if test="numOfCopies != null and numOfCopies != ''">
+            and a.num_of_copies like concat('%', #{numOfCopies}, '%')
+        </if>
+    </select>
+
+    <!-- 根据清退计划id查询待清退的文件 -->
+    <select id="selectBankAnalysisDetailMap" parameterType="string" resultType="java.util.Map">
+        SELECT a.id as "planId", b.id as "detailId", b.status as "status", c.flow_id as "flowId", d.registration_num as "registrationNum", d.document_num as "documentNum", d.title as "title", d.secret_level as "secretLevel", d.handle_time as "handleTime"
+        FROM BANK_ANALYSIS_MANAGE as a
+        left join BANK_ANALYSIS_DETAIL as b on b.plan_id = a.id
+        left join BANK_RECEIVE_FILES_DETAIL as c on b.file_id = c.id
+        left join BANK_RECEIVE_FILES as d on d.id = c.file_id
+        where a.id = #{id}
+    </select>
+
+    <!-- 查询待清退的文件 -->
+    <select id="selectBankAnalysisDetailVO" parameterType="string" resultType="com.casic.bank.domain.vo.BankAnalysisDetailVO">
+        SELECT a.id as "planId", b.id as "detailId", b.status as "status", c.flow_id as "flowId", c.sort, d.registration_num as "registrationNum", d.document_num as "documentNum", d.title as "title", d.secret_level as "secretLevel", d.handle_time as "handleTime",  c.status as "detailStatus"
+        FROM BANK_ANALYSIS_MANAGE as a
+        left join BANK_ANALYSIS_DETAIL as b on b.plan_id = a.id
+        left join BANK_RECEIVE_FILES_DETAIL as c on b.file_id = c.id
+        left join BANK_RECEIVE_FILES as d on d.id = c.file_id
+        where a.id = #{planId}
+    </select>
+    <!-- 根据计划id查询台账信息 -->
+    <select id="selectBankReceiveFilesListByPlanId"  resultMap="BankAnalysisVOResult">
+        select distinct a.id, a.registration_num, a.urgency, a.document_num, a.num_of_copies, a.communication_unit, a.joint_unit, a.title, a.secret_level, a.handle_time,  a.contact, a.dept_id,
+        a.phone, a.create_time, a.create_by, a.update_time, a.update_by, a.remark, nvl(c.selectedNum, 0) as selectedNum, nvl(c.fileDetailIds, '') as fileDetailIds
+        from BANK_RECEIVE_FILES as a
+        left join (select b.account_id, ifnull(count(*), 0) as selectedNum, wmsys.wm_concat(b.id) as fileDetailIds from  BANK_ANALYSIS_DETAIL as b
+        where 1=1
+        <if test="planId != null and planId != ''">
+            and b.plan_id  = #{planId}
+        </if>
+        group by b.account_id) as c on c.account_id  = a.id
+        left join BANK_ANALYSIS_DETAIL as m on m.account_id = a.id
+        where 1=1
+         <if test="urgency != null and urgency != ''">
+            and a.urgency like concat('%', #{urgency}, '%')
+        </if>
+        <if test="registrationNum != null and registrationNum != ''">
+            and a.registration_num like concat('%', #{registrationNum}, '%')
+        </if>
+        <if test="documentNum != null and documentNum != ''">
+            and a.document_num like concat('%', #{documentNum}, '%')
+        </if>
+        <if test="secretLevel != null and secretLevel != ''">
+            and a.secret_level = #{secretLevel}
+        </if>
+        <if test="title != null and title != ''">
+            and a.title like concat('%', #{title}, '%')
+        </if>
+        <if test="communicationUnit != null and communicationUnit != ''">
+            and a.communication_unit like concat('%', #{communicationUnit}, '%')
+        </if>
+        <if test="jointUnit != null and jointUnit != ''">
+            and a.joint_unit like concat('%', #{jointUnit}, '%')
+        </if>
+        <if test="numOfCopies != null and numOfCopies != ''">
+            and a.num_of_copies like concat('%', #{numOfCopies}, '%')
+        </if>
+    </select>
+
+    <select id="selectBankAnalysisDetailById" parameterType="string" resultMap="BankAnalysisDetailResult">
+        select * from BANK_ANALYSIS_DETAIL where id = #{id}
+    </select>
+
+    <!-- 根据台账id和清退计划id查询数据 -->
+    <select id="selectBankReceiveFilesDetailByAccountAndPlanId"
+            resultType="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        SELECT
+            a.id as "id", a.file_id as "fileId", a.flow_id as "flowId", c.registration_num as "registrationNum",
+            c.communication_unit as "communicationUnit",c.joint_unit as "jointUnit", c.create_time as "createTime",
+            c.document_num as "documentNum", c.title as "title",c.secret_level as "secretLevel", b.plan_id as "planId"
+        FROM
+            bank_receive_files_detail as a
+            left join BANK_ANALYSIS_DETAIL as b on a.id = b.file_id
+            left join bank_receive_files as c on a.file_id =  c.id
+        WHERE
+             a.file_id = #{fileId}
+             <choose>
+                 <when test="planId != null and null != ''">
+                     and (b.plan_id = #{planId} or b.plan_id IS NULL)
+                 </when>
+                 <otherwise>
+                     AND b.plan_id IS NULL
+                 </otherwise>
+             </choose>
+    </select>
+    <select id="selectBankReceiveFilesDetailByPlanId" resultType="java.util.Map">
+        select account_id as "accountId",wmsys.wm_concat(file_id) as "detailIds", nvl(count(file_id), 0) as "selectedNum"
+        from BANK_ANALYSIS_DETAIL
+        where  plan_id != #{planId}
+        group by account_id
+    </select>
+    <!-- 根据文件ID查询清退计划中的文件 -->
+    <select id="selectBankAnalysisDetailByFileId" parameterType="string" resultMap="BankAnalysisDetailResult">
+        SELECT * FROM BANK_ANALYSIS_DETAIL where file_id = #{id};
+    </select>
+    <select id="selectBankReceiveFilesDetailByAccountAndPlanIdOnEdit"
+            resultType="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        SELECT
+        a.id as "id", a.file_id as "fileId", a.flow_id as "flowId", c.registration_num as "registrationNum",
+        c.communication_unit as "communicationUnit",c.joint_unit as "jointUnit", c.create_time as "createTime",
+        c.document_num as "documentNum", c.title as "title",c.secret_level as "secretLevel", b.plan_id as "planId"
+        FROM
+        bank_receive_files_detail as a
+        left join BANK_ANALYSIS_DETAIL as b on a.id = b.file_id
+        left join bank_receive_files as c on a.file_id =  c.id
+        WHERE
+        a.file_id = #{fileId}
+        <choose>
+            <when test="planId != null and null != ''">
+                and b.plan_id = #{planId}
+            </when>
+            <otherwise>
+                and b.plan_id is not null
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

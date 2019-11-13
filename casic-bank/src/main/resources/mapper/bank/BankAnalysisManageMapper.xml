@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.bank.mapper.BankAnalysisManageMapper">
+
+    <resultMap type="com.casic.bank.domain.vo.BankAnalysisManageVO" id="BankAnalysisManageResult">
+        <result property="id" column="id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="belongDeptId" column="belong_dept_id"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="planStatus" column="plan_status"/>
+        <result property="issueTime" column="issue_time"/>
+        <result property="location" column="location"/>
+        <result property="num" column="num"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="deptName" column="deptName"/>
+    </resultMap>
+
+    <insert id="insertBankAnalysisManage" parameterType="com.casic.bank.domain.BankAnalysisManage">
+        insert into bank_analysis_manage
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="deptId != null  and deptId != ''  ">dept_id,</if>
+            <if test="belongDeptId != null  and belongDeptId != ''  ">belong_dept_id,</if>
+            <if test="startTime != null    ">start_time,</if>
+            <if test="endTime != null   ">end_time,</if>
+            <if test="location != null  and location != ''  ">location,</if>
+            <if test="planStatus != null  and planStatus != ''  ">plan_status,</if>
+            <if test="issueTime != null  and issueTime != ''  ">issue_time,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="num != null  and num != ''  ">num,</if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="deptId != null  and deptId != ''  ">#{deptId},</if>
+            <if test="belongDeptId != null  and belongDeptId != ''  ">#{belongDeptId},</if>
+            <if test="startTime != null   ">#{startTime},</if>
+            <if test="endTime != null   ">#{endTime},</if>
+            <if test="location != null  and location != ''  ">#{location},</if>
+            <if test="planStatus != null  and planStatus != ''  ">#{planStatus},</if>
+            <if test="issueTime != null ">#{issueTime},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="num != null  and num != ''  ">#{num},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBankAnalysisManage" parameterType="com.casic.bank.domain.BankAnalysisManage">
+        update bank_analysis_manage
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null  and deptId != ''  ">dept_id = #{deptId},</if>
+            <if test="belongDeptId != null  and belongDeptId != ''  ">belong_dept_id = #{belongDeptId},</if>
+            <if test="startTime != null  ">start_time = #{startTime},</if>
+            end_time = #{endTime},
+            <if test="location != null  and location != ''  ">location = #{location},</if>
+            <if test="planStatus != null  and planStatus != ''  ">plan_status = #{planStatus},</if>
+            <if test="issueTime != null  and issueTime != ''  ">issue_time = #{issueTime},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="num != null  and num != ''  ">num = #{num},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 查询台账列表数据 -->
+    <select id="findBankAnalysisManageList" parameterType="com.casic.bank.domain.BankAccount" resultMap="BankAnalysisManageResult">
+        SELECT a.id, a.dept_id, a.start_time, a.end_time, a.location, a.plan_status, a.num,
+        a.belong_dept_id, a.issue_time,a.create_by,
+        a.create_time, a.update_by, a.update_time, a.remark, b.DEPT_NAME as "deptName"
+        FROM bank_analysis_manage as a
+        left join SYS_DEPT as b on a.DEPT_ID = b.DEPT_ID
+       where 1=1
+        <if test="id!=null and id!=''">
+            a.id = #{id}
+        </if>
+        <if test="deptId!=null and deptId!=''">
+            and a.dept_id = #{deptId}
+        </if>
+        <if test="location!=null and location!=''">
+            and a.location = #{location}
+        </if>
+        <if test="planStatus != null and planStatus!=''">
+            and a.plan_status = #{planStatus}
+        </if>
+        <if test="startTime != null">
+            and a.start_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and  #{endTime} >= a.end_time
+        </if>
+        ORDER BY a.create_time
+    </select>
+
+    <!-- 根据主键查询清退计划 -->
+    <select id="findAnalysisManageById" parameterType="String" resultMap="BankAnalysisManageResult">
+        SELECT id, dept_id, start_time, end_time, location, plan_status, num,
+        belong_dept_id, issue_time,create_by,
+        create_time, update_by, update_time, remark
+        FROM bank_analysis_manage
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据主键删除 -->
+    <delete id="deleteById" parameterType="String">
+        DELETE FROM bank_analysis_manage WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByIds" parameterType="String">
+        DELETE FROM bank_analysis_manage WHERE id IN
+        <foreach collection="array" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 根据条件查询清退计划 -->
+    <select id="selectBankAnalysisManageByYear" resultType="hashmap">
+        SELECT
+        MONTH (to_date (a . yearmonth , 'yyyy-MM' )) || '月' AS "month" ,
+        nvl (b . finshed , 0 ) AS "已完成数量" ,
+        nvl (b . unfinsh , 0 ) AS "未完成数量"
+        FROM
+        (
+        SELECT
+        to_char (add_months (to_date (to_char (SYSDATE , 'yyyy' ) || '-01' , 'yyyy-mm' ), rownum - 1 ), 'YYYY-MM' ) AS yearmonth
+        FROM
+        dual CONNECT
+        BY
+        rownum &lt;= (
+        SELECT
+        months_between (to_date (to_char (add_months (SYSDATE , 12 ), 'yyyy' ) || '-01' , 'yyyy-mm' ), to_date (to_char (add_months (SYSDATE , - 12 ), 'yyyy' ) || '-12' , 'yyyy-mm' ))
+        FROM
+        dual )
+        ) a
+        LEFT JOIN
+        (
+        SELECT
+        to_char (to_date (create_time ), 'yyyy-mm' ) AS fmonth ,
+        nvl (sum (CASE
+        WHEN plan_status != 2 THEN 1
+        ELSE 0
+        END ), 0 ) AS unfinsh,
+        nvl (sum (CASE
+        WHEN plan_status = 2 THEN 1
+        ELSE 0
+        END ), 0 ) AS finshed
+        FROM
+        bank_analysis_manage
+        WHERE
+        YEAR (create_time ) = YEAR (SYSDATE ())
+        GROUP BY
+        to_char (to_date (create_time ), 'yyyy-mm' )
+        ) b
+        ON a . yearmonth = b . fmonth
+    </select>
+
+    <!-- 根据清退计划id查询该计划下的所有文件信息 -->
+    <select id="findSelectedBankAnalysisDetail" resultType="com.casic.bank.domain.vo.BankAnalysisVO">
+        select a.id as "id", a.registration_num as "registrationNum", a.document_num as "documentNum", a.title as "title", a.secret_level as "secretLevel", a.communication_unit as "communicationUnit",
+        a.joint_unit as "jointUnit", a.create_time as "createTime", d.plan_id as "planId", d.detailIds as "fileDetailIds", d.selectedNum as "selectedNum"
+        from
+        (select plan_id, account_id,wmsys.wm_concat(file_id) as detailIds, nvl(count(file_id), 0) as selectedNum
+        from BANK_ANALYSIS_DETAIL
+        where plan_id = #{planId}
+        group by  plan_id, account_id) d
+        left join  BANK_RECEIVE_FILES as a on a.id = d.account_id
+    </select>
+
+</mapper>

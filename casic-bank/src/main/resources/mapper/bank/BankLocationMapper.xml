@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankLocationMapper">
+
+    <resultMap id="BankLocationMap" type="com.casic.bank.domain.vo.BankLocationVo">
+        <id property="id" column="id"/>
+        <result property="description" column="description"/>
+        <result property="locationName" column="location_name"/>
+        <result property="locationCode" column="location_code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="belongDept" column="belong_dept"/>
+        <result property="store" column="store"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="createUserName" column="user_name"/>
+    </resultMap>
+
+    <!-- 基本SQL -->
+    <sql id="BASE_COLUMN_LIST">
+        select id, description, location_name, location_code,
+         create_by, create_time, update_by, update_time, remark, belong_dept, store
+          from BANK_LOCATION
+    </sql>
+
+    <!-- 新增位置 -->
+    <insert id="insertBankLocation">
+        insert into BANK_LOCATION
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="description != null  and description != ''  ">description,</if>
+            <if test="locationCode != null  and locationCode != ''  ">location_code,</if>
+            <if test="locationName != null  and locationName != ''  ">location_name,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="belongDept != null and belongDept != ''">belong_dept,</if>
+            <if test="store != null and store != '' ">store</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="description != null  and description != ''  ">#{description},</if>
+            <if test="locationCode != null  and locationCode != ''  ">#{locationCode},</if>
+            <if test="locationName != null  and locationName != ''  ">#{locationName},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="belongDept != null and belongDept != ''">#{belongDept},</if>
+            <if test="store != null and store != ''">#{store}</if>
+        </trim>
+    </insert>
+
+    <!-- 编辑位置 -->
+    <update id="updateBankLocation">
+        update BANK_LOCATION
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="description != null  and description != ''  ">description = #{description},</if>
+            <if test="locationCode != null  and locationCode != ''  ">location_code = #{locationCode},</if>
+            <if test="locationName != null  and locationName != ''  ">location_name = #{locationName},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="belongDept != null and belongDept != ''">belong_dept = #{belongDept},</if>
+            <if test="store != null and store != ''">store = #{store}</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="deleteBankLocationByIds">
+        delete from BANK_LOCATION where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据位置id删除 -->
+    <delete id="deleteBankLocationById">
+        delete from BANK_LOCATION where id = #{id}
+    </delete>
+
+    <!-- 获取列表数据 -->
+    <select id="selectBankLocationList" resultMap="BankLocationMap">
+        select bl.id, bl.description, bl.location_name, bl.location_code,
+        bl.create_by, bl.create_time, bl.update_by, bl.update_time, bl.remark,
+        bl.belong_dept, bl.store, dep.dept_name, u.user_name
+        from BANK_LOCATION bl
+        LEFT JOIN sys_dept dep ON dep.dept_id = bl.belong_dept
+        left join sys_user u on u.user_id = bl.create_by
+        where 1=1
+        <if test="locationName != null and locationName != ''">
+            and location_name like concat('%', #{locationName}, '%')
+        </if>
+        <if test="locationCode != null and locationCode != ''">
+            and location_code like concat('%', #{locationCode}, '%')
+        </if>
+    </select>
+
+    <!-- 根据主键查询位置实体 -->
+    <select id="selectBankLocationById" resultMap="BankLocationMap">
+        select bl.id, bl.description, bl.location_name, bl.location_code,
+        bl.create_by, bl.create_time, bl.update_by, bl.update_time, bl.remark,
+        bl.belong_dept, bl.store, dep.dept_name
+        from BANK_LOCATION bl
+        LEFT JOIN sys_dept dep ON dep.dept_id = bl.belong_dept
+        where id = #{id}
+    </select>
+
+    <!-- 根据位置编码查询 -->
+    <select id="selectBankLocationByCode" parameterType="string" resultMap="BankLocationMap">
+        <include refid="BASE_COLUMN_LIST"/>
+        where location_code = #{locationCode}
+    </select>
+
+    <!-- 根据部门id和位置名称查询位置信息 -->
+    <select id="selectBankLocationByNameAndDeptId" parameterType="string" resultMap="BankLocationMap">
+        <include refid="BASE_COLUMN_LIST"/>
+        where belong_dept = #{belongDept} and location_name  = #{locationName}
+    </select>
+</mapper>

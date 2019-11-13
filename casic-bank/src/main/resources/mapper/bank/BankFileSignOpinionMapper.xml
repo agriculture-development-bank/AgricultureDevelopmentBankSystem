@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankFileSignOpinionMapper">
+
+    <resultMap id="BankFileSignOpinionResult" type="com.casic.bank.domain.BankFileSignOpinion">
+        <id property="id" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="registrationNum" column="registration_num"/>
+        <result property="opinionType" column="opinion_type"/>
+        <result property="opinion" column="opinion"/>
+        <result property="leaderName" column="leader_name"/>
+        <result property="leaderPost" column="leader_post"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <!-- 基本SQL -->
+    <sql id="BASE_COLUMN_LIST">
+        select id, file_id, registration_num, opinion, create_time, create_by, update_time, update_by, remark, leader_name, leader_post, opinion_type from BANK_FILE_SIGN_OPINION
+    </sql>
+
+    <!-- 新增文件签署意见 -->
+    <insert id="insertBankFileSignOpinion">
+        insert into BANK_FILE_SIGN_OPINION
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">id,</if>
+            <if test="fileId != null  and fileId != ''">file_id,</if>
+            <if test="registrationNum != null  and registrationNum != ''  ">registration_num,</if>
+            <if test="opinionType != null  and opinionType != ''  ">opinion_type,</if>
+            <if test="opinion != null and opinion != ''  ">opinion,</if>
+            <if test="leaderName != null  and leaderName != ''  ">leader_name,</if>
+            <if test="leaderPost != null  and leaderPost != ''  ">leader_post,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="fileId != null  and fileId != ''  ">#{fileId},</if>
+            <if test="registrationNum != null  and registrationNum != '' ">#{registrationNum},</if>
+            <if test="opinionType != null and opinionType != ''  ">#{opinionType},</if>
+            <if test="opinion != null and opinion != ''  ">#{opinion},</if>
+            <if test="leaderName != null and leaderName != ''  ">#{leaderName},</if>
+            <if test="leaderPost != null  and leaderPost != ''  ">#{leaderPost},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+    </insert>
+
+    <!-- 批量更新文件签署意见 -->
+    <update id="updateBankFileSignOpinions">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update BANK_FILE_SIGN_OPINION
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="item.fileId != null and item.fileId != ''">file_id = #{item.fileId},</if>
+                <if test="item.registrationNum != null  and item.registrationNum != ''  ">registration_num = #{item.registrationNum},</if>
+                <if test="item.opinionType != null  and item.opinionType != ''  ">opinion_type = #{item.opinionType},</if>
+                <if test="item.opinion != null and item.opinion != ''  ">opinion = #{item.opinion},</if>
+                <if test="item.leaderName != null  and item.leaderName != ''  ">leader_name = #{item.leaderName},</if>
+                <if test="item.leaderPost != null  and item.leaderPost != ''  ">leader_post = #{item.leaderPost},</if>
+                <if test="item.updateBy != null  and item.updateBy != ''  ">update_by = #{item.updateBy},</if>
+                <if test="item.updateTime != null  ">update_time = #{item.updateTime},</if>
+                <if test="item.remark != null  and item.remark != ''  ">remark = #{item.remark},</if>
+            </trim>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <!-- 删除文件签署意见 -->
+    <delete id="deleteBankFileSignOpinionById">
+        delete from BANK_FILE_SIGN_OPINION where id = #{id}
+    </delete>
+
+    <!--  根据文件id查询行领导审批意见 -->
+    <select id="selectBankFileSignOpinionByFileDetailId" parameterType="string" resultMap="BankFileSignOpinionResult">
+         select a.* from BANK_FILE_SIGN_OPINION as a
+         left join BANK_RECEIVE_FILES_DETAIL as b on a.file_id = b.id
+         where b.file_id = #{fileId}
+    </select>
+
+    <!-- 根据主键查询行领导文件签署意见 -->
+    <select id="selectBankFileSignOpinionById" parameterType="string" resultMap="BankFileSignOpinionResult">
+        include refid="BASE_COLUMN_LIST"/>
+        where id = #{id}
+    </select>
+
+    <!-- 查询文件签署意见列表数据 -->
+    <select id="selectBankFileSignOpinionList" resultMap="BankFileSignOpinionResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        where registration_num = #{registrationNum} and opinion_type = #{opinionType}
+    </select>
+</mapper>

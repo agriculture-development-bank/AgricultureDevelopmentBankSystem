@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankReceiveFilesDetailMapper">
+
+    <resultMap id="BankReceiveFilesDetailResult" type="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        <id property="id" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="flowId" column="flow_id"/>
+        <result property="rfid" column="rfid"/>
+        <result property="locationId" column="location_id"/>
+        <result property="currentDeptId" column="current_dept_id"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="title" column="title" />
+        <result property="secretLevel" column="dict_label" />
+    </resultMap>
+
+    <!-- 基本SQL -->
+    <sql id="BASE_COLUMN_LIST">
+        select id, file_id, flow_id, rfid, location_id, current_dept_id, sort, status, create_by, create_time, update_by, update_time, remark from BANK_RECEIVE_FILES_DETAIL
+    </sql>
+
+    <!-- 插入文件台账文件份数信息 -->
+    <insert id="insertBankReceiveFilesDetail" parameterType="list">
+        insert into BANK_RECEIVE_FILES_DETAIL
+        (id, file_id, flow_id, status, rfid, location_id, current_dept_id, sort, create_by, create_time, remark) values
+        <foreach collection="list" item="item" separator=",">
+            ( #{item.id}, #{item.fileId}, #{item.flowId}, #{item.status}, #{item.rfid}, #{item.locationId}, #{item.currentDeptId}, #{item.sort}, #{item.createBy},
+            #{item.createTime}, #{item.remark})
+        </foreach>
+    </insert>
+
+    <!-- 根据id删除台账的文件 -->
+    <delete id="deleteBankReceiveFilesDetailById" parameterType="string">
+        delete from BANK_RECEIVE_FILES_DETAIL where id = #{id}
+    </delete>
+
+    <!-- 查询文件台账详情列表 -->
+    <select id="findBankReceiveFilesDetail" resultType="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        select
+        a.id,
+        a.file_id as fileId,
+        a.flow_id as flowId,
+        a.rfid as rfid,
+        a.location_id as locationId,
+        a.current_dept_id as currentDeptId,
+        a.sort as sort,
+        a.status,
+        a.create_by as createBy,
+        a.create_time as createTime,
+        a.update_by as updateBy,
+        a.update_time as updateTime,
+        a.remark,
+        b.REGISTRATION_NUM as registrationNum,
+        b.DOCUMENT_NUM as documentNum,
+        b.TITLE as title,
+        c.dept_name as currentDeptName,
+        b.SECRET_LEVEL as secretLevel,
+        b.JOINT_UNIT as jointUnit,
+        b.COMMUNICATION_UNIT as communicationUnit,
+        b.NUM_OF_COPIES as numOfCopies,
+        e.equipment_name || '-' || d.cap_board_name as locationName
+        from BANK_RECEIVE_FILES_DETAIL as a
+        left join BANK_RECEIVE_FILES as b on b.id = a.file_id
+        left join SYS_DEPT as c on c.dept_id = a.current_dept_id
+        left join BANK_CAP_BOARD as d on d.id = a.location_id
+        left join BANK_EQUIPMENT as e on d.equipment_id = e.id
+        where a.file_id = #{id}
+        <if test="title != null and title != ''">
+            and b.TITLE like concat('%', #{title}, '%')
+        </if>
+        <if test="currentDeptId != null and currentDeptId != ''">
+            and a.current_dept_id = #{currentDeptId}
+        </if>
+         <if test="flowId != null and flowId != ''">
+            and a.flow_id like concat('%', #{flowId}, '%')
+        </if>
+    </select>
+
+    <!-- 根据主键查询台账文件信息 -->
+    <select id="selectBankReceiveFilesDetailById" resultMap="BankReceiveFilesDetailResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        where id = #{id}
+    </select>
+
+    <!-- 根据台账id查询文件数量 -->
+    <select id="selectBankReceiveFilesDetailCountByFileId" resultType="java.lang.Integer">
+        select count(*) from BANK_RECEIVE_FILES_DETAIL where FILE_ID = #{fileId}
+    </select>
+
+    <!-- 根据RFID编号查询台账文件信息 -->
+    <select id="selectBankReceiveFilesDetailRfid" parameterType="string" resultMap="BankReceiveFilesDetailResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        where rfid = #{rfid}
+    </select>
+
+    <update id="updateBankReceiveFilesDetail" parameterType="com.casic.bank.domain.BankReceiveFilesDetail">
+        update BANK_RECEIVE_FILES_DETAIL
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null  and fileId != ''  ">file_id = #{fileId},</if>
+            <if test="flowId != null  and flowId != '' ">flow_id = #{flowId},</if>
+            <if test="status != null and status != ''  ">status = #{status},</if>
+            <if test="rfid != null  and rfid != ''  ">rfid = #{rfid},</if>
+            <if test="locationId != null  and locationId != '' ">location_id = #{locationId},</if>
+            <if test="currentDeptId != null  and currentDeptId != ''  ">current_dept_id = #{currentDeptId},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 批量更新台账子表数据 -->
+    <update id="updateBankReceiveFilesDetailsByAccountId">
+        update BANK_RECEIVE_FILES_DETAIL
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="currentDeptId != null  and currentDeptId != ''  ">current_dept_id = #{currentDeptId},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+        </trim>
+        where file_id = #{fileId}
+    </update>
+
+    <!-- 批量更新文件位置信息 -->
+    <update id="batchUpdateBankReceiveFilesDetail">
+        <foreach collection="bankReceiveFilesDetails" item="bean" index="index" open="" close="" separator=";">
+            UPDATE BANK_RECEIVE_FILES_DETAIL
+            <set>
+                location_id=#{bean.locationId},
+                update_by = #{bean.updateBy},
+                update_time = #{bean.updateTime}
+            </set>
+            <where>
+                id = #{bean.id}
+            </where>
+        </foreach>
+    </update>
+
+    <!-- 根据文件RFID编号更新文件信息 -->
+    <update id="updateBankReceiveFilesDetailByRfid">
+        update BANK_RECEIVE_FILES_DETAIL
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileId != null  and fileId != ''  ">file_id = #{fileId},</if>
+            <if test="flowId != null  and flowId != '' ">flow_id = #{flowId},</if>
+            <if test="status != null and status != ''  ">status = #{status},</if>
+            <if test="locationId != null  and locationId != '' ">location_id = #{locationId},</if>
+            <if test="currentDeptId != null  and currentDeptId != ''  ">current_dept_id = #{currentDeptId},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+        </trim>
+        where rfid = #{rfid}
+    </update>
+
+    <select id="selectBankFileToPhone" parameterType="java.util.Map" resultType="java.util.Map">
+        select a.rfid AS "rfid_number", a.flow_id AS "file_number",
+         b.secret_level AS "file_class", c.dept_name AS "dept_name"
+         FROM bank_receive_files_detail  a
+         LEFT JOIN bank_receive_files  b ON a.file_id = b.id
+         LEFT JOIN sys_dept  c ON b.dept_id = c.dept_id
+    </select>
+    
+    <select id="selectBankReceiveFileDetailByFileIds" parameterType="java.lang.String" resultMap="BankReceiveFilesDetailResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        WHERE file_id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectBankReceiveFileDetailVOByFileIds" parameterType="java.lang.String" resultMap="BankReceiveFilesDetailResult">
+        SELECT a.*,b.title,c.dict_label FROM bank_receive_files_detail a
+        LEFT JOIN bank_receive_files b ON a.file_id = b.id
+        LEFT JOIN sys_dict_data c ON b.secret_level = c.dict_value
+        WHERE a.file_id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据清退计划子表id查询文件信息 -->
+    <select id="selectBankFileDetailByAnalysisDetailIds"  resultMap="BankReceiveFilesDetailResult">
+        SELECT a.*
+        FROM  BANK_RECEIVE_FILES_DETAIL as a
+        left join BANK_ANALYSIS_DETAIL as b on a.id = b.file_id
+        where b.id in
+        <foreach collection="array" open="(" close=")" separator="," index="index" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getDetailList" parameterType="java.lang.String" resultType="com.casic.bank.domain.vo.BankAnalysisDetailVO">
+       select
+        a.id,
+        a.file_id as fileId,
+        a.flow_id as flowId,
+        a.rfid as rfid,
+        a.location_id as locationId,
+        a.current_dept_id as currentDeptId,
+        a.sort as sort,
+        a.status,
+        a.create_by as createBy,
+        a.create_time as createTime,
+        a.update_by as updateBy,
+        a.update_time as updateTime,
+        a.remark, b.title, b.REGISTRATION_NUM as registrationNum,
+        b.DOCUMENT_NUM as documentNum
+        FROM bank_receive_files_detail a
+        LEFT JOIN bank_receive_files b ON a.file_id = b.id
+        LEFT JOIN productincap c ON c.product_id = a.id
+        WHERE c.id = #{id}
+    </select>
+    <!-- 根据台账id查询子文件列表 -->
+    <select id="selectBankReceiveFileDetailByFileId" resultMap="BankReceiveFilesDetailResult">
+        select * from BANK_RECEIVE_FILES_DETAIL where FILE_ID = #{fileId}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(*) FROM bank_receive_files_detail
+    </select>
+
+    <!-- 根据文件id查询文件信息 -->
+    <select id="selectBankReceiveFilesDetailVOById" parameterType="string"
+            resultType="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        select a.id, a.file_id as fileId, a.flow_id as flowId, a.rfid, a.location_id as locationId, a.current_dept_id as currentDeptId,
+        a.status, a.create_by as createBy, a.create_time as createTime, a.update_by as updateBy, a.update_time as updateTime, a.remark, c.equipment_name || '-' || b.cap_board_name as locationName
+        from BANK_RECEIVE_FILES_DETAIL as a
+        left join BANK_CAP_BOARD as b on a.location_id = b.id
+        left join BANK_EQUIPMENT as c on c.id = b.equipment_id
+        where a.id = #{id}
+    </select>
+
+    <!-- 根据RFID查询文件信息 -->
+    <select id="selectBankReceiveFileDetailRfidNum" parameterType="string" resultType="com.casic.bank.domain.BankReceiveFilesDetail">
+        select id as "id",
+        file_id as "fileId",
+        flow_id as "flowId",
+        rfid as "rfid",
+        location_id as "locationId",
+        current_dept_id as "currentDeptId", status, create_by as "createBy", create_time as "createTime", update_by as "updateBy", update_time as "updateTime", remark
+        from BANK_RECEIVE_FILES_DETAIL
+        where rfid = #{rfid}
+    </select>
+
+    <select id="selectBankFileDetailAnsyc" parameterType="string" resultType="java.util.Map">
+        select a.id as "id", a.flow_id as "flowId",  a.rfid as "rfid",
+        b.title as "title", b.REGISTRATION_NUM as "registrationNum", b.DOCUMENT_NUM as "documentNum",
+        b.COMMUNICATION_UNIT as "communicationUnit", b.JOINT_UNIT as "jointUnit", c.DICT_LABEL as "secretLevel",
+        d.DICT_LABEL  as "urgency"
+        from BANK_RECEIVE_FILES_DETAIL as a
+        left join BANK_RECEIVE_FILES as b on a.file_id = b.id
+        left join (select dict_value, DICT_LABEL  from SYS_DICT_DATA where DICT_TYPE = 'secrecy_level') as c on c.dict_value = b.SECRET_LEVEL
+        left join (select dict_value, DICT_LABEL  from SYS_DICT_DATA where DICT_TYPE = 'urgency') as d on d.dict_value = b.URGENCY
+         where 1=1
+         <if test="rfid != null and rfid != ''">
+             and  a.rfid = #{rfid}
+         </if>
+        <if test="filenoword != null and filenoword != ''">
+            and  b.DOCUMENT_NUM = #{filenoword}
+        </if>
+        <if test="filetitle != null and filetitle != ''">
+            and  b.title = #{filetitle}
+        </if>
+        <if test="filesecret != null and filesecret != ''">
+            and  c.dict_value = #{filesecret}
+        </if>
+        <if test="fileurgency != null and fileurgency != ''">
+            and  d.dict_value = #{fileurgency}
+        </if>
+        <if test="senddeptname != null and senddeptname != ''">
+            and  b.COMMUNICATION_UNIT = #{senddeptname}
+        </if>
+        <if test="start_time != null">
+            and  a.create_time &gt;= #{start_time}
+        </if>
+        <if test="end_time != null">
+            and  a.end_time &lt;= #{end_time}
+        </if>
+        order by a.create_time
+    </select>
+    <select id="selectOptionalBankReceiveFilesDetail"
+            resultType="com.casic.bank.domain.vo.BankReceiveFilesDetailVO">
+        SELECT
+            a . id ,
+            a . file_id AS fileid ,
+            a . flow_id AS flowid ,
+            a . rfid AS rfid ,
+            a . location_id AS locationid ,
+            a . current_dept_id AS currentdeptid ,
+            a.sort as sort,
+            a . status ,
+            a . create_by AS createby ,
+            a . create_time AS createtime ,
+            a . update_by AS updateby ,
+            a . update_time AS updatetime ,
+            a . remark ,
+            n . registration_num AS registrationnum ,
+            n . document_num AS documentnum ,
+            n . title AS title ,
+            n . secret_level AS secretlevel,
+            b.id as "planDetailId",
+            b.plan_id as "planId"
+        FROM bank_receive_files_detail AS a
+            LEFT JOIN bank_receive_files AS n ON a . file_id = n . id
+            left join BANK_ANALYSIS_DETAIL as b on b.file_id = a.id
+        WHERE a . file_id = #{fileId}
+        <if test="editType == 0">
+            <choose>
+                <when test="planId != null and planId != ''">
+                    and  b.plan_id = #{planId}
+                </when>
+                <otherwise>
+                    and b.plan_id  is null
+                </otherwise>
+            </choose>
+        </if>
+        <if test="editType == 1">
+            and  (b.plan_id = #{planId}  or b.plan_id is null)
+        </if>
+    </select>
+
+    <!-- 根据设备id查询文件信息 -->
+    <select id="selectBankReceiveFileDetailByEquipmentId" parameterType="string" resultType="com.casic.bank.domain.BankReceiveFilesDetail">
+        select
+            a . id ,
+            a . file_id AS "fileId" ,
+            a . flow_id AS "flowId" ,
+            a . rfid AS "rfid" ,
+            a . location_id AS "locationId" ,
+            a . current_dept_id AS "currentDeptId" ,
+            a . status ,
+            a . create_by AS createby ,
+            a . create_time AS createtime ,
+            a . update_by AS updateby ,
+            a . update_time AS updatetime ,
+            a . remark
+        from BANK_RECEIVE_FILES_DETAIL as a
+        left join BANK_CAP_BOARD as b on b.id = a.location_id
+        left join BANK_EQUIPMENT as c on c.id = b.equipment_id
+        where c.id = #{id}
+    </select>
+</mapper>

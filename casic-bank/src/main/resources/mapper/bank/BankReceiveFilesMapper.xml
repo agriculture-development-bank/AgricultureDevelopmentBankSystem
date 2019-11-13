@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.bank.mapper.BankReceiveFilesMapper">
+
+    <resultMap type="com.casic.bank.domain.BankReceiveFiles" id="BankReceiveFilesResult">
+        <result property="id" column="id"/>
+        <result property="registrationNum" column="registration_num"/>
+        <result property="urgency" column="urgency"/>
+        <result property="documentNum" column="document_num"/>
+        <result property="numOfCopies" column="num_of_copies"/>
+        <result property="communicationUnit" column="communication_unit"/>
+        <result property="jointUnit" column="joint_unit"/>
+        <result property="title" column="title"/>
+        <result property="contact" column="contact"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="phone" column="phone"/>
+        <result property="secretLevel" column="secret_level"/>
+        <result property="handleTime" column="handle_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+        <result property="analysisCount" column="analysisCount"/>
+    </resultMap>
+
+    <sql id="BASE_COLUMN_LIST">
+        select distinct a.id, a.registration_num, a.urgency, a.document_num, a.num_of_copies, a.communication_unit, a.joint_unit, a.title, a.secret_level, a.handle_time,  a.contact, a.dept_id,
+        a.phone, a.create_time, a.create_by, a.update_time, a.update_by, a.remark
+    </sql>
+
+    <sql id="SEARCH">
+        <where>
+            <if test="id != null and id != ''">
+                a.id = #{id}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 新增文件收文登记记录 -->
+    <insert id="insertBankReceiveFiles">
+        insert into BANK_RECEIVE_FILES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="urgency != null  and urgency != ''  ">urgency,</if>
+            <if test="documentNum != null  and documentNum != ''  ">document_num,</if>
+            <if test="registrationNum != null  and registrationNum != ''  ">registration_num,</if>
+            <if test="numOfCopies != null">num_of_copies,</if>
+            <if test="communicationUnit != null  and communicationUnit != ''  ">communication_unit,</if>
+            <if test="jointUnit != null and jointUnit != '' ">joint_unit,</if>
+            <if test="title != null  and title != ''  ">title,</if>
+            <if test="contact != null  and contact != ''  ">contact,</if>
+            <if test="deptId != null  and deptId != ''  ">dept_id,</if>
+            <if test="phone != null  and phone != ''  ">phone,</if>
+            <if test="secretLevel != null  and secretLevel != ''  ">secret_level,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="handleTime != null">handle_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != '' ">#{id},</if>
+            <if test="urgency != null  and urgency != ''  ">#{urgency},</if>
+            <if test="documentNum != null  and documentNum != ''  ">#{documentNum},</if>
+            <if test="registrationNum != null  and registrationNum != ''  ">#{registrationNum},</if>
+            <if test="numOfCopies != null">#{numOfCopies},</if>
+            <if test="communicationUnit != null  and communicationUnit != ''  ">#{communicationUnit},</if>
+            <if test="jointUnit != null  and jointUnit != ''  ">#{jointUnit},</if>
+            <if test="title != null  and title != ''  ">#{title},</if>
+            <if test="contact != null  and contact != ''  ">#{contact},</if>
+            <if test="deptId != null  and deptId != ''  ">#{deptId},</if>
+            <if test="phone != null  and phone != ''  ">#{phone},</if>
+            <if test="secretLevel != null  and secretLevel != ''  ">#{secretLevel},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="handleTime != null">#{handleTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 修改文件收文登记记录 -->
+    <update id="updateBankReceiveFiles" parameterType="com.casic.bank.domain.BankReceiveFiles">
+        update BANK_RECEIVE_FILES
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="urgency != null  and urgency != ''  ">urgency = #{urgency},</if>
+            <if test="documentNum != null  and documentNum != ''  ">document_num = #{documentNum},</if>
+            <if test="registrationNum != null  and registrationNum != ''  ">registration_num = #{registrationNum},</if>
+            <if test="numOfCopies != null">num_of_copies = #{numOfCopies},</if>
+            <if test="communicationUnit != null  and communicationUnit != ''  ">communication_unit = #{communicationUnit},</if>
+            <if test="jointUnit != null  and jointUnit != ''  ">joint_unit = #{jointUnit},</if>
+            <if test="title != null  and title != ''  ">title = #{title},</if>
+            <if test="contact != null  and contact != ''  ">contact = #{contact},</if>
+            <if test="deptId != null  and deptId != ''  ">dept_id = #{deptId},</if>
+            <if test="phone != null  and phone != ''  ">phone = #{phone},</if>
+            <if test="secretLevel != null  and secretLevel != ''  ">secret_level = #{secretLevel},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="handleTime != null">handle_time = #{handleTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 删除文件收文登记记录 -->
+    <delete id="deleteBankReceiveFilesByIds" parameterType="string">
+        delete from BANK_RECEIVE_FILES where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 查询收文列表 -->
+    <select id="selectBankReceiveFilesList" parameterType="com.casic.bank.domain.BankReceiveFiles" resultMap="BankReceiveFilesResult">
+
+        SELECT distinct
+        c . * ,
+        nvl (d . cnt , 0 ) AS analysisCount
+        FROM
+        (
+        SELECT
+        a . id,a.registration_num, a.urgency, a.document_num, a.num_of_copies, a.communication_unit, a.joint_unit, a.title, a.secret_level, a.handle_time,  a.contact, a.dept_id,
+        a.phone, a.create_time, a.create_by, a.update_time, a.update_by, a.remark
+        FROM
+        bank_receive_files AS a
+        LEFT JOIN
+        bank_receive_files_detail AS b
+        ON a . id = b . file_id
+        WHERE 1=1
+        <if test="urgency != null and urgency != ''">
+            and a.urgency like concat('%', #{urgency}, '%')
+        </if>
+        <if test="registrationNum != null and registrationNum != ''">
+            and a.registration_num like concat('%', #{registrationNum}, '%')
+        </if>
+        <if test="documentNum != null and documentNum != ''">
+            and a.document_num like concat('%', #{documentNum}, '%')
+        </if>
+        <if test="secretLevel != null and secretLevel != ''">
+            and a.secret_level = #{secretLevel}
+        </if>
+        <if test="title != null and title != ''">
+            and a.title like concat('%', #{title}, '%')
+        </if>
+        <if test="communicationUnit != null and communicationUnit != ''">
+            and a.communication_unit like concat('%', #{communicationUnit}, '%')
+        </if>
+        <if test="jointUnit != null and jointUnit != ''">
+            and a.joint_unit like concat('%', #{jointUnit}, '%')
+        </if>
+        <if test="numOfCopies != null and numOfCopies != ''">
+            and a.num_of_copies like concat('%', #{numOfCopies}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            and b.status = #{status}
+        </if>
+        ) AS c
+        LEFT JOIN
+        (
+        SELECT
+        account_id ,
+        nvl (count (* ), 0 ) AS cnt
+        FROM
+        bank_analysis_detail
+        WHERE
+        status = 1
+        GROUP BY
+        account_id
+        ) d
+        ON d . account_id = c . id
+    </select>
+
+    <!-- 根据主键查询文件收文登记记录 -->
+    <select id="selectBankReceiveFilesById" parameterType="string" resultMap="BankReceiveFilesResult">
+        <include refid="BASE_COLUMN_LIST"/>, b.dept_name as deptName
+        from BANK_RECEIVE_FILES as a
+        left join sys_dept as b on a.dept_id = b.dept_id
+        where a.id = #{id}
+    </select>
+
+    <!-- 查询文件收文登记记录 -->
+    <select id="selectBankReceiveFiles" parameterType="com.casic.bank.domain.BankReceiveFiles" resultMap="BankReceiveFilesResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        from BANK_RECEIVE_FILES as a
+        <include refid="SEARCH"/>
+    </select>
+
+    <!-- 按文件类别统计 -->
+    <select id="queryFileTypeData" resultType="java.util.Map" >
+        select b.dict_label as "name", nvl(a.count, 0) as "value"
+        from (select secret_level, nvl(count(*), 0) as count
+        from BANK_RECEIVE_FILES
+        group by secret_level) as a
+        right join sys_dict_data as b on b.dict_value = a.secret_level
+        where b.dict_type = 'secrecy_level'
+        order by b.dict_label asc
+    </select>
+
+    <!-- 按紧急程度统计 -->
+    <select id="queryFileUrgencyData" resultType="java.util.Map">
+        SELECT n.dict_label AS "name" ,nvl(M.num, 0) AS "value"
+        FROM (
+            SELECT urgency ,nvl (count (* ), 0 ) AS num
+            FROM bank_receive_files
+            GROUP BY urgency ) M
+            RIGHT JOIN (
+                SELECT dict_label,dict_value
+                FROM sys_dict_data
+                WHERE dict_type = 'urgency'
+            ) n ON M . urgency = n . dict_value
+    </select>
+
+    <!-- 按文件状态统计 -->
+    <select id="queryFileStatusData" resultType="java.util.Map">
+         select dict_label AS "name" ,nvl(N.num, 0) AS "value"
+         from (SELECT dict_label,dict_value
+                        FROM sys_dict_data
+                        WHERE dict_type = 'file_receive_status') M
+                        left join(
+         select status, count(*) as num from BANK_RECEIVE_FILES_DETAIL group by status) N on N.status = M.dict_value
+    </select>
+
+    <!-- 校验登记号是否唯一 -->
+    <select id="checkRegistrationNumUnique" parameterType="string" resultMap="BankReceiveFilesResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        from BANK_RECEIVE_FILES as a
+        where a.registration_num = #{registrationNum}
+    </select>
+
+    <!-- 查询部门下的文件台账数量 -->
+    <select id="checkDeptExistFile" parameterType="string" resultType="java.lang.Integer">
+        select count(1) from BANK_RECEIVE_FILES where dept_id = #{deptId}
+    </select>
+</mapper>

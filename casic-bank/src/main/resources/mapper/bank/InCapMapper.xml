@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.bank.mapper.InCapMapper">
+
+    <resultMap id="BaseResultMap" type="com.casic.bank.domain.InCap">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="usename" jdbcType="VARCHAR" property="usename"/>
+        <result column="equipment" jdbcType="VARCHAR" property="equipment"/>
+        <result column="location" jdbcType="VARCHAR" property="location"/>
+        <result column="pro_code" jdbcType="VARCHAR" property="proCode"/>
+        <result column="ser_num" jdbcType="VARCHAR" property="serNum"/>
+        <result column="dictionaryType" jdbcType="VARCHAR" property="dictionaryType"/>
+        <result column="model" jdbcType="VARCHAR" property="model"/>
+        <result column="application" jdbcType="VARCHAR" property="application"/>
+        <result column="rfid_code" jdbcType="VARCHAR" property="rfidCode"/>
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName"/>
+        <result column="pdeptname" jdbcType="VARCHAR" property="pdeptname"/>
+        <result column="productnum" jdbcType="VARCHAR" property="productnum"/>
+        <result column="productId" jdbcType="VARCHAR" property="productid"/>
+        <result column="sysIp" jdbcType="VARCHAR" property="sysIp"/>
+        <!--<result column="count" jdbcType="VARCHAR" property="count"/>-->
+        <result column="sys_equipment_id" jdbcType="VARCHAR" property="sysEquipmentId"/>
+        <result column="equipment_number" jdbcType="VARCHAR" property="equipmentNumber"/>
+        <result column="device_name" jdbcType="VARCHAR" property="deviceName"/>
+        <result column="productName" jdbcType="VARCHAR" property="productName"/>
+        <result column="position" jdbcType="VARCHAR" property="position"/>
+        <result column="source_dept" jdbcType="VARCHAR" property="deptNameAll"/>
+
+
+        <result property="registrationNum" column="registration_num"/>
+        <result property="urgency" column="urgency"/>
+        <result property="documentNum" column="document_num"/>
+        <result property="numOfCopies" column="num_of_copies"/>
+        <result property="communicationUnit" column="communication_unit"/>
+        <result property="jointUnit" column="joint_unit"/>
+        <result property="title" column="title"/>
+        <result property="contact" column="contact"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="phone" column="phone"/>
+        <result property="secretLevel" column="secret_level"/>
+    </resultMap>
+
+    <select id="selectInCap" parameterType="com.casic.bank.domain.InCap" resultMap="BaseResultMap">
+
+        SELECT
+        a . id ,
+        a . registration_num ,
+        a . document_num ,
+        ( nvl(count (b . id ),0) || '/'  || a.num_of_copies) as num_of_copies ,
+        a . urgency ,
+        a . communication_unit ,
+        a . joint_unit ,
+        a . title ,
+        a . contact ,
+        a . secret_level ,
+        a . phone ,
+        a . contact ,
+        a . dept_name ,
+
+        a . equipment_name,
+        a.equipmentId
+        FROM
+        (
+        SELECT
+        pip . id ,
+        brf . registration_num ,
+        brf . document_num ,
+        brf . num_of_copies ,
+        brf . urgency ,
+        brf . communication_unit ,
+        brf . joint_unit ,
+        brf . title ,
+        brf . contact ,
+        brf . secret_level ,
+        brf . phone ,
+        d . dept_name ,
+        beq . equipment_name,
+        beq. id as equipmentId
+        FROM
+        productincap pip
+        LEFT JOIN
+        bank_equipment beq
+        ON beq . id = pip . sys_equipment_id
+        LEFT JOIN
+        bank_receive_files_detail brfd
+        ON brfd . id = pip . product_id
+        LEFT JOIN
+        bank_receive_files brf
+        ON brf . id = brfd . file_id
+        LEFT JOIN
+        sys_dept d
+        ON d . dept_id = brf . dept_id
+
+        ) a
+        left JOIN
+        (
+        SELECT
+        pip . id
+        FROM
+        productincap pip
+        LEFT JOIN
+        bank_equipment beq
+        ON beq . id = pip . sys_equipment_id
+        LEFT JOIN
+        bank_receive_files_detail brfd
+        ON brfd . id = pip . product_id
+        LEFT JOIN
+        bank_receive_files brf
+        ON brf . id = brfd . file_id
+        ) b
+        ON a . id = b . id
+
+
+
+        <where>
+            <if test="documentNum!=null and documentNum !=''">
+                AND a.document_num = #{documentNum}
+            </if>
+            <if test="registrationNum!=null and registrationNum !=''">
+                AND a.registration_num = #{registrationNum}
+            </if>
+            <if test="title!=null and title !=''">
+                AND a.title = #{title}
+            </if>
+            <if test="secretLevel!=null and secretLevel !=''">
+                AND a.secret_level = #{secretLevel}
+            </if>
+            <if test="communicationUnit!=null and communicationUnit !=''">
+                AND a.communication_unit = #{communicationUnit}
+            </if>
+            <if test="jointUnit!=null and jointUnit !=''">
+                AND a.joint_unit = #{jointUnit}
+            </if>
+            <if test="contact!=null and contact !=''">
+                AND a.contact = #{contact}
+            </if>
+            <if test="numOfCopies!=null and numOfCopies !=''">
+                AND a.num_of_copies = #{numOfCopies}
+            </if>
+            <if test="equipmentId!=null and equipmentId !=''">
+                AND a.equipmentId = #{equipmentId}
+            </if>
+        </where>
+        group by a.id, a . registration_num ,
+        a . document_num ,
+        a . num_of_copies ,
+        a . urgency ,
+        a . communication_unit ,
+        a . joint_unit ,
+        a . title ,
+        a . contact ,
+        a . secret_level ,
+        a . phone ,
+        a . contact ,
+        a . dept_name,
+        a.equipmentId,
+        a.equipment_name
+    </select>
+
+    <select id="selectCountByFileIds" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM productincap WHERE
+        product_id IN
+        <foreach item="id" collection="list" index="index" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getInCapListCount" parameterType="com.casic.bank.domain.InCap" resultType="java.lang.Integer">
+        SELECT count(*) from(
+         SELECT
+        a . id ,
+        a . registration_num ,
+        a . document_num ,
+        ( nvl(count (b . id ),0) || '/'  || a.num_of_copies) as num_of_copies ,
+        a . urgency ,
+        a . communication_unit ,
+        a . joint_unit ,
+        a . title ,
+        a . contact ,
+        a . secret_level ,
+        a . phone ,
+        a . contact ,
+        a . dept_name ,
+
+        a . equipment_name,
+
+        a.equipmentId
+        FROM
+        (
+        SELECT
+        pip . id ,
+        brf . registration_num ,
+        brf . document_num ,
+        brf . num_of_copies ,
+        brf . urgency ,
+        brf . communication_unit ,
+        brf . joint_unit ,
+        brf . title ,
+        brf . contact ,
+        brf . secret_level ,
+        brf . phone ,
+        d . dept_name ,
+        beq . equipment_name,
+        beq.id AS equipmentId
+        FROM
+        productincap pip
+        LEFT JOIN
+        bank_equipment beq
+        ON beq . id = pip . sys_equipment_id
+        LEFT JOIN
+        bank_receive_files_detail brfd
+        ON brfd . id = pip . product_id
+        LEFT JOIN
+        bank_receive_files brf
+        ON brf . id = brfd . file_id
+        LEFT JOIN
+        sys_dept d
+        ON d . dept_id = brf . dept_id
+        ) a
+        left JOIN
+        (
+        SELECT
+        pip . id
+        FROM
+        productincap pip
+        LEFT JOIN
+        bank_equipment beq
+        ON beq . id = pip . sys_equipment_id
+        LEFT JOIN
+        bank_receive_files_detail brfd
+        ON brfd . id = pip . product_id
+        LEFT JOIN
+        bank_receive_files brf
+        ON brf . id = brfd . file_id
+        ) b
+        ON a . id = b . id
+        <where>
+            <if test="documentNum!=null and documentNum !=''">
+                AND a.document_num = #{documentNum}
+            </if>
+            <if test="registrationNum!=null and registrationNum !=''">
+                AND a.registration_num = #{registrationNum}
+            </if>
+            <if test="title!=null and title !=''">
+                AND a.title = #{title}
+            </if>
+            <if test="secretLevel!=null and secretLevel !=''">
+                AND a.secret_level = #{secretLevel}
+            </if>
+            <if test="communicationUnit!=null and communicationUnit !=''">
+                AND a.communication_unit = #{communicationUnit}
+            </if>
+            <if test="jointUnit!=null and jointUnit !=''">
+                AND a.joint_unit = #{jointUnit}
+            </if>
+            <if test="contact!=null and contact !=''">
+                AND a.contact = #{contact}
+            </if>
+            <if test="numOfCopies!=null and numOfCopies !=''">
+                AND a.num_of_copies = #{numOfCopies}
+            </if>
+            <if test="equipmentId!=null and equipmentId !=''">
+                AND a.equipmentId = #{equipmentId}
+            </if>
+        </where>
+        group by a.id, a . registration_num ,
+        a . document_num ,
+        a . num_of_copies ,
+        a . urgency ,
+        a . communication_unit ,
+        a . joint_unit ,
+        a . title ,
+        a . contact ,
+        a . secret_level ,
+        a . phone ,
+        a . contact ,
+        a . dept_name,
+        a.equipment_name,
+        a.equipmentId
+        )
+
+    </select>
+</mapper>

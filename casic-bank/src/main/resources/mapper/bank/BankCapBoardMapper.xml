@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.casic.bank.mapper.BankCapBoardMapper">
+
+    <resultMap id="BankCapBoardResult" type="com.casic.bank.domain.BankCapBoard">
+        <id property="id" column="id"/>
+        <result property="equipmentId" column="equipment_id"/>
+        <result property="capBoardCode" column="cap_board_code"/>
+        <result property="capBoardName" column="cap_board_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <!-- 基本SQL -->
+    <sql id="BASE_COLUMN_LIST">
+        select id, equipment_id, cap_board_code, cap_board_name, create_time, create_by, update_time, update_by, remark from Bank_Cap_Board
+    </sql>
+
+    <!-- 插入操作 -->
+    <insert id="insertBankCapBoard" parameterType="list">
+        insert into Bank_Cap_Board (id, equipment_id, cap_board_code, cap_board_name, create_time, create_by, remark) values
+        <foreach collection="list" item="item" separator=",">
+            ( #{item.id}, #{item.equipmentId}, #{item.capBoardCode}, #{item.capBoardName}, #{item.createTime}, #{item.createBy}, #{item.remark})
+        </foreach>
+    </insert>
+
+    <!-- 根据载体柜id删除该柜子中的所有单元门 -->
+    <delete id="deleteBankCapBoardByEquipmentId" parameterType="string">
+        delete from Bank_Cap_Board where equipment_id = #{equipmentId}
+    </delete>
+
+    <!-- 根据载体柜id查询该柜子中的所有单元门 -->
+    <select id="selectBankCapBoardByEquipmentId" resultMap="BankCapBoardResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        where equipment_id = #{equipmentId}
+    </select>
+
+    <!-- 查询载体柜单元门列表数据 -->
+    <select id="selectBankCapBoardList" resultMap="BankCapBoardResult">
+        <include refid="BASE_COLUMN_LIST"/>
+        where 1=1
+        <if test="equipmentId != null and equipmentId != ''">
+            and equipment_id = #{equipmentId}
+        </if>
+        <if test="capBoardCode != null and capBoardCode != 0">
+            and cap_board_code like concat('%', #{capBoardCode}, '%')
+        </if>
+        <if test="capBoardName != null and capBoardName != ''">
+            and cap_board_name like concat('%', #{capBoardName}, '%')
+        </if>
+    </select>
+</mapper>
