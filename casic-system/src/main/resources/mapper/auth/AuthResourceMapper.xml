@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.casic.auth.mapper.AuthResourceMapper">
+    
+    <resultMap type="com.casic.common.web.domain.bo.AuthResource" id="AuthResourceResult">
+        <result property="id"    column="id" />
+        <result property="code"    column="code" />
+        <result property="name"    column="name" />
+        <result property="parentId"    column="parent_id" />
+		<result property="parentIds"	column="parent_ids" />
+		<result property="perms"	column="perms" />
+        <result property="parentName"    column="parent_name" />
+        <result property="uri"    column="uri"    />
+        <result property="type"    column="type"    />
+        <result property="method"    column="method"    />
+        <result property="icon"    column="icon"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time" />
+        <result property="updateTime"    column="update_time" />
+        <result property="sysCode"    column="sys_code" />
+    </resultMap>
+	
+	<sql id="selectResourceVo">
+        select id, code, name, parent_id, parent_ids, perms, uri, type, method, icon, status, create_time, update_time, sys_code from auth_resource
+    </sql>
+	
+    <select id="selectResourceList" parameterType="com.casic.common.web.domain.bo.AuthResource" resultMap="AuthResourceResult">
+        select  r.id, 
+	        	r.code, 
+	        	r.name, 
+	        	r.parent_id,
+				r.parent_ids,
+				r.perms,
+	        	r.uri, 
+	        	r.type, 
+	        	r.method, 
+	        	r.icon, 
+	        	r.status,
+	        	r.create_time, 
+	        	r.update_time, 
+	        	r.sys_code,
+	        	p.name as "parent_name"
+        	from 
+        	auth_resource r left join auth_resource p on r.parent_id = p.id
+        <where>  
+        	 r.code != 'ROOT'
+             <if test="id != null "> and r.id = #{id}</if>
+             <if test="code != null  and code != '' "> and r.code = #{code}</if>
+             <if test="name != null  and name != '' "> and r.name = #{name}</if>
+             <if test="parentId != null "> and r.parent_id = #{parentId}</if>
+             <if test="uri != null  and uri != '' "> and r.uri = #{uri}</if>
+             <if test="type != null "> and r.type = #{type}</if>
+             <if test="method != null  and method != '' "> and r.method = #{method}</if>
+             <if test="icon != null  and icon != '' "> and r.icon = #{icon}</if>
+             <if test="status != null "> and r.status = #{status}</if>
+             <if test="createTime != null "> and r.create_time = #{createTime}</if>
+             <if test="updateTime != null "> and r.update_time = #{updateTime}</if>
+             <if test="sysCode != null and sysCode != '' "> and r.sys_code = #{sysCode}</if>
+         </where>
+         
+         
+    </select>
+    
+    <select id="selectResourceById" parameterType="Integer" resultMap="AuthResourceResult">
+        select  r.id,
+	        	r.code,
+	        	r.name,
+	        	r.parent_id,
+	        	r.parent_ids,
+	        	r.perms,
+	        	r.uri,
+	        	r.type,
+	        	r.method,
+	        	r.icon,
+	        	r.status,
+	        	r.create_time,
+	        	r.update_time,
+	        	r.sys_code,
+	        	p.name as "parent_name"
+        	from 
+        	auth_resource r
+        	left join auth_resource p on r.parent_id = p.id
+        	where r.id = #{id}
+    </select>
+        
+    <insert id="insertResource" parameterType="com.casic.common.web.domain.bo.AuthResource">
+        insert into auth_resource
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="code != null  and code != ''  ">code,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="parentId != null  ">parent_id,</if>
+			<if test="parentIds != null and parentIds != '' ">parent_ids,</if>
+			<if test="perms != null and perms != '' ">perms,</if>
+			<if test="uri != null  and uri != ''  ">uri,</if>
+			<if test="type != null  ">type,</if>
+			<if test="method != null  and method != ''  ">method,</if>
+			<if test="icon != null  and icon != ''  ">icon,</if>
+			<if test="status != null  ">status,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="sysCode != null and sysCode != '' ">sys_code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="code != null  and code != ''  ">#{code},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="parentId != null  ">#{parentId},</if>
+			<if test="parentIds != null and parentIds != '' ">#{parentIds},</if>
+			<if test="perms != null and perms != '' ">#{perms},</if>
+			<if test="uri != null  and uri != ''  ">#{uri},</if>
+			<if test="type != null  ">#{type},</if>
+			<if test="method != null  and method != ''  ">#{method},</if>
+			<if test="icon != null  and icon != ''  ">#{icon},</if>
+			<if test="status != null  ">#{status},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="sysCode != null and sysCode != '' ">#{sysCode},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateResource" parameterType="com.casic.common.web.domain.bo.AuthResource">
+        update auth_resource
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null  and code != '' ">code = #{code},</if>
+            <if test="name != null  and name != '' ">name = #{name},</if>
+            <if test="parentId != null  ">parent_id = #{parentId},</if>
+			<if test="parentIds != null and parentIds != '' ">parent_ids = #{parentIds},</if>
+			<if test="perms != null and perms != '' ">perms = #{perms},</if>
+            <if test="uri != null  and uri != '' ">uri = #{uri},</if>
+            <if test="type != null  ">type = #{type},</if>
+            <if test="method != null  and method != ''  ">method = #{method},</if>
+            <if test="icon != null  and icon != ''  ">icon = #{icon},</if>
+            <if test="status != null  ">status = #{status},</if>
+            <if test="sysCode != null and sysCode != '' ">sys_code = #{sysCode},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteResourceById" parameterType="Integer">
+        delete from auth_resource where id = #{id}
+    </delete>
+	
+    <delete id="deleteResourceByIds" parameterType="String">
+        delete from auth_resource where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+   
+       	    
+    <select id="selectResourceAll" parameterType="java.lang.String" resultMap="AuthResourceResult">
+       	select  r.id,
+	        	r.code,
+	        	r.name,
+	        	r.parent_id,
+				r.parent_ids,
+				r.perms,
+	        	r.uri,
+	        	r.type,
+	        	r.method,
+	        	r.icon,
+	        	r.status,
+	        	r.create_time,
+	        	r.update_time,
+	        	r.sys_code,
+	        	p.name "parent_name"
+        	from 
+        	auth_resource r left join auth_resource p on r.parent_id = p.id
+        	<where>   
+        		<if test="sysCode != null and sysCode != '' "> 
+        			r.sys_code = #{sysCode,jdbcType=VARCHAR}
+        		</if>
+        	</where>
+	</select>
+
+	<select id="selectCountResourceByParentId" resultType="Integer">
+	    select count(1) from auth_resource where parent_id=#{parentId}
+	</select>
+	
+</mapper>

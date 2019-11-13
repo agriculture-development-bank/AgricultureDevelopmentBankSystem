@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.system.mapper.SysUserMapper">
+
+	<resultMap type="com.casic.system.domain.SysUser" id="SysUserResult">
+		<id     property="userId"       column="user_id"      />
+		<result property="deptId"       column="dept_id"      />
+		<result property="loginName"    column="login_name"   />
+		<result property="userName"     column="user_name"    />
+		<result property="email"        column="email"        />
+		<result property="phonenumber"  column="phonenumber"  />
+		<result property="sex"          column="sex"          />
+		<result property="avatar"       column="avatar"       />
+		<result property="password"     column="password"     />
+		<result property="salt"         column="salt"         />
+		<result property="status"       column="status"       />
+		<result property="userCareer"   column="user_career"  />
+		<result property="delFlag"      column="del_flag"     />
+		<result property="loginIp"      column="login_ip"     />
+		<result property="loginDate"    column="login_date"   />
+		<result property="createBy"     column="create_by"    />
+		<result property="createTime"   column="create_time"  />
+		<result property="updateBy"     column="update_by"    />
+		<result property="updateTime"   column="update_time"  />
+		<result property="remark"       column="remark"       />
+		<result property="userStatus"       column="user_status"       />
+		<result property="identityCard"       column="identity_card"       />
+		<result property="cardNum"       column="card_num"       />
+		<result property="employDate"       column="employ_date"       />
+		<result property="changePwdDate" column="change_pwd_date" />
+		<result property="positionCode" column="position_code" />
+		<association property="dept"    column="dept_id" javaType="com.casic.system.domain.SysDept" resultMap="deptResult" />
+		<collection  property="roles"   javaType="java.util.List"        resultMap="RoleResult" />
+	</resultMap>
+
+	<resultMap type="com.casic.system.domain.SastindSysUserVo" id="SysUserResultVo">
+		<id     property="userId"       column="user_id"      />
+		<result property="deptId"       column="dept_id"      />
+		<result property="loginName"    column="login_name"   />
+		<result property="userName"     column="user_name"    />
+		<result property="email"        column="email"        />
+		<result property="phonenumber"  column="phonenumber"  />
+		<result property="sex"          column="sex"          />
+		<result property="avatar"       column="avatar"       />
+		<result property="password"     column="password"     />
+		<result property="salt"         column="salt"         />
+		<result property="status"       column="status"       />
+		<result property="userCareer"   column="user_career"  />
+		<result property="delFlag"      column="del_flag"     />
+		<result property="loginIp"      column="login_ip"     />
+		<result property="loginDate"    column="login_date"   />
+		<result property="createBy"     column="create_by"    />
+		<result property="createTime"   column="create_time"  />
+		<result property="updateBy"     column="update_by"    />
+		<result property="updateTime"   column="update_time"  />
+		<result property="remark"       column="remark"       />
+		<result property="userStatus"       column="user_status"       />
+		<result property="identityCard"       column="identity_card"       />
+		<result property="cardNum"       column="card_num"       />
+		<result property="employDate"       column="employ_date"       />
+		<result property="accountNum" column="account_num" />
+		<result property="changePwdDate" column="change_pwd_date" />
+		<result property="positionCode" column="position_code" />
+		<association property="dept"    column="{dept_id=dept_id}" select="selectDeptDetail" />
+		<collection  property="roles"   javaType="java.util.List"        resultMap="RoleResult" />
+	</resultMap>
+
+	<resultMap id="deptResult" type="com.casic.system.domain.SysDept">
+		<id     property="deptId"   column="dept_id"     />
+		<result property="parentId" column="parent_id"   />
+		<result property="deptName" column="dept_name"   />
+		<result property="orderNum" column="order_num"   />
+		<result property="status"   column="status" />
+		<result property="ancestors"	column="ancestors" />
+		<result property="headDeptFalg"  column="head_dept_falg" />
+	</resultMap>
+
+	<resultMap id="RoleResult" type="com.casic.system.domain.SysRole">
+		<id     property="roleId"       column="role_id"        />
+		<result property="roleName"     column="role_name"      />
+		<result property="roleKey"      column="role_key"       />
+		<result property="roleSort"     column="role_sort"      />
+		<result property="dataScope"     column="data_scope"    />
+		<result property="status"       column="role_status"    />
+	</resultMap>
+
+	<sql id="selectUserVo">
+        select  u.user_id, u.dept_id, u.login_name, u.user_name, u.email, u.phonenumber, 
+        			u.sex, u.avatar, u.password, u.salt, u.status, u.user_career, u.del_flag, u.card_num,
+        			u.login_ip, u.login_date, u.create_time, u.remark,u.user_status,u.identity_card,u.employ_date,
+       		    d.dept_id, d.parent_id, d.dept_name, d.order_num, d.status as dept_status,u.change_pwd_date,u.position_code,
+       		    r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
+		from sys_user u
+			 left join sys_dept d on u.dept_id = d.dept_id
+			 left join sys_user_role ur on u.user_id = ur.user_id
+			 left join sys_role r on r.role_id = ur.role_id
+    </sql>
+
+	<select id="selectDeptDetail" parameterType="java.util.Map" resultMap="deptResult">
+		select dept_id,parent_id,dept_name,order_num,status,ancestors,head_dept_falg from sys_dept where dept_id = #{dept_id}
+	</select>
+
+	<select id="selectUserList" parameterType="com.casic.system.domain.SysUser" resultMap="SysUserResultVo">
+		select u.user_id, u.dept_id, u.login_name, u.user_name, u.email,
+		u.phonenumber, u.password, u.sex, u.avatar, u.salt, u.status,u.card_num,
+		 u.user_career,u.user_status, u.del_flag, u.login_ip, u.login_date, u.create_by,
+		  u.create_time, u.remark, d.dept_name, wmsys.wm_concat(r.role_name) AS role_name,u.change_pwd_date,u.position_code
+		   from sys_user u
+		left join sys_dept d on u.dept_id = d.dept_id
+		left join sys_user_role ur on u.user_id = ur.user_id
+	    left join sys_role r on r.role_id = ur.role_id
+		where u.del_flag = '0'
+		<if test="loginName != null and loginName != ''">
+			AND u.login_name like concat('%', concat(#{loginName}, '%'))
+		</if>
+		<if test="userName != null and userName != ''">
+			AND u.user_name like concat('%', concat(#{userName}, '%'))
+		</if>
+		<if test="status != null and status != ''">
+			AND u.status = #{status}
+		</if>
+		<if test="sex != null and sex != ''">
+			AND u.sex = #{sex}
+		</if>
+		<if test="role != null and role != ''">
+			AND r.role_id = #{role}
+		</if>
+		<if test="phonenumber != null and phonenumber != ''">
+			AND u.phonenumber like concat('%', concat(#{phonenumber}, '%'))
+		</if>
+		<if test="params.employDate != null and params.employDate != ''">
+			AND 
+			<![CDATA[ 
+				to_date(u.employ_date,'yyyy-MM-dd') >= to_date(#{params.employDate},'yyyy-MM-dd')
+			]]>
+		</if>
+		<if test="deptId != null and deptId != ''">
+			AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE FIND_IN_SET (#{deptId},ancestors) > 0 ))
+		</if>
+		<!-- 数据范围过滤 -->
+		${params.dataScope}
+		GROUP BY u.user_id, u.dept_id, u.login_name, u.user_name, u.email,
+		u.phonenumber, u.password, u.sex, u.avatar, u.salt, u.status,u.card_num,
+		u.user_career,u.user_status, u.del_flag, u.login_ip, u.login_date, u.create_by,
+		u.create_time, u.remark, d.dept_name,u.change_pwd_date,u.position_code
+	</select>
+
+	<select id="selectUserByLoginName" parameterType="String" resultMap="SysUserResult">
+		<include refid="selectUserVo"/>
+		where u.login_name = #{userName}  and u.del_flag = '0'
+	</select>
+
+	<select id="selectUserByUserName" parameterType="String" resultMap="SysUserResult">
+		select user_id, dept_id, login_name, user_name, email, phonenumber,
+        			sex, avatar, password, salt, status, user_career, del_flag,card_num,
+        			login_ip, login_date, create_time, remark,user_status,identity_card,employ_date
+        			from sys_user
+		where user_name = #{userName} and status = 0 and del_flag = 0
+	</select>
+
+	<select id="selectUserByPhoneNumber" parameterType="String" resultMap="SysUserResult">
+		<include refid="selectUserVo"/>
+		where u.phonenumber = #{phonenumber}
+	</select>
+
+	<select id="selectUserByEmail" parameterType="String" resultMap="SysUserResult">
+		<include refid="selectUserVo"/>
+		where u.email = #{email}
+	</select>
+
+	<select id="checkLoginNameUnique" parameterType="String" resultType="int">
+		select count(1) from sys_user where login_name=#{loginName} and del_flag = '0'
+	</select>
+	
+	<select id="checkIdCardUnique" parameterType="String" resultMap="SysUserResult">
+		select user_id, identity_card from sys_user where identity_card=#{_idCard} and del_flag = '0'
+	</select>
+
+	<select id="checkPhoneUnique" parameterType="String" resultMap="SysUserResult">
+		select user_id, phonenumber from sys_user where phonenumber=#{phonenumber} and del_flag = '0'
+	</select>
+
+	<select id="checkEmailUnique" parameterType="String" resultMap="SysUserResult">
+		select user_id, email from sys_user where email=#{email} and del_flag = '0'
+	</select>
+
+	<select id="selectUserById" parameterType="String" resultMap="SysUserResult">
+		<include refid="selectUserVo"/>
+		where u.user_id = #{userId}
+	</select>
+
+	<delete id="deleteUserById" parameterType="String">
+ 		delete from sys_user where user_id = #{userId}
+ 	</delete>
+
+	<delete id="deleteUserByIds" parameterType="String">
+		update sys_user set del_flag = '2' where user_id in
+		<foreach collection="array" item="userId" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+	</delete>
+
+	<update id="updateUser" parameterType="com.casic.system.domain.SysUser">
+		update sys_user
+		<set>
+			<if test="deptId != null and deptId != ''">dept_id = #{deptId},</if>
+			<if test="loginName != null and loginName != ''">login_name = #{loginName},</if>
+			<if test="userName != null and userName != ''">user_name = #{userName},</if>
+			<if test="email != null and email != ''">email = #{email},</if>
+			<if test="phonenumber != null and phonenumber != ''">phonenumber = #{phonenumber},</if>
+			<if test="sex != null and sex != ''">sex = #{sex},</if>
+			<if test="avatar != null and avatar != ''">avatar = #{avatar},</if>
+			<if test="password != null and password != ''">password = #{password},</if>
+			<if test="salt != null and salt != ''">salt = #{salt},</if>
+			<if test="status != null and status != ''">status = #{status},</if>
+			<if test="userCareer != null and userCareer != ''">user_career = #{userCareer},</if>
+			<if test="loginIp != null and loginIp != ''">login_ip = #{loginIp},</if>
+			<if test="loginDate != null">login_date = #{loginDate},</if>
+			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+			<if test="remark != null and remark != ''">remark = #{remark},</if>
+
+			<if test="userStatus != null and userStatus != ''">user_status = #{userStatus},</if>
+			<if test="employDate != null ">employ_date = #{employDate},</if>
+			<if test="identityCard != null and identityCard != ''">identity_card = #{identityCard},</if>
+			<if test="cardNum != null and cardNum != ''">card_num = #{cardNum},</if>
+			<if test="changePwdDate !=null ">change_pwd_date = #{changePwdDate},</if>
+			<if test="positionCode != null and positionCode!='' ">position_code = #{positionCode},</if>
+			update_time = sysdate()
+		</set>
+		where user_id = #{userId}
+	</update>
+
+	<insert id="insertUser" parameterType="com.casic.system.domain.SysUser">
+		insert into sys_user(
+		<if test="userId != null and userId != ''">user_id,</if>
+		<if test="deptId != null and deptId != ''">dept_id,</if>
+		<if test="loginName != null and loginName != ''">login_name,</if>
+		<if test="userName != null and userName != ''">user_name,</if>
+		<if test="email != null and email != ''">email,</if>
+		<if test="phonenumber != null and phonenumber != ''">phonenumber,</if>
+		<if test="sex != null and sex != ''">sex,</if>
+		<if test="password != null and password != ''">password,</if>
+		<if test="salt != null and salt != ''">salt,</if>
+		<if test="status != null and status != ''">status,</if>
+		<if test="userCareer != null and userCareer != ''">user_career,</if>
+		<if test="createBy != null and createBy != ''">create_by,</if>
+		<if test="remark != null and remark != ''">remark,</if>
+
+		<if test="userStatus != null and userStatus != ''">user_status,</if>
+		<if test="employDate != null ">employ_date ,</if>
+		<if test="identityCard != null and identityCard != ''">identity_card,</if>
+		<if test="cardNum != null and cardNum != ''">card_num,</if>
+		<if test="changePwdDate != null ">change_pwd_date ,</if>
+		<if test="positionCode != null and positionCode != ''">position_code,</if>
+
+		create_time
+		)values(
+		<if test="userId != null and userId != ''">#{userId},</if>
+		<if test="deptId != null and deptId != ''">#{deptId},</if>
+		<if test="loginName != null and loginName != ''">#{loginName},</if>
+		<if test="userName != null and userName != ''">#{userName},</if>
+		<if test="email != null and email != ''">#{email},</if>
+		<if test="phonenumber != null and phonenumber != ''">#{phonenumber},</if>
+		<if test="sex != null and sex != ''">#{sex},</if>
+		<if test="password != null and password != ''">#{password},</if>
+		<if test="salt != null and salt != ''">#{salt},</if>
+		<if test="status != null and status != ''">#{status},</if>
+		<if test="userCareer != null and userCareer != ''">#{userCareer},</if>
+		<if test="createBy != null and createBy != ''">#{createBy},</if>
+		<if test="remark != null and remark != ''">#{remark},</if>
+
+		<if test="userStatus != null and userStatus != ''">#{userStatus},</if>
+		<if test="employDate != null ">#{employDate},</if>
+		<if test="identityCard != null and identityCard != ''"> #{identityCard},</if>
+		<if test="cardNum != null and cardNum != ''"> #{cardNum},</if>
+		<if test="changePwdDate != null ">#{changePwdDate},</if>
+		<if test="positionCode != null and positionCode != ''"> #{positionCode},</if>
+		sysdate()
+		)
+	</insert>
+
+	<select id="selectCandidateList" resultMap="SysUserResult">
+		select u.user_id, u.dept_id, u.login_name, u.user_name, u.email, u.phonenumber, u.password, u.sex, u.avatar, u.salt, u.status, u.user_career, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name from sys_user u
+		left join sys_dept d on u.dept_id = d.dept_id
+		where u.del_flag = '0'
+		<if test="deptCode.length > 0">
+			AND d.dept_code in
+			<foreach item="dept" collection="deptCode" open="(" separator="," close=")">
+				#{dept}
+			</foreach>
+		</if>
+		<if test="careerCode != null and careerCode != ''">
+			AND u.user_career = #{careerCode}
+		</if>
+	</select>
+	<select id="selectCandidateListByDeptAndRole" resultMap="SysUserResult">
+		SELECT
+			u.user_id,
+			u.dept_id,
+			u.login_name,
+			u.user_name,
+			u.email,
+			u.phonenumber,
+			u. PASSWORD,
+			u.sex,
+			u.avatar,
+			u.salt,
+			u. STATUS,
+			u.user_career,
+			u.del_flag,
+			u.login_ip,
+			u.login_date,
+			u.create_by,
+			u.create_time,
+			u.remark,
+			u.change_pwd_date,
+			u.position_code,
+			d.dept_name
+		FROM
+			sys_user u
+				LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+				left join sys_user_role ur on ur.user_id = u.user_id
+				left join sys_role r on r.role_id =  ur.role_id
+		WHERE
+			u.del_flag = '0'
+		<if test="deptCode.length > 0">
+			AND d.dept_code in
+			<foreach item="dept" collection="deptCode" open="(" separator="," close=")">
+				#{dept}
+			</foreach>
+		</if>
+		<if test="roleCode != null and roleCode != ''">
+			AND r.role_key = #{roleCode}
+		</if>
+	</select>
+
+
+	<select id="selectUserByDept" resultMap="SysUserResultVo">
+		select u.user_id, u.dept_id, u.login_name, u.user_name, u.email,
+		u.phonenumber, u.password, u.sex, u.avatar, u.salt, u.status, u.card_num,
+		u.user_career, u.del_flag, u.login_ip, u.login_date, u.create_by,u.change_pwd_date,u.position_code,
+		u.create_time, u.remark, d.dept_name, wmsys.wm_concat(r.role_name) AS role_name,
+		(SELECT COUNT(0) FROM sastind_asset_account t WHERE t.liable_user_id = u.user_id) as account_num
+		from sys_user u
+		left join sys_dept d on u.dept_id = d.dept_id
+		left join sys_user_role ur on u.user_id = ur.user_id
+		left join sys_role r on r.role_id = ur.role_id
+		where u.del_flag = '0'
+		<if test="sysUser.loginName != null and sysUser.loginName != ''">
+			AND u.login_name like concat('%', concat(#{sysUser.loginName}, '%'))
+		</if>
+		<if test="sysUser.userName != null and sysUser.userName != ''">
+			AND u.user_name like concat('%', concat(#{sysUser.userName}, '%'))
+		</if>
+		<if test="sysUser.status != null and sysUser.status != ''">
+			AND u.status = #{sysUser.status}
+		</if>
+		<if test="sysUser.sex != null and sysUser.sex != ''">
+			AND u.sex = #{sysUser.sex}
+		</if>
+		<if test="sysUser.role != null and sysUser.role != ''">
+			AND r.role_id = #{sysUser.role}
+		</if>
+		<if test="sysUser.phonenumber != null and sysUser.phonenumber != ''">
+			AND u.phonenumber like concat('%', concat(#{sysUser.phonenumber}, '%'))
+		</if>
+		<if test="sysUser.params.beginTime != null and sysUser.params.beginTime != ''"><!-- 开始时间检索 -->
+			AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{sysUser.params.beginTime},'%y%m%d')
+		</if>
+		<if test="sysUser.params.endTime != null and sysUser.params.endTime != ''"><!-- 结束时间检索 -->
+			AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{sysUser.params.endTime},'%y%m%d')
+		</if>
+		<if test="deptIds!=null and deptIds.length >0">
+			AND u.dept_id IN
+			<foreach collection="deptIds" item="deptId" open="(" separator="," close=")">
+				#{deptId}
+			</foreach>
+		</if>
+		<!-- 数据范围过滤 -->
+		${sysUser.params.dataScope}
+		GROUP BY u.user_id, u.dept_id, u.login_name, u.user_name, u.email,
+		u.phonenumber, u.password, u.sex, u.avatar, u.salt, u.status,u.card_num,
+		u.user_career, u.del_flag, u.login_ip, u.login_date, u.create_by,
+		u.create_time, u.remark, d.dept_name, u.change_pwd_date,u.position_code
+	</select>
+
+	<!-- 同步基础数据 -->
+	<select id="updateBasicData" resultType="java.util.Map">
+		SELECT a.user_id as "user_id", b.dept_name as "dept_name", a.user_name as "user_name", a.password as  "pass_word", a.login_name as "login_name", a.card_num as "card_num", d.dict_label as "position",
+		wmsys.wm_concat(c.role_id) AS "role_id",a.salt as "salt"
+		FROM sys_user AS a
+		LEFT JOIN sys_dept AS b ON a.dept_id = b.dept_id
+		LEFT JOIN sys_user_role AS c ON a.user_id = c.user_id
+		left join (select dict_label, dict_value from sys_dict_data where dict_type = 'sys_user_position') d on d.dict_value = a.position_code
+		GROUP BY a.user_id,b.dept_name,a.user_name, a.password,a.login_name, a.card_num, d.dict_label, a.salt
+	</select>
+
+	<select id="selectSysUserList" resultMap="SysUserResult">
+		select * from sys_user where del_flag = '0'
+		<if test="status != null and status != ''">
+			and status = #{status}
+		</if>
+	</select>
+
+	<!-- 根据身份卡号查询用户基本信息 -->
+    <select id="checkCardNumUnique" parameterType="string" resultMap="SysUserResult">
+		select user_id, card_num from sys_user where card_num=#{cardNum} and del_flag = '0'
+	</select>
+
+</mapper> 

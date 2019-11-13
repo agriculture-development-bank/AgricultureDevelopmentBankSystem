@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.AuthAccountLogMapper">
+    
+    <resultMap type="com.casic.common.web.domain.bo.AuthAccountLog" id="AccountLogResult">
+        <result property="id"    column="ID"    />
+        <result property="logName"    column="LOG_NAME"    />
+        <result property="userId"    column="USER_ID"    />
+        <result property="createTime"    column="CREATE_TIME"    />
+        <result property="succeed"    column="SUCCEED"    />
+        <result property="message"    column="MESSAGE"    />
+        <result property="ip"    column="IP"    />
+    </resultMap>
+	
+	<sql id="selectAccountLogVo">
+        select ID, LOG_NAME, USER_ID, CREATE_TIME, SUCCEED, MESSAGE, IP from auth_account_log
+    </sql>
+	
+    <select id="selectAccountLogList" parameterType="com.casic.common.web.domain.bo.AuthAccountLog" resultMap="AccountLogResult">
+        <include refid="selectAccountLogVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="logName != null  and logName != '' "> and log_name = #{logName}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="succeed != null "> and succeed = #{succeed}</if>
+             <if test="message != null  and message != '' "> and message = #{message}</if>
+             <if test="ip != null  and ip != '' "> and ip = #{ip}</if>
+         </where>
+    </select>
+    
+    <select id="selectAccountLogById" parameterType="Integer" resultMap="AccountLogResult">
+        <include refid="selectAccountLogVo"/>
+        where ID = #{id}
+    </select>
+        
+    <insert id="insertAccountLog" parameterType="com.casic.common.web.domain.bo.AuthAccountLog">
+        insert into auth_account_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="logName != null  and logName != ''  ">log_name,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="succeed != null  ">succeed,</if>
+			<if test="message != null  and message != ''  ">message,</if>
+			<if test="ip != null  and ip != ''  ">ip,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="logName != null  and logName != ''  ">#{logName},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="succeed != null  ">#{succeed},</if>
+			<if test="message != null  and message != ''  ">#{message},</if>
+			<if test="ip != null  and ip != ''  ">#{ip},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateAccountLog" parameterType="com.casic.common.web.domain.bo.AuthAccountLog">
+        update auth_account_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="logName != null  and logName != ''  ">log_name = #{logName},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="succeed != null  ">succeed = #{succeed},</if>
+            <if test="message != null  and message != ''  ">message = #{message},</if>
+            <if test="ip != null  and ip != ''  ">ip = #{ip},</if>
+        </trim>
+        where ID = #{iD}
+    </update>
+
+	<delete id="deleteAccountLogById" parameterType="Integer">
+        delete from auth_account_log where id = #{id}
+    </delete>
+	
+    <delete id="deleteAccountLogByIds" parameterType="String">
+        delete from auth_account_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

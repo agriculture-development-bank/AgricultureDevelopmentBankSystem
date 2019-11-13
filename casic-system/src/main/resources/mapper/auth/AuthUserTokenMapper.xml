@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.AuthUserTokenMapper">
+    
+    <resultMap type="com.casic.common.web.domain.bo.AuthUserToken" id="UserTokenResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="jwt"    column="jwt"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="tokenKey"    column="token_key"    />
+        <result property="userKey"    column="user_key"    />
+        <result property="ip"    column="ip"    />
+    </resultMap>
+	
+	<sql id="selectUserTokenVo">
+        select id, user_id, jwt, create_time, update_time, token_key, user_key, ip from auth_user_token
+    </sql>
+	
+    <select id="selectUserTokenList" parameterType="com.casic.common.web.domain.bo.AuthUserToken" resultMap="UserTokenResult">
+        <include refid="selectUserTokenVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="jwt != null  and jwt != '' "> and jwt = #{jwt}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="tokenKey != null  and tokenKey != '' "> and token_key = #{tokenKey}</if>
+             <if test="userKey != null  and userKey != '' "> and user_key = #{userKey}</if>
+             <if test="ip != null  and ip != '' "> and ip = #{ip}</if>
+         </where>
+    </select>
+    
+    <select id="selectUserTokenById" parameterType="Integer" resultMap="UserTokenResult">
+        <include refid="selectUserTokenVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUserToken" parameterType="com.casic.common.web.domain.bo.AuthUserToken">
+        insert into auth_user_token
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="jwt != null  and jwt != ''  ">jwt,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="tokenKey != null  and tokenKey != ''  ">token_key,</if>
+			<if test="userKey != null  and userKey != ''  ">user_key,</if>
+			<if test="ip != null  and ip != ''  ">ip,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="jwt != null  and jwt != ''  ">#{jwt},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="tokenKey != null  and tokenKey != ''  ">#{tokenKey},</if>
+			<if test="userKey != null  and userKey != ''  ">#{userKey},</if>
+			<if test="ip != null  and ip != ''  ">#{ip},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateUserToken" parameterType="com.casic.common.web.domain.bo.AuthUserToken">
+        update auth_user_token
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="jwt != null  and jwt != ''  ">jwt = #{jwt},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="tokenKey != null  and tokenKey != ''  ">token_key = #{tokenKey},</if>
+            <if test="userKey != null  and userKey != ''  ">user_key = #{userKey},</if>
+            <if test="ip != null  and ip != ''  ">ip = #{ip},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteUserTokenById" parameterType="Integer">
+        delete from auth_user_token where id = #{id}
+    </delete>
+	
+    <delete id="deleteUserTokenByIds" parameterType="String">
+        delete from auth_user_token where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

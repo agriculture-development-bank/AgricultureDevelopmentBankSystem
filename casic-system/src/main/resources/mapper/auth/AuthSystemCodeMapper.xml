@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.AuthSystemCodeMapper">
+    
+    <resultMap type="com.casic.common.web.domain.bo.AuthSystemCode" id="SystemCodeResult">
+        <result property="id"    column="id"    />
+        <result property="sysName"    column="sys_name"    />
+        <result property="sysCode"    column="sys_code"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectSystemCodeVo">
+        select id, sys_name, sys_code, create_by, create_time, update_by, update_time, remark from auth_system_code
+    </sql>
+	
+    <select id="selectSystemCodeList" parameterType="com.casic.common.web.domain.bo.AuthSystemCode" resultMap="SystemCodeResult">
+        <include refid="selectSystemCodeVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="sysName != null  and sysName != '' "> and sys_name = #{sysName}</if>
+             <if test="sysCode != null  and sysCode != '' "> and sys_code = #{sysCode}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectSystemCodeById" parameterType="Integer" resultMap="SystemCodeResult">
+        <include refid="selectSystemCodeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSystemCode" parameterType="com.casic.common.web.domain.bo.AuthSystemCode">
+        insert into auth_system_code
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="sysName != null  and sysName != ''  ">sys_name,</if>
+			<if test="sysCode != null  and sysCode != ''  ">sys_code,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="sysName != null  and sysName != ''  ">#{sysName},</if>
+			<if test="sysCode != null  and sysCode != ''  ">#{sysCode},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateSystemCode" parameterType="com.casic.common.web.domain.bo.AuthSystemCode">
+        update auth_system_code
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sysName != null  and sysName != ''  ">sys_name = #{sysName},</if>
+            <if test="sysCode != null  and sysCode != ''  ">sys_code = #{sysCode},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteSystemCodeById" parameterType="Integer">
+        delete from auth_system_code where id = #{id}
+    </delete>
+	
+    <delete id="deleteSystemCodeByIds" parameterType="String">
+        delete from auth_system_code where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.AuthUserRoleMapper">
+    
+    <resultMap type="com.casic.common.web.domain.bo.AuthUserRole" id="UserRoleResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="roleId"    column="role_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+	
+	<sql id="selectUserRoleVo">
+        select id, user_id, role_id, create_time, update_time from auth_user_role
+    </sql>
+	
+    <select id="selectUserRoleList" parameterType="com.casic.common.web.domain.bo.AuthUserRole" resultMap="UserRoleResult">
+        <include refid="selectUserRoleVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+            <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+            <if test="roleId != null "> and role_id = #{roleId}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+         </where>
+    </select>
+    
+    <select id="selectUserRoleById" parameterType="Integer" resultMap="UserRoleResult">
+        <include refid="selectUserRoleVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUserRole" parameterType="com.casic.common.web.domain.bo.AuthUserRole">
+        insert into auth_user_role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="roleId != null  ">role_id,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateTime != null  ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="roleId != null  ">#{roleId},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateUserRole" parameterType="com.casic.common.web.domain.bo.AuthUserRole">
+        update auth_user_role
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="roleId != null  ">role_id = #{roleId},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteUserRoleById" parameterType="Integer">
+        delete from auth_user_role where id = #{id}
+    </delete>
+	
+    <delete id="deleteUserRoleByIds" parameterType="String">
+        delete from auth_user_role where id in 
+        <foreach item="iD" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+     <delete id="deleteUserRoleByUserId" parameterType="Map">
+        delete from auth_user_role where user_id= #{userId} and role_id in (select ar.id from auth_role ar where ar.sys_code = #{clientId})
+    </delete>
+    
+    <insert id="batchInsertUserRoles">
+        insert into auth_user_role (user_id,role_id,create_time,update_time) values
+        <foreach collection="roldIds" item="roleId" index="index" separator=",">
+            (#{userId},#{roleId},sysdate(),sysdate())
+        </foreach>
+    </insert>
+    
+</mapper>

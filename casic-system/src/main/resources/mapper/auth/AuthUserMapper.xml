@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.AuthUserMapper">
+    
+    <resultMap type="com.casic.common.web.domain.vo.AuthUserVo" id="AuthUserResult">
+        <result property="uid"    column="uid"    />
+        <result property="username"    column="username"    />
+        <result property="password"    column="password"    />
+        <result property="salt"    column="salt"    />
+        <result property="realName"    column="real_name"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="sex"    column="sex"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time" />
+        <result property="updateTime"    column="update_time"  />
+        <result property="createWhere"    column="create_where"  />
+        <result property="sysCode"    column="sys_code" />
+        <result property="userCareer"  column="user_career" />
+        <result property="sysUserId"    column="sys_user_id" />
+        <result property="deptName" column="dept_name"  />
+    </resultMap>
+	
+	<sql id="selectUserVo">
+        select au.uid, au.username, au.password, au.salt, au.real_name, au.avatar, au.phone, au.email, au.sex, au.status, au.create_time, au.update_time, au.create_where, au.sys_code,au.user_career,au.sys_user_id,sd.dept_name from auth_user au
+        left join sys_user su on au.sys_user_id = su.user_id
+        left join sys_dept sd on su.dept_id = sd.dept_id
+    </sql>
+	
+    <select id="selectUserList" resultMap="AuthUserResult">
+        select
+            au.uid,
+            au.username,
+            au.password,
+            au.salt,
+            au.real_name,
+            au.avatar,
+            au.phone,
+            au.email,
+            au.sex,
+            au.status,
+            au.create_time,
+            au.update_time,
+            au.create_where,
+            au.sys_code,
+            au.user_career,
+            au.sys_user_id
+        from
+          auth_user au,auth_user_client auc
+        <where>
+             au.sys_user_id = auc.sys_user_id
+             <if test="clientId != null  and clientId != '' "> and auc.sys_code = #{clientId} </if>
+             <if test="u.uid != null  and u.uid != '' "> and au.uid = #{u.uid}</if>
+             <if test="u.username != null  and u.username != '' "> and au.username = #{u.username}</if>
+             <if test="u.password != null  and u.password != '' "> and au.password = #{u.password}</if>
+             <if test="u.salt != null  and u.salt != '' "> and au.salt = #{u.salt}</if>
+             <if test="u.realName != null  and u.realName != '' "> and au.real_name = #{u.realName}</if>
+             <if test="u.avatar != null  and u.avatar != '' "> and au.avatar = #{u.avatar}</if>
+             <if test="u.phone != null  and u.phone != '' "> and au.phone = #{u.phone}</if>
+             <if test="u.email != null  and u.email != '' "> and au.email = #{u.email}</if>
+             <if test="u.sex != null "> and au.sex = #{u.sex}</if>
+             <if test="u.status != null "> and au.status = #{u.status}</if>
+             <if test="u.createTime != null "> and au.create_time = #{u.createTime}</if>
+             <if test="u.updateTime != null "> and au.update_time = #{u.updateTime}</if>
+             <if test="u.createWhere != null "> and au.create_where = #{u.createWhere}</if>
+             <!--<if test="sysCode != null and sysCode != '' "> and au.sys_code = #{sysCode}</if>-->
+             <if test="u.userCareer != null and u.userCareer != '' "> and au.user_career = #{u.userCareer}</if>
+             <if test="u.sysUserId != null and u.sysUserId != '' "> and au.sys_user_id = #{u.sysUserId}</if>
+         </where>
+
+    </select>
+
+    <select id="selectUserByLoginName" parameterType="String" resultMap="AuthUserResult">
+        <include refid="selectUserVo"/>
+        <where>
+            <if test="username != null  and username != '' "> and au.username = #{username}</if>
+        </where>
+    </select>
+
+    
+    <select id="selectUserById" parameterType="String" resultMap="AuthUserResult">
+        <include refid="selectUserVo"/>
+        where au.uid = #{uid}
+    </select>
+        
+    <insert id="insertUser" parameterType="com.casic.common.web.domain.bo.AuthUser">
+        insert into auth_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="uid != null  and uid != ''  ">uid,</if>
+			<if test="username != null  and username != ''  ">username,</if>
+			<if test="password != null  and password != ''  ">password,</if>
+			<if test="salt != null  and salt != ''  ">salt,</if>
+			<if test="realName != null  and realName != ''  ">real_name,</if>
+			<if test="avatar != null  and avatar != ''  ">avatar,</if>
+			<if test="phone != null  and phone != ''  ">phone,</if>
+			<if test="email != null  and email != ''  ">email,</if>
+			<if test="sex != null  ">sex,</if>
+			<if test="status != null  ">status,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="createWhere != null  ">create_where,</if>
+			<if test="sysCode != null  ">sys_code,</if>
+            <if test="userCareer != null and userCareer != '' ">user_career,</if>
+            <if test="sysUserId != null  and sysUserId != '' ">sys_user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="uid != null  and uid != ''  ">#{uid},</if>
+			<if test="username != null  and username != ''  ">#{username},</if>
+			<if test="password != null  and password != ''  ">#{password},</if>
+			<if test="salt != null  and salt != ''  ">#{salt},</if>
+			<if test="realName != null  and realName != ''  ">#{realName},</if>
+			<if test="avatar != null  and avatar != ''  ">#{avatar},</if>
+			<if test="phone != null  and phone != ''  ">#{phone},</if>
+			<if test="email != null  and email != ''  ">#{email},</if>
+			<if test="sex != null  ">#{sex},</if>
+			<if test="status != null  ">#{status},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="createWhere != null  ">#{createWhere},</if>
+			<if test="sysCode != null and  sysCode != '' ">#{sysCode},</if>
+            <if test="userCareer != null and  userCareer != '' ">#{userCareer},</if>
+            <if test="sysUserId != null and  sysUserId != '' ">#{sysUserId},</if>
+         </trim>
+    </insert>
+
+    <insert id="insertIntoUserClientRel" parameterType="string">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            select uuid() "id" from dual
+        </selectKey>
+        insert into auth_user_client(id,sys_code,sys_user_id) values (#{id},#{sysCode},#{sysUserId})
+    </insert>
+
+    <delete id="deleteIntoUserClientRel" parameterType="Map">
+        delete from auth_user_client where sys_user_id = #{sysUserId} and sys_code = #{clientId}
+    </delete>
+
+
+    <select id="isExistsUserClientRel" parameterType="String" resultType="int">
+        select count(1) from auth_user_client where sys_code = #{sysCode} and sys_user_id = #{sysUserId}
+    </select>
+
+
+
+    <update id="updateUser" parameterType="com.casic.common.web.domain.bo.AuthUser">
+        update auth_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="username != null  and username != ''  ">username = #{username},</if>
+            <if test="password != null  and password != ''  ">password = #{password},</if>
+            <if test="salt != null  and salt != ''  ">salt = #{salt},</if>
+            <if test="realName != null  and realName != ''  ">real_name = #{realName},</if>
+            <if test="avatar != null  and avatar != ''  ">avatar = #{avatar},</if>
+            <if test="phone != null  and phone != ''  ">phone = #{phone},</if>
+            <if test="email != null  and email != ''  ">email = #{email},</if>
+            <if test="sex != null  ">sex = #{sex},</if>
+            <if test="status != null  ">status = #{status},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="createWhere != null  ">create_where = #{createWhere},</if>
+            <if test="sysCode != null  and sysCode != '' "> sys_code = #{sysCode},</if>
+            <if test="userCareer != null and  userCareer != '' ">user_career = #{userCareer},</if>
+            <if test="sysUserId != null and  sysUserId != '' ">sys_user_id = #{sysUserId},</if>
+        </trim>
+        where uid = #{uid}
+    </update>
+
+	<delete id="deleteUserById" parameterType="String">
+        delete from auth_user where uid = #{uid}
+    </delete>
+	
+    <delete id="deleteUserByIds" parameterType="String">
+        delete from auth_user where uid in 
+        <foreach item="uid" collection="array" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+    </delete>
+    
+    <select id="checkUserNameUnique" parameterType="String" resultMap="AuthUserResult">
+        <include refid="selectUserVo"/>
+        where au.username = #{username}
+    </select>
+    
+	<select id="checkPhoneUnique" parameterType="String" resultMap="AuthUserResult">
+		select uid, phone from auth_user where phone=#{phone}
+	</select>
+	
+	<select id="checkEmailUnique" parameterType="String" resultMap="AuthUserResult">
+		select uid, email from auth_user where email=#{email}
+	</select>
+
+
+    <select id="selectResourcesByUserId" parameterType="java.lang.String" resultMap="com.casic.auth.mapper.AuthResourceMapper.AuthResourceResult">
+       select distinct
+            ar.id,
+            ar.code,
+            ar.parent_id,
+            ar.name,
+            ar.parent_ids,
+            ar.perms,
+            ar.uri,
+            ar.type ,
+            ar.method,
+            ar.icon ,
+            ar.status ,
+            ar.sys_code
+
+        from auth_role_resource arr,
+             auth_resource ar
+        where arr.role_id IN (
+          SELECT
+            rol.id
+          FROM
+            auth_user usr
+          left JOIN auth_user_role uro ON usr.uid = uro.user_id
+          left JOIN auth_role rol ON uro.role_id = rol.id
+          where usr.uid = #{appId}
+        )
+        and arr.resource_id = ar.id and ar.status = 0
+        <if test="sysCode != null and sysCode != ''">
+            and ar.sys_code = #{sysCode}
+        </if>
+    </select>
+
+
+    <select id="selectClientBySysUserId" parameterType="java.lang.String" resultType="String">
+        select group_concat(sys_code) from auth_user_client where sys_user_id=#{sysUserId}
+    </select>
+
+    <select id="selectUserBySysUserId" parameterType="String" resultMap="AuthUserResult">
+        <include refid="selectUserVo"/>
+        where au.sys_user_id = #{sysUserId}
+    </select>
+
+    <select id="selectCandidateList" resultMap="AuthUserResult">
+        <include refid="selectUserVo"/>
+        <where>
+            <if test="deptCode != null and deptCode != ''">
+                AND sd.dept_code = #{deptCode}
+            </if>
+            <if test="careerCode != null and careerCode != ''">
+                AND au.user_career = #{careerCode}
+            </if>
+        </where>
+    </select>
+</mapper>

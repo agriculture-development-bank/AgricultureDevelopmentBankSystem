@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.casic.auth.mapper.OAuthClientDetailsMapper">
+
+    <resultMap type="com.casic.common.web.domain.bo.OAuthClientDetails" id="OAuthClientDetailsResult">
+        <result property="clientId"    column="client_id"    />
+        <result property="clientName"    column="client_name"    />
+        <result property="resourceIds"    column="resource_ids"    />
+        <result property="clientSecret"    column="client_secret"    />
+        <result property="scope"    column="scope"    />
+        <result property="authorizedGrantTypes"    column="authorized_grant_types"    />
+        <result property="webServerRedirectUri"    column="web_server_redirect_uri"    />
+        <result property="authorities"    column="authorities"    />
+        <result property="accessTokenValidity"    column="access_token_validity"    />
+        <result property="refreshTokenValidity"    column="refresh_token_validity"    />
+        <result property="additionalInformation"    column="additional_information"    />
+        <result property="autoapprove"    column="autoapprove"    />
+        <result property="clientIndexPage"    column="client_index_page"    />
+        <result property="clientIcon"    column="client_icon"    />
+        <result property="clientIntroduce"    column="client_introduce"    />
+    </resultMap>
+
+    <resultMap id="GenCodeDomainVoResult" type="com.casic.common.web.domain.vo.GenCodeDomainVo">
+        <result property="id"    column="id"    />
+        <result property="domainName"    column="domain_name"    />
+        <result property="domainCode"    column="domain_code"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectOAuthClientDetailsVo">
+        select
+            client_id,
+            client_name,
+            resource_ids,
+            client_secret,
+            scope,
+            authorized_grant_types,
+            web_server_redirect_uri,
+            authorities,
+            access_token_validity,
+            refresh_token_validity,
+            additional_information,
+            autoapprove,
+            client_index_page,
+            client_icon,
+            client_introduce
+        from
+          oauth_client_details
+    </sql>
+	
+    <select id="selectOAuthClientDetailsList" parameterType="com.casic.common.web.domain.bo.OAuthClientDetails" resultMap="OAuthClientDetailsResult">
+        <include refid="selectOAuthClientDetailsVo"/>
+        <where>  
+             <if test="clientId != null and clientId != ''"> and client_id = #{clientId}</if>
+             <if test="clientName != null  and clientName != '' "> and client_name = #{clientName}</if>
+             <if test="resourceIds != null  and resourceIds != '' "> and resource_ids = #{resourceIds}</if>
+             <if test="clientSecret != null  and clientSecret != '' "> and client_secret = #{clientSecret}</if>
+             <if test="scope != null  and scope != '' "> and scope = #{scope}</if>
+             <if test="authorizedGrantTypes != null and authorizedGrantTypes !='' "> and authorized_grant_types = #{authorizedGrantTypes}</if>
+             <if test="webServerRedirectUri != null  and webServerRedirectUri != '' "> and web_server_redirect_uri = #{webServerRedirectUri}</if>
+             <if test="authorities != null and authorities !='' "> and authorities = #{authorities}</if>
+             <if test="accessTokenValidity != null "> and access_token_validity = #{accessTokenValidity}</if>
+             <if test="refreshTokenValidity != null "> and refresh_token_validity = #{refreshTokenValidity}</if>
+             <if test="additionalInformation != null and additionalInformation !='' "> and additional_information = #{additionalInformation}</if>
+             <if test="autoapprove != null and autoapprove !='' "> and autoapprove = #{autoapprove}</if>
+             <if test="clientIndexPage != null and clientIndexPage !='' "> and client_index_page = #{clientIndexPage}</if>
+         </where>
+    </select>
+    
+    <select id="selectOAuthClientDetailsById" parameterType="String" resultMap="OAuthClientDetailsResult">
+        <include refid="selectOAuthClientDetailsVo"/>
+        where client_id = #{clientId}
+    </select>
+        
+    <insert id="insertOAuthClientDetails" parameterType="com.casic.common.web.domain.bo.OAuthClientDetails">
+        insert into oauth_client_details
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clientId != null and clientId != '' "> client_id,</if>
+            <if test="clientName != null  and clientName != '' "> client_name,</if>
+            <if test="resourceIds != null  and resourceIds != '' "> resource_ids,</if>
+            <if test="clientSecret != null  and clientSecret != '' "> client_secret,</if>
+            <if test="scope != null  and scope != '' "> scope,</if>
+            <if test="authorizedGrantTypes != null and authorizedGrantTypes !='' "> authorized_grant_types,</if>
+            <if test="webServerRedirectUri != null  and webServerRedirectUri != '' "> web_server_redirect_uri,</if>
+            <if test="authorities != null and authorities !='' "> authorities,</if>
+            <if test="accessTokenValidity != null "> access_token_validity,</if>
+            <if test="refreshTokenValidity != null "> refresh_token_validity,</if>
+            <if test="additionalInformation != null and additionalInformation !='' "> additional_information,</if>
+            <if test="autoapprove != null and autoapprove !='' "> autoapprove,</if>
+            <if test="clientIndexPage != null and clientIndexPage !='' "> client_index_page,</if>
+            <if test="clientIcon != null and clientIcon !='' "> client_icon,</if>
+            <if test="clientIntroduce != null and clientIntroduce !='' "> client_introduce,</if>
+         </trim>
+         <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="clientId != null  and clientId != '' ">#{clientId},</if>
+            <if test="clientName != null  and clientName != ''  ">#{clientName},</if>
+			<if test="resourceIds != null  and resourceIds != ''  ">#{resourceIds},</if>
+			<if test="clientSecret != null  and clientSecret != ''  ">#{clientSecret},</if>
+			<if test="scope != null  and scope != ''  ">#{scope},</if>
+			<if test="authorizedGrantTypes != null  ">#{authorizedGrantTypes},</if>
+			<if test="webServerRedirectUri != null  and webServerRedirectUri != ''  ">#{webServerRedirectUri},</if>
+            <if test="authorities != null  and authorities != ''  ">#{authorities},</if>
+			<if test="accessTokenValidity != null  ">#{accessTokenValidity},</if>
+            <if test="refreshTokenValidity != null  ">#{refreshTokenValidity},</if>
+			<if test="additionalInformation != null  and additionalInformation != ''  ">#{additionalInformation},</if>
+            <if test="autoapprove != null  and autoapprove != ''  ">#{autoapprove},</if>
+            <if test="clientIndexPage != null  and clientIndexPage != ''  ">#{clientIndexPage},</if>
+            <if test="clientIcon != null and clientIcon !='' "> #{clientIcon},</if>
+            <if test="clientIntroduce != null and clientIntroduce !='' "> #{clientIntroduce},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateOAuthClientDetails" parameterType="com.casic.common.web.domain.bo.OAuthClientDetails">
+        update oauth_client_details
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clientId != null and clientId != '' ">  client_id = #{clientId},</if>
+            <if test="clientName != null and clientName !='' ">  client_name = #{clientName},</if>
+            <if test="resourceIds != null  and resourceIds != '' ">  resource_ids = #{resourceIds},</if>
+            <if test="clientSecret != null  and clientSecret != '' ">  client_secret = #{clientSecret},</if>
+            <if test="scope != null  and scope != '' ">  scope = #{scope},</if>
+            <if test="authorizedGrantTypes != null and authorizedGrantTypes !='' ">  authorized_grant_types = #{authorizedGrantTypes},</if>
+            <if test="webServerRedirectUri != null  and webServerRedirectUri != '' ">  web_server_redirect_uri = #{webServerRedirectUri},</if>
+            <if test="authorities != null and authorities !='' ">  authorities = #{authorities},</if>
+            <if test="accessTokenValidity != null ">  access_token_validity = #{accessTokenValidity},</if>
+            <if test="refreshTokenValidity != null ">  refresh_token_validity = #{refreshTokenValidity},</if>
+            <if test="additionalInformation != null and additionalInformation !='' ">  additional_information = #{additionalInformation},</if>
+            <if test="autoapprove != null and autoapprove !='' ">  autoapprove = #{autoapprove},</if>
+            <if test="clientIndexPage != null and clientIndexPage !='' ">  client_index_page = #{clientIndexPage},</if>
+            <if test="clientIcon != null and clientIcon !='' "> client_icon = #{clientIcon},</if>
+            <if test="clientIntroduce != null and clientIntroduce !='' "> client_introduce = #{clientIntroduce},</if>
+        </trim>
+        where client_id = #{clientId}
+    </update>
+
+	<delete id="deleteOAuthClientDetailsById" parameterType="String">
+        delete from oauth_client_details where client_id = #{clientId}
+    </delete>
+	
+    <delete id="deleteOAuthClientDetailsByIds" parameterType="String">
+        delete from oauth_client_details where client_id in
+        <foreach item="clientId" collection="array" open="(" separator="," close=")">
+            #{clientId}
+        </foreach>
+    </delete>
+
+    <select id="selectGenCodeDomainList" resultMap="GenCodeDomainVoResult">
+        select d.id, d.domain_name, d.domain_code, d.del_flag, d.create_by, d.create_time, d.update_by, d.update_time, d.remark
+        from gen_code_domain d where d.del_flag = 0
+    </select>
+
+    <select id="selectOAuthClientDetailsByDomainId" parameterType="String" resultMap="OAuthClientDetailsResult">
+      select
+            ocd.client_id,
+            ocd.client_name,
+            ocd.resource_ids,
+            ocd.client_secret,
+            ocd.scope,
+            ocd.authorized_grant_types,
+            ocd.web_server_redirect_uri,
+            ocd.authorities,
+            ocd.access_token_validity,
+            ocd.refresh_token_validity,
+            ocd.additional_information,
+            ocd.autoapprove,
+            ocd.client_index_page,
+            ocd.client_icon,
+            ocd.client_introduce
+        from
+          oauth_client_details ocd
+          left join gen_code_component gcc on gcc.client_id = ocd.client_id
+          left join gen_code_domain_component gcdc on gcdc.component_id = gcc.id
+          left join gen_code_domain gcd on gcdc.system_id = gcd.id
+        <where>
+            <if test="domainId != null and domainId != ''"> and gcd.id = #{domainId}</if>
+        </where>
+    </select>
+    
+</mapper>
