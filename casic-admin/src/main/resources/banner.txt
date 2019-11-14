@@ -1,0 +1,2 @@
+Application Version: ${casic.version}
+Spring Boot Version: ${spring-boot.version}

@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.casic</groupId> <!-- GroupID是项目组织唯一的标识符,实际对应JAVA的包的结构,是main目录里java的目录结构 -->
+    	<artifactId>casic-springcloud</artifactId> <!-- ArtifactID就是项目的唯一的标识符,实际对应项目的名称，就是项目根目录的名称 -->
+        <version>3.0</version>
+    </parent>
+    
+    <artifactId>casic-admin</artifactId>
+	<description>web服务入口 </description>
+    <packaging>jar</packaging>
+	
+	<properties>
+	    <pagehelper.boot.version>1.2.5</pagehelper.boot.version>
+		<swagger.version>2.7.0</swagger.version>
+		<start-class>com.casic.CasicApplication</start-class>
+	</properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <!-- 移除嵌入式tomcat插件 -->
+            <exclusions>
+                <!--<exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>-->
+                <!-- 排除默认的logback日志，使用log4j-->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+
+            </exclusions>
+        </dependency>
+        <!-- spring-boot-devtools -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional> <!-- 表示依赖不会传递 -->
+		</dependency>
+		
+		<!-- 
+		<dependency>
+		    <groupId>org.springframework.cloud</groupId>
+		    <artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		 -->
+        
+        <!-- pagehelper 分页插件 -->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>${pagehelper.boot.version}</version>
+		</dependency>
+
+		<!-- swagger2-->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		
+		<!-- swagger2-UI-->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		
+		<!-- redis -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		
+		<!-- 核心模块-->
+        <dependency>
+            <groupId>com.casic</groupId>
+            <artifactId>casic-framework</artifactId>
+            <version>${casic.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>4.2.6.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.casic</groupId>
+            <artifactId>casic-bank</artifactId>
+            <version>3.0</version>
+            <!--<scope>compile</scope>-->
+        </dependency>
+        <!-- 工作流
+        <dependency>
+            <groupId>com.casic</groupId>
+            <artifactId>casic-workflow</artifactId>
+            <version>${casic.version}</version>
+        </dependency>
+        -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot.version}</version>
+                <configuration>
+					<fork>true</fork>
+				</configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>-->
+        </plugins>
+        <finalName>casic-${casic.version}</finalName>
+    </build>
+
+</project>
