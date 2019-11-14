@@ -1,0 +1,229 @@
+/**
+common start
+ */
+img{
+    width: 100%;
+    height: auto;
+}
+a{
+    text-decoration: none;
+    color: #000;
+}
+a:hover{
+    text-decoration: none;
+}
+/**
+common end
+ */
+
+/**
+登陆页面 start
+ */
+.server-login-container{
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: url("../img/bank/bg.png");
+    background-size: cover;
+}
+.server-login-content{
+    width: 100vw;
+    margin-top: 20vh;
+}
+.server-login-logo{
+    text-align: center;
+    margin-bottom: 4vh;
+    color: #fff;
+    font-size: 5.9vh;
+    line-height: 1;
+}
+.server-login-box{
+    background-image: url(../img/login-box.png);
+    background-size: cover;
+    width: 24.5vw;
+    margin: 0 auto;
+    border-radius: 6px;
+    border: solid 1px #fff;
+    box-shadow: 0 1px 1px 1px #fff;
+    padding: 1.2vh 1.96vw 4.3vh 1.96vw;
+}
+.server-login-title{
+    line-height: 6.3vh;
+    font-size: 2.1vh;
+    color: #fff;
+    text-align: center;
+    width: 20vw;
+    margin: 0 auto;
+    border-bottom: solid 1px #fff;
+    font-weight: bold;
+}
+.server-login-input-box{
+    width: 100%;
+    /*margin-bottom: 2.76vh;*/
+    background: #fff;
+    border-radius: 2px;
+    padding: 0.4vh 0;
+}
+.input-icon-box{
+    float: left;
+    width: 12.43%;
+    text-align: center;
+    line-height: 4.55vh;
+    border-right: solid 1px #e5e5e5;
+}
+.input-icon-box .fa{
+    font-size: 2.63vh;
+    color: #268df3;
+}
+.input-box{
+    float: left;
+    width: 87%;
+    padding: 0 10px;
+}
+.input-box input{
+    border: none;
+    outline: none;
+    line-height: 4.55vh;
+    width: 100%;
+    font-size: 2vh;
+}
+.server-login-submit-btn{
+    width: 100%;
+    height: 6.3vh;
+    color: #fff;
+    background: #00c0ff;
+    border: none;
+    border-radius: 2px;
+    font-size: 2.36vh;
+}
+.server-login-copyright{
+    color: #fff;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    bottom: 5vh;
+    font-size: 1.8vh;
+}
+
+.error-box{
+    width: 100%;
+    height: 2.76vh;
+}
+label.error{
+    color: #fff;
+    margin-bottom: 0;
+    font-weight: normal;
+}
+
+/**
+登陆页面 end
+ */
+
+/**
+鉴权中心首页  start
+ */
+.server-nav-bar{
+    width: 100%;
+    background: #155cb2;
+}
+.server-navs{
+    float: right;
+    margin: 0;
+    margin-right: 5.7%;
+    padding: 1.2vw 0;
+}
+.server-navs li{
+    list-style: none;
+    float: left;
+    padding: 0.42vw 0.99vw;
+    margin: 0 1.25vw;
+    line-height: 1;
+    color: #fff;
+    background: #155cb2;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 20px;
+}
+.server-navs li.active{
+    color: #155cb2;
+    background: #fff;
+}
+.server-navs li:hover{
+    color: #155cb2;
+    background: #fff;
+}
+
+.server-index-logout{
+    float: right;
+    display: inline-block;
+    padding: 1.62vw 2.25vw;
+    font-size: 16px;
+    line-height: 1;
+    color: #fff !important;
+    cursor: pointer;
+}
+
+.server-index-Client-list{
+    margin: 3.1vw 0;
+}
+.server-index-title{
+    text-align: center;
+    color: #333333;
+    font-size: 1.4vw;
+    line-height: 1.2;
+    margin-bottom: 2vw;
+}
+.server-index-Client-list .server-index-list{
+    width: 74.5%;
+    padding-inline-start: unset;
+    margin: 0 auto;
+}
+.server-index-Client-list .server-index-list li{
+    list-style: none;
+    float: left;
+    width: 25%;
+    padding: 0 1.3%;
+    text-align: center;
+    color: #333;
+}
+.server-index-Client-list .client-icon{
+    width: 40%;
+    margin: 0 auto 1.2vw auto;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.server-index-Client-list .client-name{
+    font-size: 1.2vw;
+    font-weight: bold;
+    margin-bottom: 0.8vw;
+    letter-spacing: 2px;
+}
+.server-index-Client-list .client-introduce{
+    font-size: 0.85vw;
+    line-height: 1.4;
+    height: 4.76vw;
+    margin-bottom: 1.2vw;
+    overflow: hidden;
+}
+.server-index-mid-btn{
+    line-height: 1;
+    display: inline-block;
+    padding: 0.84vw 2.76vw;
+    color: #155cb2 !important;
+    border: solid 1px #155cb2;
+    cursor: pointer;
+}
+.server-copyright{
+    color: #ccc;
+    text-align: center;
+    width: 54%;
+    margin: 10vw auto 2vw auto;
+    font-size: 1.8vh;
+    border-top: solid 1px #155cb2;
+    line-height: 2;
+}
+/**
+鉴权中心首页  end
+ */
