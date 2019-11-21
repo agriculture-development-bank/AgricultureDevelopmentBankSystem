@@ -21,7 +21,6 @@
 		<result property="createTime" column="create_time" />
 		<result property="updateBy"   column="update_by"   />
 		<result property="updateTime" column="update_time" />
-		<result property="headDeptFalg" column="head_dept_falg" />
 		<result property="remark" column="remark" />
 
 	</resultMap>
@@ -38,7 +37,7 @@
 	</resultMap>
 
 	<sql id="selectDeptVo">
-        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.dept_code, d.order_num, d.leader, d.phone, d.email, d.status, d.del_flag, d.create_by, d.create_time,d.head_dept_falg, d.remark
+        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.dept_code, d.order_num, d.leader, d.phone, d.email, d.status, d.del_flag, d.create_by, d.create_time, d.remark
         from sys_dept d
     </sql>
 
@@ -98,7 +97,6 @@
 			d.del_flag,
 			d.create_by,
 			d.create_time,
-			d.head_dept_falg,
 			d.remark
 		FROM
 			sys_dept d
@@ -117,7 +115,7 @@
 	</select>
 
 	<select id="selectDeptById" parameterType="String" resultMap="SysDeptResult">
-		select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.dept_code, d.order_num, d.leader, d.phone, d.email, d.status,d.head_dept_falg,d.remark,
+		select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.dept_code, d.order_num, d.leader, d.phone, d.email, d.status,d.remark,
 			(select dept_name from sys_dept where dept_id = d.parent_id) parent_name
 		from sys_dept d
 		where d.dept_id = #{deptId}
@@ -153,7 +151,6 @@
 		<if test="email != null and email != ''">email,</if>
 		<if test="status != null">status,</if>
 		<if test="createBy != null and createBy != ''">create_by,</if>
-		<if test="headDeptFalg != null and headDeptFalg != ''">head_dept_falg,</if>
 		<if test="remark != null and remark != ''">remark,</if>
 
 		create_time
@@ -169,7 +166,6 @@
 		<if test="email != null and email != ''">#{email},</if>
 		<if test="status != null">#{status},</if>
 		<if test="createBy != null and createBy != ''">#{createBy},</if>
-		<if test="headDeptFalg != null and headDeptFalg != ''">#{headDeptFalg},</if>
 		<if test="remark != null and remark != ''">#{remark},</if>
 
 		sysdate()
@@ -189,7 +185,6 @@
 			<if test="email != null and email != ''">email = #{email},</if>
 			<if test="status != null and status != ''">status = #{status},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
-			<if test="headDeptFalg != null and headDeptFalg != ''">head_dept_falg = #{headDeptFalg},</if>
 			<if test="remark != null and remark != ''">remark = #{remark},</if>
 			update_time = sysdate()
 		</set>

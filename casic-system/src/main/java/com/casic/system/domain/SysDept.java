@@ -72,22 +72,6 @@ public class SysDept extends BaseEntity {
      */
     private String parentName;
 
-    /**
-     * 是否司局标识 （名字待定）0:否 1 ：是
-     */
-    private String headDeptFalg;
-
-
-
-
-    public String getHeadDeptFalg() {
-        return headDeptFalg;
-    }
-
-    public void setHeadDeptFalg(String headDeptFalg) {
-        this.headDeptFalg = headDeptFalg;
-    }
-
     public String getDeptId() {
         return deptId;
     }

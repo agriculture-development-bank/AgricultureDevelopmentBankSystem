@@ -69,7 +69,7 @@ public class BankFileDetailServiceImpl implements BankFileDetailService {
             BankReceiveFilesDetail bankReceiveFilesDetail = selectBankReceiveFilesDetailById(id);
             List<BankAnalysisDetail> bankAnalysisDetails = bankAnalysisDetailMapper.selectBankAnalysisDetailByFileId(id);
             if (StringUtils.isNotNull(bankReceiveFilesDetail)) {
-                if (bankAnalysisDetails == null) {
+                if (bankAnalysisDetails == null || bankAnalysisDetails.size() == 0) {
                     String fileId = bankReceiveFilesDetail.getFileId();
                     int flag = bankReceiveFilesDetailMapper.deleteBankReceiveFilesDetailById(id);
                     //更新台账文件总份数

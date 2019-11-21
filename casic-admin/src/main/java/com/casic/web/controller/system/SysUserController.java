@@ -10,7 +10,7 @@ import com.casic.framework.shiro.service.SysPasswordService;
 import com.casic.framework.util.ShiroUtils;
 import com.casic.framework.web.base.BaseController;
 import com.casic.system.domain.SastindSysUserVo;
-import com.casic.system.domain.SysDept;
+import com.casic.system.domain.SysRole;
 import com.casic.system.domain.SysUser;
 import com.casic.system.service.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 用户信息
@@ -179,13 +180,22 @@ public class SysUserController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
-
-        for (String userId : ids.split(",")) {
-            if (SysUser.isAdmin(userId)) {
-                return error(1, "不允许删除超级管理员用户！");
+        SysUser user = ShiroUtils.getUser();
+        if (user != null) {
+            List<SysRole> roles = user.getRoles();
+            List<String> collect = roles.stream().map(SysRole::getRoleKey).collect(Collectors.toList());
+            if (collect.size() > 0) {
+                boolean isAdmin = collect.contains("admin");
+                if (isAdmin) {
+                    return userService.deleteUserByIds(ids);
+                } else {
+                    return error(1, "您没有权限删除用户");
+                }
+            } else {
+                return error(1, "您没有权限删除用户");
             }
         }
-        return toAjax(userService.deleteUserByIds(ids));
+        return success();
     }
 
     /**
@@ -280,22 +290,6 @@ public class SysUserController extends BaseController {
         startPage();
         List<SastindSysUserVo> list = userService.selectUserListByDept(user);
         return getDataTable(list);
-    }
-
-    @PostMapping("/listByDepts")
-    @ResponseBody
-    public TableDataInfo listByDepts(SysUser user) {
-        String deptIds = sysDeptService.getDutyBelongChildrenId(getSysUser().getDeptId());
-        ;
-        startPage();
-        List<SastindSysUserVo> list = userService.selectUserByDeptIds(user, deptIds);
-        return getDataTable(list);
-    }
-
-    @RequestMapping("/getDutyBelongDept")
-    @ResponseBody
-    public SysDept getDutyBelongDept(String deptId) {
-        return sysDeptService.getDutyBelongDept(deptId);
     }
 
     /**

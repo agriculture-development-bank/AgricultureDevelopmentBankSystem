@@ -109,20 +109,6 @@ public class DictService {
         SysDept sysDept = deptService.selectDeptById(deptId);
         String deptName = sysDept.getDeptName();
         String ancestors = sysDept.getAncestors();
-        if (StringUtils.isNotEmpty(ancestors) && !"1".equals(sysDept.getHeadDeptFalg())) {
-            String[] ancestorArray = ancestors.split(",");
-            for (int i = ancestorArray.length - 1; i >= 0; i--) {
-                if (StringUtils.isNotEmpty(ancestorArray[i]) && !"0".equals(ancestorArray[i])) {
-                    SysDept dept = deptService.selectDeptById(ancestorArray[i]);
-                    if (dept != null) {
-                        deptName = dept.getDeptName() + " -> " + deptName;
-                        if ("1".equals(dept.getHeadDeptFalg())) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
         return deptName;
     }
 

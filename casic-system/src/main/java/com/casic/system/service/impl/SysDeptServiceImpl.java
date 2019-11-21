@@ -249,70 +249,6 @@ public class SysDeptServiceImpl implements ISysDeptService {
         return deptMapper.selectDeptByCode(deptCode);
     }
 
-    /**
-     * 获取部门所属责任主体下所有部门编码
-     */
-    @Override
-    public String getDutyBelongChildren(String deptId) {
-        String dutyBelongChildren = "";
-        SysDept sysDept = deptMapper.selectDeptById(deptId);
-        String ancestors = sysDept.getAncestors();
-        String[] ancestorArray = ancestors.split(",");
-        String dutyBelong = deptId + "";
-        for (int i = ancestorArray.length - 1; i >= 0; i--) {
-            if (StringUtils.isNotEmpty(ancestorArray[i])) {
-                SysDept dept = deptMapper.selectDeptById(ancestorArray[i]);
-                if (dept != null && "1".equals(dept.getHeadDeptFalg())) {
-                    dutyBelong = ancestorArray[i];
-                    break;
-                }
-            }
-        }
-        SysDept dutyBelongDept = deptMapper.selectDeptById(dutyBelong);
-
-        dutyBelongChildren += dutyBelongDept.getDeptCode();
-        if ("1".equals(dutyBelongDept.getHeadDeptFalg())) {
-            List<SysDept> deptChildren = deptMapper.selectDeptChildren(dutyBelong);
-            for (int i = 0; i < deptChildren.size(); i++) {
-                dutyBelongChildren += "," + deptChildren.get(i).getDeptCode();
-            }
-        }
-
-        return dutyBelongChildren;
-    }
-
-    /**
-     * 获取部门所属责任主体下所有部门id
-     */
-    @Override
-    public String getDutyBelongChildrenId(String deptId) {
-        String dutyBelongChildren = "";
-        SysDept sysDept = deptMapper.selectDeptById(deptId);
-        String ancestors = sysDept.getAncestors();
-        String[] ancestorArray = ancestors.split(",");
-        String dutyBelong = deptId + "";
-        for (int i = ancestorArray.length - 1; i >= 0; i--) {
-            if (StringUtils.isNotEmpty(ancestorArray[i])) {
-                SysDept dept = deptMapper.selectDeptById(ancestorArray[i]);
-                if (dept != null && "1".equals(dept.getHeadDeptFalg())) {
-                    dutyBelong = ancestorArray[i];
-                    break;
-                }
-            }
-        }
-        SysDept dutyBelongDept = deptMapper.selectDeptById(dutyBelong);
-
-        dutyBelongChildren += dutyBelongDept.getDeptId();
-        if ("1".equals(dutyBelongDept.getHeadDeptFalg())) {
-            List<SysDept> deptChildren = deptMapper.selectDeptChildren(dutyBelong);
-            for (int i = 0; i < deptChildren.size(); i++) {
-                dutyBelongChildren += "," + deptChildren.get(i).getDeptId();
-            }
-        }
-
-        return dutyBelongChildren;
-    }
-
     @Override
     public String getChildrenIds(String deptId) {
         List<SysDept> sysDepts = deptMapper.selectDeptChildren(deptId);
@@ -327,31 +263,6 @@ public class SysDeptServiceImpl implements ISysDeptService {
     public List<SysDept> selectChildDept(String deptId) {
         return deptMapper.selectDeptChildren(deptId);
     }
-
-    /**
-     * 获取部门所属责任主体
-     *
-     * @return
-     */
-    @Override
-    public SysDept getDutyBelongDept(String deptId) {
-        SysDept sysDept = deptMapper.selectDeptById(deptId);
-        String ancestors = sysDept.getAncestors();
-        String[] ancestorArray = ancestors.split(",");
-        String dutyBelong = deptId + "";
-        for (int i = ancestorArray.length - 1; i >= 0; i--) {
-            if (StringUtils.isNotEmpty(ancestorArray[i])) {
-                SysDept dept = deptMapper.selectDeptById(ancestorArray[i]);
-                if (dept != null && "1".equals(dept.getHeadDeptFalg())) {
-                    dutyBelong = ancestorArray[i];
-                    break;
-                }
-            }
-        }
-        SysDept dutyBelongDept = deptMapper.selectDeptById(dutyBelong);
-        return dutyBelongDept;
-    }
-
 
     /**
      * 递归查询部门

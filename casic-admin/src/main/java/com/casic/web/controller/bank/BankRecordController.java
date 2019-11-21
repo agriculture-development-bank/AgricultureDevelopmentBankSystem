@@ -2,7 +2,9 @@ package com.casic.web.controller.bank;
 
 import com.casic.bank.domain.BankRecord;
 import com.casic.bank.service.BankRecordService;
+import com.casic.common.annotation.Log;
 import com.casic.common.base.AjaxResult;
+import com.casic.common.enums.BusinessType;
 import com.casic.common.web.page.TableDataInfo;
 import com.casic.framework.web.base.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,7 @@ public class BankRecordController extends BaseController {
         return getDataTable(bankRecords);
     }
 
+    @Log(title = "流程记录", businessType = BusinessType.DELETE)
     @RequestMapping("/remove")
     public AjaxResult remove(String ids){
         Integer count  = bankRecordService.deleteBankRecord(ids);
