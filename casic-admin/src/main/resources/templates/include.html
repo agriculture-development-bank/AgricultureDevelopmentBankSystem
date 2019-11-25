@@ -19,6 +19,9 @@
 
 
 <div th:fragment="footer">
+
+	<script th:inline="javascript"> var ctx = [[@{/}]]; </script>
+
 	<script th:src="@{/js/jquery.min.js}"></script>
 	<script th:src="@{/js/bootstrap.min.js}"></script>
 	
@@ -45,7 +48,6 @@
 	<script th:src="@{/westcredit/js/westcredit-ui.js?v=20190828}"></script>
 	<script th:src="@{/ajax/libs/bootstrap-table/bootstrap-table-fixed-columns.js}"></script>
 
-	<script th:inline="javascript"> var ctx = [[@{/}]]; </script>
 </div>
 
 

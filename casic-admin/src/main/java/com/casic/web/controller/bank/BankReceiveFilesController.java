@@ -108,6 +108,7 @@ public class BankReceiveFilesController extends BaseController {
     public String add(ModelMap modelMap) {
         unionSelect(modelMap);
         modelMap.put("sysVersion", Global.getConfig("casic.sysVersion"));
+        modelMap.put("printPort", Global.getConfig("casic.printPort"));
         return PREFIX + "add";
     }
 

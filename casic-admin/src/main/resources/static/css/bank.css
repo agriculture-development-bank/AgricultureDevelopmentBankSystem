@@ -59,10 +59,10 @@ body {
 .reg-bar a:hover { text-decoration: underline; }
 .reg-bar .reg { float: left; }
 .reg-bar .forget { float: right; }
-.dowebok ::-webkit-input-placeholder { font-size: 18px; line-height: 1.4; color: #c6cddb;padding-left:0px;}
-.dowebok :-moz-placeholder { font-size: 18px; line-height: 1.4; color: #c6cddb;padding-left:0px;}
-.dowebok ::-moz-placeholder { font-size: 18px; line-height: 1.4; color: #c6cddb;padding-left:0px;}
-.dowebok :-ms-input-placeholder { font-size: 18px; line-height: 1.4; color: #c6cddb;padding-left:0px;}
+.dowebok ::-webkit-input-placeholder { font-size: 18px; color: #c6cddb;padding-left:0px;}
+.dowebok :-moz-placeholder { font-size: 18px; color: #c6cddb;padding-left:0px;}
+.dowebok ::-moz-placeholder { font-size: 18px; color: #c6cddb;padding-left:0px;}
+.dowebok :-ms-input-placeholder { font-size: 18px; color: #c6cddb;padding-left:0px;}
 
 @media screen and (max-width: 500px) {
     * { box-sizing: border-box; }

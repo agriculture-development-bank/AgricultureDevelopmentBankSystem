@@ -101,6 +101,7 @@
     var fileStatusDatas = [[${@dict.getType('file_receive_status')}]];
     var prefix = ctx + "bank/receive";
     var sysVersion = [[${sysVersion}]];
+    var printPort = [[${printPort}]];
 
     $(function () {
         var options = {
@@ -329,14 +330,16 @@
                              var data = {
                                  barcodeList: printerDatas
                              }
-                            $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:888");
+                            $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:"+printPort);
                          } else {
                              var data = {
-                                 barcodeList: JSON.stringify(printerDatas)
+                                 tagType:"1",
+                                 pid:"1",
+                                 requestList: printerDatas
                              }
                              $.ajax({
-                                 url:prefix + "/printTag",
-                                 data: data,
+                                 url:"http://127.0.0.1:"+printPort,
+                                 data: JSON.stringify(data),
                                  type:"post",
                                  success:function(result){
 

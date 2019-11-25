@@ -124,6 +124,11 @@ function createMenuItem(dataUrl, menuName) {
     dataIndex = $.common.random(1,100),
     flag = true;
     if (dataUrl == undefined || $.trim(dataUrl).length == 0) return false;
+
+    if(dataUrl.indexOf(ctx) == -1){
+        dataUrl = ctx + dataUrl.substring(1);
+    }
+
     var topWindow = $(window.parent.document);
     // 选项卡菜单已存在
     $('.menuTab', topWindow).each(function() {
