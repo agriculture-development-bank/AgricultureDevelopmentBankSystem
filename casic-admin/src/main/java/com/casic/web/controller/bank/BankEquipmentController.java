@@ -155,7 +155,7 @@ public class BankEquipmentController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:equipment:add")
-    @Log(title = "新增设备", businessType = BusinessType.INSERT)
+    @Log(title = "设备管理", businessType = BusinessType.INSERT)
     @PostMapping(value = "/add")
     @ResponseBody
     @ApiOperation(value = "新增设备")
@@ -172,7 +172,7 @@ public class BankEquipmentController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:equipment:edit")
-    @Log(title = "修改设备", businessType = BusinessType.UPDATE)
+    @Log(title = "设备管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/edit")
     @ResponseBody
     public AjaxResult edit(BankEquipment bankEquipment) {
@@ -187,7 +187,7 @@ public class BankEquipmentController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:equipment:remove")
-    @Log(title = "删除设备信息", businessType = BusinessType.DELETE)
+    @Log(title = "设备管理", businessType = BusinessType.DELETE)
     @PostMapping(value = "/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {

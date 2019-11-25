@@ -123,7 +123,7 @@ public class BankLocationController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:location:add")
-    @Log(title = "新增位置", businessType = BusinessType.INSERT)
+    @Log(title = "位置管理", businessType = BusinessType.INSERT)
     @PostMapping(value = "/add")
     @ResponseBody
     @ApiOperation(value = "新增位置")
@@ -140,7 +140,7 @@ public class BankLocationController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:location:edit")
-    @Log(title = "修改位置", businessType = BusinessType.UPDATE)
+    @Log(title = "位置管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/edit")
     @ResponseBody
     public AjaxResult edit(BankLocation bankLocation) {
@@ -155,7 +155,7 @@ public class BankLocationController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:location:remove")
-    @Log(title = "删除位置信息", businessType = BusinessType.DELETE)
+    @Log(title = "位置管理", businessType = BusinessType.DELETE)
     @PostMapping(value = "/remove/{id}")
     @ResponseBody
     public AjaxResult remove(@PathVariable("id") String id) {

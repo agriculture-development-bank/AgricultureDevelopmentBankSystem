@@ -111,7 +111,7 @@ public class BankFileDetailController extends BaseController {
      * @param ids 待删除的id字符串
      * @return
      */
-    @Log(title = "删除", businessType = BusinessType.DELETE)
+    @Log(title = "文件详情管理", businessType = BusinessType.DELETE)
     @PostMapping(value = "/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
@@ -173,7 +173,7 @@ public class BankFileDetailController extends BaseController {
      * @param filePositionVO
      * @return
      */
-    @Log(title = "修改文件位置", businessType = BusinessType.UPDATE)
+    @Log(title = "文件详情管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/updatePosition")
     @ResponseBody
     public AjaxResult updatePosition(FilePositionVO filePositionVO) {
@@ -186,7 +186,7 @@ public class BankFileDetailController extends BaseController {
      * @param filePositionVO
      * @return
      */
-    @Log(title = "批量修改文件位置", businessType = BusinessType.UPDATE)
+    @Log(title = "文件详情管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/batchUpdatePosition")
     @ResponseBody
     public AjaxResult batchUpdatePosition(FilePositionVO filePositionVO) {

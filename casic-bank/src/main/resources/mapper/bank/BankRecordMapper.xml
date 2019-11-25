@@ -139,7 +139,7 @@
         dept_name
         FROM
         sys_dept
-        where parent_id = (select dept_id from sys_dept where parent_id = '0')
+
         ) AS a
         LEFT JOIN
         (

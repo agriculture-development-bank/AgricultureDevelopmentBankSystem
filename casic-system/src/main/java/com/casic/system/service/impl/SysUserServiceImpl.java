@@ -1,6 +1,7 @@
 package com.casic.system.service.impl;
 
 import com.casic.common.annotation.DataScope;
+import com.casic.common.base.AjaxResult;
 import com.casic.common.config.Global;
 import com.casic.common.constant.UserConstants;
 import com.casic.common.utils.DateUtils;
@@ -15,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +26,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 用户 业务层处理
@@ -75,24 +78,8 @@ public class SysUserServiceImpl implements ISysUserService {
                 roleName += sysRole.getRoleName() + ",";
             }
             sastindSysUserVo.setRoleName(roleName.endsWith(",") ? roleName.substring(0, roleName.length() - 1) : roleName);
-
             SysDept sysDept = sastindSysUserVo.getDept();
             String deptName = sysDept.getDeptName();
-            String ancestors = sysDept.getAncestors();
-            if (StringUtils.isNotEmpty(ancestors) && !"1".equals(sysDept.getHeadDeptFalg())) {
-                String[] ancestorArray = ancestors.split(",");
-                for (int i = ancestorArray.length - 1; i >= 0; i--) {
-                    if (StringUtils.isNotEmpty(ancestorArray[i]) && !"0".equals(ancestorArray[i])) {
-                        SysDept dept = sysDeptMapper.selectDeptById(ancestorArray[i]);
-                        if (dept != null) {
-                            deptName = dept.getDeptName() + " -> " + deptName;
-                            if ("1".equals(dept.getHeadDeptFalg())) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
             sastindSysUserVo.setDeptName(deptName);
         }
         return list;
@@ -149,6 +136,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteUserById(String userId) {
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
@@ -164,8 +152,37 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
-    public int deleteUserByIds(String ids) {
-        return userMapper.deleteUserByIds(ids.split(","));
+    @Transactional
+    public AjaxResult deleteUserByIds(String ids) {
+        AjaxResult ajaxResult = new AjaxResult();
+        ajaxResult.put("code", 0);
+        ajaxResult.put("msg", "删除成功");
+        String[] split = ids.split(",");
+        if (split.length > 0) {
+            for (String userId : split) {
+                SysUser sysUser = selectUserById(userId);
+                if (sysUser != null ) {
+                    List<SysRole> roles = sysUser.getRoles();
+                    if (StringUtils.isNotEmpty(roles)) {
+                        List<String> collect = roles.stream().map(SysRole::getRoleKey).collect(Collectors.toList());
+                        if (collect.size() > 0) {
+                            boolean isAdmin = collect.contains("admin");
+                            if (isAdmin) {
+                                return AjaxResult.error(1, "管理员用户不允许删除");
+                            } else {
+                                deleteUserById(userId);
+                            }
+                        } else {
+                            deleteUserById(userId);
+                        }
+                    } else {
+                        deleteUserById(userId);
+                    }
+                }
+            }
+        }
+
+        return ajaxResult;
     }
 
     /**
@@ -175,6 +192,7 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertUser(SysUser user) {
         // 新增用户信息
         user.setUserId(UuidUtils.getUUIDString());

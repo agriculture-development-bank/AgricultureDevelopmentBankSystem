@@ -2,18 +2,14 @@ package com.casic.web.controller.bank;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-
-
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 
 
 public interface LibraryBSDPrinterInterface extends Library {
-    public static String soName =  "PostekFunctionLib";// 动态库名字
+    public static String soName = "PostekFunctionLib";// 动态库名字
 
     LibraryBSDPrinterInterface INSTANCE = (LibraryBSDPrinterInterface) Native.loadLibrary(soName, LibraryBSDPrinterInterface.class);// 动�?�库实例
+
+    int MatchTemplateEx(String x, String y);
 
     // 动�?�链接库CDFPSK.dll中的方法.
     int OpenPort(int px); // 打开通讯端口
@@ -54,6 +50,7 @@ public interface LibraryBSDPrinterInterface extends Library {
     //int PTK_DrawTextTrueTypeW(int x, int y, int FHeight, int FWidth, String FType, int Fspin, int FWeight,int FItalic, int FUnline, int FStrikeOut, String id_name, String data); // 打印�?�?
     // TrueTypeFont文字，并且宽度和高可以微�?
     int PTK_DrawTextTrueTypeW(int x, int y, int FHeight, int FWidth, int FWeight, int FLean, int Fspin, int FUnline, int Fgap, String path, String ptext, int numOfTF);
+
     int PTK_DrawBarcode(int px, int py, int pdirec, String pCode, int pHorizontal, int pVertical, int pbright,
                         char ptext, String pstr); // 打印�?个条码�??
 
@@ -179,6 +176,8 @@ public interface LibraryBSDPrinterInterface extends Library {
 
     //设置高频RFID 标签�?
     int PTK_SetHFRFID(char pWForm, int nProtocolType, int nMaxErrNumd);
+
     int PTK_ReadRFID(int comm_mode, int start_addr, int block, int len, int atuo_foward, byte[] data);
+
     int PTK_WriteRFID(int start_addr, int block, int len, int data_moden, String data);
 }

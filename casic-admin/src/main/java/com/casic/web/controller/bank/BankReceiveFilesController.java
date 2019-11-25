@@ -15,7 +15,6 @@ import com.casic.common.annotation.Log;
 import com.casic.common.base.AjaxResult;
 import com.casic.common.config.Global;
 import com.casic.common.enums.BusinessType;
-import com.casic.common.json.JSONObject;
 import com.casic.common.utils.StringUtils;
 import com.casic.common.utils.UuidUtils;
 import com.casic.common.web.page.TableDataInfo;
@@ -194,7 +193,7 @@ public class BankReceiveFilesController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:receive:add")
-    @Log(title = "新增文件收文登记记录", businessType = BusinessType.INSERT)
+    @Log(title = "台账管理", businessType = BusinessType.INSERT)
     @PostMapping(value = "/add")
     @ResponseBody
     @ApiOperation(value = "新增文件收文登记记录")
@@ -220,7 +219,7 @@ public class BankReceiveFilesController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:receive:edit")
-    @Log(title = "修改文件收文登记记录", businessType = BusinessType.UPDATE)
+    @Log(title = "台账管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/edit")
     @ResponseBody
     public AjaxResult edit(@RequestBody ResultBean resultBean) {
@@ -260,7 +259,7 @@ public class BankReceiveFilesController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:receive:remove")
-    @Log(title = "删除文件登记记录", businessType = BusinessType.DELETE)
+    @Log(title = "台账管理", businessType = BusinessType.DELETE)
     @PostMapping(value = "/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
@@ -279,7 +278,7 @@ public class BankReceiveFilesController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:receive:confirm")
-    @Log(title = "新增台账", businessType = BusinessType.INSERT)
+    @Log(title = "台账管理", businessType = BusinessType.INSERT)
     @PostMapping(value = "/confirm/{ids}")
     @ResponseBody
     public AjaxResult confirm(@PathVariable("ids") String ids) {
@@ -367,15 +366,15 @@ public class BankReceiveFilesController extends BaseController {
 
     @RequestMapping("/printTag")
     @ResponseBody
-    public AjaxResult printTag(String data){
+    public AjaxResult printTag(String data) {
         com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(data);
         JSONArray jsonArray = jsonObject.getJSONArray("barcodeList");
-        for(int i = 0; i<jsonArray.size();i++){
+        for (int i = 0; i < jsonArray.size(); i++) {
             com.alibaba.fastjson.JSONObject jsonObjectTmp = jsonArray.getJSONObject(i);
             String rfid = jsonObjectTmp.getString("rfid");
             String title = jsonObjectTmp.getString("title");
             String secretLevel = jsonObjectTmp.getString("secretLevel");
-            String flowId= jsonObjectTmp.getString("flowId");
+            String flowId = jsonObjectTmp.getString("flowId");
             LibraryBSDPrinterInterface.INSTANCE.OpenPort(255);
             LibraryBSDPrinterInterface.INSTANCE.PTK_PcxGraphicsDel("*");
             LibraryBSDPrinterInterface.INSTANCE.PTK_ClearBuffer();
@@ -389,34 +388,34 @@ public class BankReceiveFilesController extends BaseController {
                     (100, 0, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "农业发展银行", 1);
 
             LibraryBSDPrinterInterface.INSTANCE.PTK_DrawTextTrueTypeW
-                    (100, 60, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "RFID编号:"+rfid, 2);
+                    (100, 60, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "RFID编号:" + rfid, 2);
 
             LibraryBSDPrinterInterface.INSTANCE.PTK_DrawTextTrueTypeW
-                    (100, 120, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "密级:"+secretLevel, 3);
+                    (100, 120, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "密级:" + secretLevel, 3);
 
             LibraryBSDPrinterInterface.INSTANCE.PTK_DrawTextTrueTypeW
-                    (100, 190, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "文件编号:"+flowId, 4);
+                    (100, 190, 33, 0, 0, 0, 0, 0, 0, GlobalVar.BSDFontPath, "文件编号:" + flowId, 4);
 
             String sa = rfid + ";" + flowId + ";" + title;
             String finaStr = "";
-            if(sa.getBytes().length>85){
-                finaStr = sa.substring(0,25) + title.substring(0,20);
-                if(finaStr.getBytes().length!=85){
-                    for(int j = 0; j< 85-finaStr.getBytes().length; j++){
+            if (sa.getBytes().length > 85) {
+                finaStr = sa.substring(0, 25) + title.substring(0, 20);
+                if (finaStr.getBytes().length != 85) {
+                    for (int j = 0; j < 85 - finaStr.getBytes().length; j++) {
                         finaStr += " ";
                     }
                 }
-            }else{
+            } else {
                 finaStr = sa;
-                for(int j = 0; j< 85-sa.getBytes().length; j++){
+                for (int j = 0; j < 85 - sa.getBytes().length; j++) {
                     finaStr += " ";
                 }
             }
 
 
-            LibraryBSDPrinterInterface.INSTANCE.PTK_DrawBar2D_QR(470,0,0,8,1,5,0,0,0,finaStr);
+            LibraryBSDPrinterInterface.INSTANCE.PTK_DrawBar2D_QR(470, 0, 0, 8, 1, 5, 0, 0, 0, finaStr);
 
-            LibraryBSDPrinterInterface.INSTANCE.PTK_WriteRFID(2,1,16,0,rfid+"0000");
+            LibraryBSDPrinterInterface.INSTANCE.PTK_WriteRFID(2, 1, 16, 0, rfid + "0000");
             LibraryBSDPrinterInterface.INSTANCE.PTK_PrintLabel(1, 1);
         }
         return success();
@@ -428,22 +427,23 @@ public class BankReceiveFilesController extends BaseController {
         AjaxResult ajaxResult = new AjaxResult();
         String sa = rfid + ";" + flowId + ";" + title;
         String finaStr = "";
-        if(sa.getBytes().length>85){
-            finaStr = sa.substring(0,25) + title.substring(0,20);
-            if(finaStr.getBytes().length!=85){
-                for(int j = 0; j< 85-finaStr.getBytes().length; j++){
+        if (sa.getBytes().length > 85) {
+            finaStr = sa.substring(0, 25) + title.substring(0, 20);
+            if (finaStr.getBytes().length != 85) {
+                for (int j = 0; j < 85 - finaStr.getBytes().length; j++) {
                     finaStr += " ";
                 }
             }
-        }else{
+        } else {
             finaStr = sa;
-            for(int j = 0; j< 85-sa.getBytes().length; j++){
+            for (int j = 0; j < 85 - sa.getBytes().length; j++) {
                 finaStr += " ";
             }
         }
 
         byte[] bytes = finaStr.getBytes();
 
-        return success().put("finaStr",new String(bytes,"GBK"));
+        return success().put("finaStr", new String(bytes, "GBK"));
     }
+
 }

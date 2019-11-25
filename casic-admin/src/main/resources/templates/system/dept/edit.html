@@ -60,15 +60,6 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-sm-3 control-label">责任主体：</label>
-			<div class="col-sm-8">
-				<div class="radio-box" th:each="dict : ${@dict.getType('sys_dept_flag')}">
-					<input type="radio" th:id="${dict.dictCode}" name="headDeptFalg" th:value="${dict.dictValue}" th:field="*{headDeptFalg}">
-					<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
-				</div>
-			</div>
-		</div>
-		<div class="form-group">
 			<label class="col-sm-3 control-label">备注：</label>
 			<div class="col-sm-8">
 				<textarea class="form-control" name="remark" id="remark" th:field="*{remark}"></textarea>

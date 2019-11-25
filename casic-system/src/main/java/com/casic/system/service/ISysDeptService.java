@@ -108,26 +108,9 @@ public interface ISysDeptService {
      */
     public SysDept selectDeptByCode(String deptCode);
 
-    /**
-     * 获取部门所属责任主体下所有部门编码
-     */
-    public String getDutyBelongChildren(String deptId);
-
-    /**
-     * 获取部门所属责任主体下所有部门id
-     */
-    public String getDutyBelongChildrenId(String deptId);
-
     String getChildrenIds(String deptId);
 
     List<SysDept> selectChildDept(String deptId);
-
-    /**
-     * 获取部门所属责任主体
-     *
-     * @return
-     */
-    public SysDept getDutyBelongDept(String deptId);
 
     /**
      * 查询部门树列表

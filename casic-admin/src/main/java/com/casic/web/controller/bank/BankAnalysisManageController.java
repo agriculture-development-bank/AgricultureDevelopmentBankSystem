@@ -139,7 +139,7 @@ public class BankAnalysisManageController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:analysisManage:add")
-    @Log(title = "新增清退计划", businessType = BusinessType.INSERT)
+    @Log(title = "文件清退管理", businessType = BusinessType.INSERT)
     @PostMapping(value = "/add")
     @ResponseBody
     public AjaxResult add(String bankAnalysisVOs) {
@@ -155,7 +155,7 @@ public class BankAnalysisManageController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:analysisManage:edit")
-    @Log(title = "编辑清退计划", businessType = BusinessType.UPDATE)
+    @Log(title = "文件清退管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/edit")
     @ResponseBody
     public AjaxResult edit(String bankAnalysisVOs, String planId) {
@@ -170,7 +170,7 @@ public class BankAnalysisManageController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:analysisManage:remove")
-    @Log(title = "批量删除清退任务", businessType = BusinessType.DELETE)
+    @Log(title = "文件清退管理", businessType = BusinessType.DELETE)
     @PostMapping(value = "/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
@@ -185,7 +185,7 @@ public class BankAnalysisManageController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:analysisManage:analysis")
-    @Log(title = "清退文件", businessType = BusinessType.UPDATE)
+    @Log(title = "文件清退管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/analysis")
     @ResponseBody
     public AjaxResult analysis(String ids, String planId) {
@@ -200,7 +200,7 @@ public class BankAnalysisManageController extends BaseController {
      * @return
      */
     @RequiresPermissions("bank:analysisManage:cancelAnalysis")
-    @Log(title = "取消清退文件", businessType = BusinessType.UPDATE)
+    @Log(title = "文件清退管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/cancelAnalysis")
     @ResponseBody
     public AjaxResult cancelAnalysis(String ids, String planId) {

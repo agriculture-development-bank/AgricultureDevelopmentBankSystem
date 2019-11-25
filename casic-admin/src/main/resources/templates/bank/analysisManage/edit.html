@@ -451,7 +451,12 @@
                 },
                 success: function(result) {
                     if (result.code == 0) {
-                        layer.msg("保存成功,正在刷新数据请稍后……", {
+                        $.modal.msgReload("保存成功,正在刷新数据请稍后……","success");
+                        refreshMenuItem(prefix);
+                        var dataUrl = prefix + '/edit/' + planId;
+                        $.modal.closeTab(dataUrl);
+
+                        /*layer.msg("保存成功,正在刷新数据请稍后……", {
                                 icon: $.modal.icon("success"),
                                 time: 500,
                                 shade: [0.1, '#8F8F8F']
@@ -461,7 +466,7 @@
                                 refreshMenuItem(prefix);
                                 var dataUrl = prefix + '/edit/' + planId;
                                 $.modal.closeTab(dataUrl);
-                            });
+                            });*/
                     } else {
                         $.modal.alertError(result.msg);
                     }

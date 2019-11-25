@@ -28,16 +28,25 @@ $(function() {
 	}
 	// laydate 时间控件绑定
 	if ($(".select-time").length > 0) {
+        var now = new Date();
 		layui.use('laydate', function() {
 		    var laydate = layui.laydate;
 		    var startDate = laydate.render({
 		        elem: '#startTime',
-		        max: $('#endTime').val(),
+		        max: now.toLocaleString(),
 		        theme: 'molv',
 		        trigger: 'click',
 		        done: function(value, date) {
+                    setTimes = value;
+                    startTime.config.max = {
+                        year:date.year,
+                        month:date.month-1,
+                        date: date.date,
+                        hours:this.dateTime.hours,
+                        minutes:this.dateTime.minutes
+                    };
 		            // 结束时间大于开始时间
-		            if (value !== '') {
+		            /*if (value !== '') {
 		                endDate.config.min.year = date.year;
 		                endDate.config.min.month = date.month - 1;
 		                endDate.config.min.date = date.date;
@@ -45,7 +54,7 @@ $(function() {
 		                endDate.config.min.year = '';
 		                endDate.config.min.month = '';
 		                endDate.config.min.date = '';
-		            }
+		            }*/
 		        }
 		    });
 		    var endDate = laydate.render({
@@ -55,7 +64,15 @@ $(function() {
 		        trigger: 'click',
 		        done: function(value, date) {
 		            // 开始时间小于结束时间
-		            if (value !== '') {
+                    setTimes = value;
+                    startTime.config.max = {
+                        year:date.year,
+                        month:date.month-1,
+                        date: date.date,
+                        hours:this.dateTime.hours,
+                        minutes:this.dateTime.minutes
+                    };
+		            /*if (value !== '') {
 		                startDate.config.max.year = date.year;
 		                startDate.config.max.month = date.month - 1;
 		                startDate.config.max.date = date.date;
@@ -63,7 +80,7 @@ $(function() {
 		                startDate.config.max.year = '';
 		                startDate.config.max.month = '';
 		                startDate.config.max.date = '';
-		            }
+		            }*/
 		        }
 		    });
 		});
