@@ -10,7 +10,9 @@ import com.casic.common.utils.DateUtils;
 import com.casic.common.utils.StringUtils;
 import com.casic.common.utils.UuidUtils;
 import com.casic.framework.util.ShiroUtils;
+import com.casic.system.domain.SysUser;
 import com.casic.system.mapper.SysDeptMapper;
+import com.casic.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,19 +42,23 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
 
     private InCapMapper inCapMapper;
 
+    private SysUserMapper sysUserMapper;
+
     @Autowired
     public BankReceiveFilesServiceImpl(BankReceiveFilesMapper bankReceiveFilesMapper,
                                        BankReceiveFilesDetailMapper bankReceiveFilesDetailMapper,
                                        SysDeptMapper sysDeptMapper,
                                        BankFileSignOpinionMapper bankFileSignOpinionMapper,
                                        BankRecordMapper bankRecordMapper,
-                                       InCapMapper inCapMapper) {
+                                       InCapMapper inCapMapper,
+                                       SysUserMapper sysUserMapper) {
         this.bankReceiveFilesMapper = bankReceiveFilesMapper;
         this.bankReceiveFilesDetailMapper = bankReceiveFilesDetailMapper;
         this.sysDeptMapper = sysDeptMapper;
         this.bankFileSignOpinionMapper = bankFileSignOpinionMapper;
         this.bankRecordMapper = bankRecordMapper;
         this.inCapMapper = inCapMapper;
+        this.sysUserMapper = sysUserMapper;
     }
 
     /**
@@ -318,6 +324,7 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
             String userId = jsonObject.get("user_id") == null ? "" : jsonObject.get("user_id").toString();
             String dept = jsonObject.get("dept") == null ? "" : jsonObject.get("dept").toString();
             String position = jsonObject.get("position") == null ? "" : jsonObject.get("position").toString();
+            String advance_time = jsonObject.get("advance_time") == null ? "" : jsonObject.get("advance_time").toString();
             BankReceiveFilesDetail bankReceiveFilesDetail =
                     bankReceiveFilesDetailMapper.selectBankReceiveFileDetailRfidNum(rfid_number);
             if (bankReceiveFilesDetail != null && StringUtils.isNotEmpty(bankReceiveFilesDetail.getFileId())) {
@@ -330,6 +337,7 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
                 bankFileSignOpinion.setCreateBy(bankReceiveFilesDetail.getCreateBy());
                 bankFileSignOpinion.setCreateTime(new Date());
                 bankFileSignOpinion.setOpinion(advance_result);
+                bankFileSignOpinion.setOpinionTime(DateUtils.dateTime("yyyy-MM-dd HH:mm:ss",advance_time));
                 bankFileSignOpinion.setOpinionType("1");
                 bankFileSignOpinion.setId(UuidUtils.getUUIDString());
                 bankFileSignOpinionMapper.insertBankFileSignOpinion(bankFileSignOpinion);
@@ -398,9 +406,10 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
                 bankRecord.setOperateTime(DateUtils.dateTime("yyyy-MM-dd hh:mm:ss", time));
                 bankRecord.setReceiveDept(deptName);
                 if (bankReceiveFiles != null && StringUtils.isNotEmpty(bankReceiveFiles.getDeptId())) {
-                    bankRecord.setBelongDept(bankReceiveFiles.getDeptId());
+                    bankRecord.setBelongDept(bankReceiveFiles.getDeptName());
                 }
-                bankRecord.setUserId(userId);
+                SysUser user = sysUserMapper.selectUserById(userId);
+                bankRecord.setUserId(user.getUserName());
                 bankRecord.setId(UuidUtils.getUUIDString());
                 bankRecord.setCreateTime(DateUtils.getNowDate());
                 bankRecord.setCreateBy(userId);
@@ -465,5 +474,11 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
     public boolean checkDeptExistFile(String deptId) {
         int result = bankReceiveFilesMapper.checkDeptExistFile(deptId);
         return result > 0 ? true : false;
+    }
+
+    @Override
+    public String getMaxRegistrationNum() {
+        String result = bankReceiveFilesMapper.getMaxRegistrationNum();
+        return result;
     }
 }

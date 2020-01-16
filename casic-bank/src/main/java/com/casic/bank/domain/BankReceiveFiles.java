@@ -115,4 +115,9 @@ public class BankReceiveFiles extends BaseEntity {
      * 单元门id
      */
     private String capBoardId;
+
+    /**
+     * 离柜天数
+     */
+    private String leaveCupboardDay;
 }

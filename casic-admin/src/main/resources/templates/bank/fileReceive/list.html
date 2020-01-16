@@ -42,10 +42,10 @@
                         <li>
                             <label style="width: 80px;text-align: right;">文件密级：</label>
                             <select name="secretLevel" th:with="type=${@dict.getType('secrecy_level')}">
-                            <option value="">所有</option>
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                    th:value="${dict.dictValue}"></option>
-                        </select>
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
                         </li>
                         <li>
                             <label style="width: 80px;text-align: right;">文件状态：</label>
@@ -176,6 +176,11 @@
                     align: 'center'
                 },
                 {
+                    field: ' ',
+                    title: '离柜天数',
+                    align: 'center'
+                },
+                {
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row, index) {
@@ -239,123 +244,113 @@
         var printDiv = "";
         printDiv = $('<div id="printDiv" ></div>');
         $.modal.loading("正在加载，请稍后...");
-            $.ajax({
-                url : ctx + "bank/receive/print",
-                type : 'post',
-                data: {
-                    "id":id
-                },
-                dataType: 'html',
-                success: function (htmlResult) {
-                    $.modal.closeLoading();
-                    printDiv.append(htmlResult);
-                    printDiv.jqprint();
-                }
-            })
+        $.ajax({
+            url : ctx + "bank/receive/print",
+            type : 'post',
+            data: {
+                "id":id
+            },
+            dataType: 'html',
+            success: function (htmlResult) {
+                $.modal.closeLoading();
+                printDiv.append(htmlResult);
+                printDiv.jqprint();
+            }
+        })
     }
 
     function printQrcode() {
         var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
-       if(rows.length>0){
-        var ids = rows.join();
+        if(rows.length>0){
+            var ids = rows.join();
+            printFromURL(ids);
+        }else{
+            $.modal.alertWarning("请至少选择一条记录");
+        }
+    }
+    function printFromURL(ids) {
         $(".qr_code_box").remove();
         var qrCodeBox = $("<div class='qr_code_box'></div>");
         var rowData;
-            $.ajax({
-                url: prefix + "/selectByIds",
-                data: {
-                    ids: ids,
-                },
-                type: "post",
-                success: function (result) {
+        $.ajax({
+            url: prefix + "/selectByIds",
+            data: {
+                ids: ids,
+            },
+            type: "post",
+            success: function (result) {
+                rowData = result.data;
+                if (rowData != "undefined" && rowData != null && rowData.length > 0) {
+                    var imgDiv = "";
+                    imgDiv = $('<div id="imgDiv" ></div>');//TSC打印机用
+                    var printerDatas = [];
+                    for (var i = 0; i < rowData.length; i++) {
+                        qrCodeBox.append("<div class='qr_code'></div>");
+                        var rfid = rowData[i].rfid;
+                        var flowId = rowData[i].flowId;
+                        var title = rowData[i].title;
+                        var secretLevel  = rowData[i].secretLevel ;
+                        //文号
+                        var documentNum  = rowData[i].documentNum ;
+                        //紧急程度
+                        var urgency = rowData[i].urgency ;
+                        //成文日期
+                        var handleTime = rowData[i].handleTime ;
+                        //发文单位
+                        var communicationUnit = rowData[i].communicationUnit ;
 
-                    rowData = result.data;
-
-                    if (rowData != "undefined" && rowData != null && rowData.length > 0) {
-                         var imgDiv = "";
-                         imgDiv = $('<div id="imgDiv" ></div>');//TSC打印机用
-                         var printerDatas = [];
-                         for (var i = 0; i < rowData.length; i++) {
-
-                            qrCodeBox.append("<div class='qr_code'></div>");
-
-                            var rfid;
-                            if (rowData[i].rfid == null || rowData[i].rfid == "") {
-                                rfid = "rfid编号:无";
-                            } else {
-                                rfid = rowData[i].rfid;
+                        $.ajax({
+                            url: prefix + "/encodingToGBK",
+                            async:false,
+                            type: "post",
+                            data:{
+                                rfid:rfid,
+                                flowId:flowId,
+                                title:title,
+                                secretLevel: secretLevel,
+                                documentNum: documentNum,
+                                urgency: urgency,
+                                handleTime: handleTime,
+                                communicationUnit: communicationUnit
+                            },
+                            success: function (result) {
+                                var printerData = {
+                                    flowId: flowId,
+                                    rfid: rfid,
+                                    title: title,
+                                    secretLevel: secretLevel,
+                                    finaStr: result.finaStr
+                                };
+                                printerDatas.push(printerData);
+                                console.log(printerDatas);
                             }
-                            var flowId;
-                            if (rowData[i].flowId == null || rowData[i].flowId == "") {
-                                flowId = "文件编号:无";
-                            } else {
-                                flowId = rowData[i].flowId;
-                            }
-                            var title;
-                            if (rowData[i].title == null || rowData[i].title == "") {
-                                title = "文件标题:无";
-                            } else {
-                                title = rowData[i].title;
-                            }
-                            var secretLevel;
-                            if (rowData[i].secretLevel == null || rowData[i].secretLevel == "") {
-                                secretLevel = "密级:无";
-                            } else {
-                                secretLevel = rowData[i].secretLevel ;
-                            }
-                            $.ajax({
-                                url: prefix + "/encodingToGBK",
-                                async:false,
-                                type: "post",
-                                data:{
-                                    rfid:rfid,
-                                    flowId:flowId,
-                                    title:title
-                                },
-                                success: function (result) {
-                                    var printerData = {
-                                        flowId: flowId,
-                                        rfid: rfid,
-                                        title: title,
-                                        secretLevel: secretLevel,
-                                        finaStr: result.finaStr
-                                    };
-                                    printerDatas.push(printerData);
-                                    console.log(printerDatas);
-                                }
-                            })
-                         }
-                        console.log(printerDatas);
-                         if(sysVersion == 0){
-                             var data = {
-                                 barcodeList: printerDatas
-                             }
-                            $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:"+printPort);
-                         } else {
-                             var data = {
-                                 tagType:"1",
-                                 pid:"1",
-                                 requestList: printerDatas
-                             }
-                             $.ajax({
-                                 url:"http://127.0.0.1:"+printPort,
-                                 data: JSON.stringify(data),
-                                 type:"post",
-                                 success:function(result){
-
-                                 }
-                             })
-                         }
+                        })
                     }
+                    console.log(printerDatas);
+                    if(sysVersion == 0){
+                        var data = {
+                            barcodeList: printerDatas
+                        }
+                        $("#rfidFrame")[0].contentWindow.postMessage(JSON.stringify(data), "http://127.0.0.1:"+printPort);
+                    } else {
+                        var data = {
+                            tagType:"1",
+                            pid:"1",
+                            requestList: printerDatas
+                        }
+                        $.ajax({
+                            url:"http://127.0.0.1:"+printPort,
+                            data: JSON.stringify(data),
+                            type:"post",
+                            success:function(result){
 
+                            }
+                        })
+                    }
                 }
-
-            });
-    }else{
-           $.modal.alertWarning("请至少选择一条记录");
-       }
+            }
+        });
     }
-
 
 
 </script>

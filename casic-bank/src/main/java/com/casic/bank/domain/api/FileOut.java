@@ -22,6 +22,6 @@ public class FileOut {
     /** 取件人 */
     private String takeoutuser;
     /** 取件时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT + 08:00")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date takeouttime;
 }

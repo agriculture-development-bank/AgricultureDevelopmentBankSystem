@@ -8,6 +8,7 @@
         <result property="registrationNum" column="registration_num"/>
         <result property="opinionType" column="opinion_type"/>
         <result property="opinion" column="opinion"/>
+        <result property="opinionTime" column="opinion_time"/>
         <result property="leaderName" column="leader_name"/>
         <result property="leaderPost" column="leader_post"/>
         <result property="createBy" column="create_by"/>
@@ -19,7 +20,7 @@
 
     <!-- 基本SQL -->
     <sql id="BASE_COLUMN_LIST">
-        select id, file_id, registration_num, opinion, create_time, create_by, update_time, update_by, remark, leader_name, leader_post, opinion_type from BANK_FILE_SIGN_OPINION
+        select id, file_id, registration_num, opinion, create_time, create_by, update_time, update_by, remark, leader_name, leader_post, opinion_type, opinion_time from BANK_FILE_SIGN_OPINION
     </sql>
 
     <!-- 新增文件签署意见 -->
@@ -31,6 +32,7 @@
             <if test="registrationNum != null  and registrationNum != ''  ">registration_num,</if>
             <if test="opinionType != null  and opinionType != ''  ">opinion_type,</if>
             <if test="opinion != null and opinion != ''  ">opinion,</if>
+            <if test="opinionTime != null">opinion_time,</if>
             <if test="leaderName != null  and leaderName != ''  ">leader_name,</if>
             <if test="leaderPost != null  and leaderPost != ''  ">leader_post,</if>
             <if test="createBy != null  and createBy != ''  ">create_by,</if>
@@ -45,6 +47,7 @@
             <if test="registrationNum != null  and registrationNum != '' ">#{registrationNum},</if>
             <if test="opinionType != null and opinionType != ''  ">#{opinionType},</if>
             <if test="opinion != null and opinion != ''  ">#{opinion},</if>
+            <if test="opinionTime != null">#{opinionTime},</if>
             <if test="leaderName != null and leaderName != ''  ">#{leaderName},</if>
             <if test="leaderPost != null  and leaderPost != ''  ">#{leaderPost},</if>
             <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
@@ -64,6 +67,7 @@
                 <if test="item.registrationNum != null  and item.registrationNum != ''  ">registration_num = #{item.registrationNum},</if>
                 <if test="item.opinionType != null  and item.opinionType != ''  ">opinion_type = #{item.opinionType},</if>
                 <if test="item.opinion != null and item.opinion != ''  ">opinion = #{item.opinion},</if>
+                <if test="item.opinionTime != null">opinion_time = #{item.opinionTime},</if>
                 <if test="item.leaderName != null  and item.leaderName != ''  ">leader_name = #{item.leaderName},</if>
                 <if test="item.leaderPost != null  and item.leaderPost != ''  ">leader_post = #{item.leaderPost},</if>
                 <if test="item.updateBy != null  and item.updateBy != ''  ">update_by = #{item.updateBy},</if>

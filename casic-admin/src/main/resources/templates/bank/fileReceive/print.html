@@ -1,15 +1,18 @@
 <style>
+    /*.header,.footer{*/
+        /*display:none;*/
+    /*}*/
     .print_div .print_header{
         text-align: center;
-        font-size: 20px;
-        margin-top: 20px;
-        letter-spacing: 5px;
+        font-size: 30px;
+        /*margin-top: 10px;*/
+        /*letter-spacing: 2px;*/
         font-family: 宋体;
     }
     .print_div .print_body{
-        margin-top: 30px;
+        margin-top: 10px;
         font-family: 楷体;
-        font-size: 11px;
+        font-size: 15px;
     }
     .print_body .table_bar{
         line-height: 2;
@@ -17,8 +20,8 @@
     .print_body .table_bar span{
         display: inline-block;
         float: left;
-        font-family: 楷体;
-        font-size: 11px;
+        font-family: 宋体;
+        font-size: 18px;
     }
     .print_body table{
         width: 100%;
@@ -29,10 +32,17 @@
     .print_body table td,.print_body table th{
         border: #333 solid 1px;
         text-align: center;
-        line-height: 3;
+        line-height: 2;
         font-family: 楷体;
-        font-size: 11px;
+        font-size: 15px;
        /* width: 12.5%;*/
+    }
+
+    .print_body table .context{
+        text-align: left;
+        font-family: 楷体;
+        font-size: 17px;
+        /* width: 12.5%;*/
     }
     /*.print_body table td:nth-child(1),.print_body table th:nth-child(1){
         width: 12.5%;
@@ -41,32 +51,32 @@
         width: 12.5%;
     }*/
     .print_body table .total_tr td:nth-child(1){
-        font-size: 11px;
+        font-size: 15px;
         font-weight: bold;
         line-height: 1.1;
     }
-    .print_footer{
-        margin-top: 20px;
-    }
-    .print_footer .footer_col3{
-        float: left;
-        width: 33.33%;
-    }
-    .print_footer .footer_col3 .sign_block{
-        line-height: 4;
-    }
-    .print_footer .footer_col3 .sign_block span:nth-child(1){
-        width: 140px;
-        text-align: right;
-        display: inline-block;
-    }
-    .print_footer .footer_col3 .sign_block span:nth-child(2){
-        border-bottom: 1px solid #333;
-        width: 50%;
-        height: 13px;
-        display: inline-block;
-        vertical-align: middle;
-    }
+    /*.print_footer{*/
+        /*margin-top: 20px;*/
+    /*}*/
+    /*.print_footer .footer_col3{*/
+        /*float: left;*/
+        /*width: 33.33%;*/
+    /*}*/
+    /*.print_footer .footer_col3 .sign_block{*/
+        /*line-height: 4;*/
+    /*}*/
+    /*.print_footer .footer_col3 .sign_block span:nth-child(1){*/
+        /*width: 140px;*/
+        /*text-align: right;*/
+        /*display: inline-block;*/
+    /*}*/
+    /*.print_footer .footer_col3 .sign_block span:nth-child(2){*/
+        /*border-bottom: 1px solid #333;*/
+        /*width: 50%;*/
+        /*height: 13px;*/
+        /*display: inline-block;*/
+        /*vertical-align: middle;*/
+    /*}*/
 </style>
 
 <div class="print_div">
@@ -75,51 +85,51 @@
     </div>
     <div class="print_body">
         <div class="table_bar">
-            <span>收文时间：[[${#dates.format(createTime,'yyyy-MM-dd HH:mm')}]]</span>
+            <span>  收文时间：[[${#dates.format(createTime,'yyyy-MM-dd HH:mm')}]]</span>
         </div>
         <table>
             <thead>
                 <tr>
-                    <td>登记号</td>
-                    <td style=" width: 15%;text-align: left;padding-left: 5px;">[[${registrationNum}]]</td>
-                    <td>密级</td>
-                    <td style="text-align: left;padding-left: 5px;">[[${secretLevel}]]</td>
-                    <td style=" width: 15%;">紧急程度</td>
-                    <td style=" width: 8%;">[[${urgency}]]</td>
-                    <td style=" width: 12%;">份数</td>
-                    <td style=" width: 15%;">[[${numOfCopies}]]</td>
+                    <td style=" width: 14%;">登 记 号</td>
+                    <td style=" width: 16%;" class="context">[[${registrationNum}]]</td>
+                    <td style=" width: 14%;">密 级</td>
+                    <td style=" width: 12%;" class="context">[[${secretLevel}]]</td>
+                    <td style=" width: 10%;">紧急程度</td>
+                    <td style=" width: 10%;" class="context">[[${urgency}]]</td>
+                    <td style=" width: 12%;">份 数</td>
+                    <td style=" width: 12%;text-align: center;" class="context">[[${numOfCopies}]]</td>
                 </tr>
                 <tr>
-                    <td>文号</td>
-                    <td colspan="3">[[${documentNum}]]</td>
+                    <td>文    号</td>
+                    <td colspan="3" class="context">[[${documentNum}]]</td>
                     <td>成文日期</td>
-                    <td colspan="3"> [[${#dates.format(handleTime,'yyyy-MM-dd')}]]</td>
+                    <td colspan="3" class="context"> [[${#dates.format(handleTime,'yyyy-MM-dd')}]]</td>
                 </tr>
                 <tr>
-                    <td>标题</td>
-                    <td colspan="7">[[${title}]]</td>
+                    <td>标  题</td>
+                    <td colspan="7" class="context">[[${title}]]</td>
                 </tr>
                 <tr>
                     <td>发文单位</td>
-                    <td colspan="3">[[${communicationUnit}]]</td>
+                    <td colspan="3" class="context">[[${communicationUnit}]]</td>
                     <td>联合单位</td>
-                    <td colspan="3">[[${jointUnit}]]</td>
+                    <td colspan="3" class="context">[[${jointUnit}]]</td>
                 </tr>
                 <tr>
-                    <td>部门</td>
-                    <td colspan="3">[[${deptName}]]</td>
+                    <td>部  门</td>
+                    <td colspan="3" class="context">[[${deptName}]]</td>
                     <td>联系人</td>
-                    <td>[[${contact}]]</td>
+                    <td class="context">[[${contact}]]</td>
                     <td>联系电话</td>
-                    <td>[[${phone}]]</td>
+                    <td class="context">[[${phone}]]</td>
                 </tr>
-                <tr style="height: 250px">
-                    <td>行领导<br>批示意见</td>
+                <tr style="height: 200px">
+                    <td>行  领  导<br>批示意见</td>
                     <td colspan="7" th:utext="${leaderOpinion}" style="padding-left: 20px; text-indent:10px each-line;text-align: left;vertical-align: baseline;">
                     </td>
                 </tr>
                 <tr style="height: 100px">
-                    <td>办公室<br>主任意见</td>
+                    <td>办  公  室<br>主任意见</td>
                     <td colspan="7" style="padding-left: 20px; text-indent:10px each-line;text-align: left;vertical-align: baseline;">[[${classOpinion}]]</td>
                 </tr>
                 <tr style="height: 100px">

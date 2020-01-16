@@ -20,4 +20,8 @@ public interface BankRecordService {
     Integer deleteBankRecord(String ids);
 
     Integer insertBankRecord(BankRecord bankRecord);
+
+    String selectReceiveDeptForMaxTimeByFileID(String fileId);
+
+    List<String> getDeptName();
 }

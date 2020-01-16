@@ -50,4 +50,14 @@ public class BankRecordServiceImpl implements BankRecordService {
     public Integer insertBankRecord(BankRecord bankRecord) {
         return bankRecordMapper.insertBankRecord(bankRecord);
     }
+
+    @Override
+    public String selectReceiveDeptForMaxTimeByFileID(String fileId) {
+        return bankRecordMapper.selectReceiveDeptForMaxTimeByFileID(fileId);
+    }
+
+    @Override
+    public List<String> getDeptName() {
+        return bankRecordMapper.getDeptName();
+    }
 }

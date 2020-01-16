@@ -23,7 +23,7 @@ public class FileInfo {
     /** 投箱人 */
     private String putuser;
     /** 投箱时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT + 08:00")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date puttime;
     /** 目标部门 */
     private String targetdept;

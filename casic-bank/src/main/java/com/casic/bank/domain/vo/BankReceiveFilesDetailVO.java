@@ -65,4 +65,14 @@ public class BankReceiveFilesDetailVO extends BankReceiveFilesDetail {
     private String planId;
 
     private String editType;
+
+    /**
+     * 成文日期
+     */
+    private String handleTime;
+
+    /**
+     * 紧急程度
+     */
+    private String urgency;
 }

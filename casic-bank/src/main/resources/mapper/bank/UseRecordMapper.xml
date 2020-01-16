@@ -98,6 +98,7 @@ FROM
         left join SYS_DEPT
         on brf.dept_id = sys_dept.dept_id
         WHERE cap.id = #{id}
+        ORDER BY bat.flow_id
     </select>
 
 </mapper>

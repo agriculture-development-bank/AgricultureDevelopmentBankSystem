@@ -94,4 +94,13 @@ public interface BankReceiveFilesMapper {
      * @return
      */
     int checkDeptExistFile(String deptId);
+
+    /**
+     * 获取最大登记号
+     *
+     * @return
+     */
+    String getMaxRegistrationNum();
+
+
 }

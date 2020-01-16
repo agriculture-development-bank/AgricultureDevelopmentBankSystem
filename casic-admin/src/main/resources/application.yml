@@ -5,7 +5,7 @@ casic:
   # 版本
   version: 1.0.0
   #打印系统  0代表在windows系统部署 1 代表在linux系统部署
-  sysVersion: 0
+  sysVersion: 1
   #部署环境--本机打印系统端口（linux系统）
   printPort: 9000
 #开发环境--本机打印系统端口（windows系统）
@@ -13,13 +13,13 @@ casic:
   # 版权年份
   copyrightYear: 2018
   # 开发环境--文件上传路径
-  profile: D:/profile/
+#  profile: D:/profile/
 #部署环境--文件上传路径
-#  profile: \usr\local\bank\profile\
+  profile: \usr\local\bank\profile\
   # 开发环境--文件上传路径
-  downloadFilePath: D:/casic_bank/download/
+#  downloadFilePath: D:/casic_bank/download/
 #部署环境--文件上传路径
-#  downloadFilePath: \usr\local\bank\download\
+  downloadFilePath: \usr\local\bank\download\
   # 获取ip地址开关
   addressEnabled: true
   # 系统编码
@@ -27,9 +27,9 @@ casic:
   #idm base
   base:
 #开发环境--系统路径
-    path: http://localhost/
+#    path: http://localhost/
 #部署环境--系统路径
-#    path: http://localhost/ADBC_SMS
+    path: http://localhost/ADBC_SMS
 
 # 开发环境配置
 server:
@@ -37,7 +37,8 @@ server:
   port: 8081
   servlet:
     # 项目contextPath
-    context-path: /
+    #context-path: /
+    context-path: /ADBC_SMS
   tomcat:
     # tomcat的URI编码
     uri-encoding: UTF-8

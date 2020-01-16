@@ -127,7 +127,7 @@
         (
         SELECT
         a . id,a.registration_num, a.urgency, a.document_num, a.num_of_copies, a.communication_unit, a.joint_unit, a.title, a.secret_level, a.handle_time,  a.contact, a.dept_id,
-        a.phone, a.create_time, a.create_by, a.update_time, a.update_by, a.remark
+        a.phone, a.create_time, a.create_by, nvl(a.update_time, a.CREATE_TIME) AS update_time , a.update_by, a.remark
         FROM
         bank_receive_files AS a
         LEFT JOIN
@@ -175,6 +175,7 @@
         account_id
         ) d
         ON d . account_id = c . id
+        ORDER BY c.update_time DESC
     </select>
 
     <!-- 根据主键查询文件收文登记记录 -->
@@ -237,5 +238,18 @@
     <!-- 查询部门下的文件台账数量 -->
     <select id="checkDeptExistFile" parameterType="string" resultType="java.lang.Integer">
         select count(1) from BANK_RECEIVE_FILES where dept_id = #{deptId}
+    </select>
+
+    <!-- 获取最大登记号 -->
+    <select id="getMaxRegistrationNum" resultType="string">
+        SELECT
+            SUBSTRING(
+                MAX(REGISTRATION_NUM),
+                5
+            )+ 1
+        FROM
+            BANK_RECEIVE_FILES
+        ORDER BY
+            REGISTRATION_NUM DESC
     </select>
 </mapper>

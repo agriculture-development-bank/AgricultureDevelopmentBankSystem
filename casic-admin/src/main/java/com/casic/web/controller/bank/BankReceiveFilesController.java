@@ -2,6 +2,7 @@ package com.casic.web.controller.bank;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.casic.bank.domain.BankFileSignOpinion;
 import com.casic.bank.domain.BankReceiveFiles;
 import com.casic.bank.domain.ResultBean;
@@ -15,6 +16,7 @@ import com.casic.common.annotation.Log;
 import com.casic.common.base.AjaxResult;
 import com.casic.common.config.Global;
 import com.casic.common.enums.BusinessType;
+import com.casic.common.utils.DateUtils;
 import com.casic.common.utils.StringUtils;
 import com.casic.common.utils.UuidUtils;
 import com.casic.common.web.page.TableDataInfo;
@@ -95,6 +97,7 @@ public class BankReceiveFilesController extends BaseController {
     @RequiresPermissions("bank:receive:view")
     public String index(ModelMap modelMap) {
         modelMap.put("sysVersion", Global.getConfig("casic.sysVersion"));
+        modelMap.put("printPort", Global.getConfig("casic.printPort"));
         return PREFIX + "list";
     }
 
@@ -107,6 +110,9 @@ public class BankReceiveFilesController extends BaseController {
     @RequiresPermissions("bank:receive:addView")
     public String add(ModelMap modelMap) {
         unionSelect(modelMap);
+        String registrationNum = bankReceiveFilesService.getMaxRegistrationNum();
+        String year = DateUtils.getDate().substring(0,4);
+        modelMap.put("registrationNum", year+registrationNum);
         modelMap.put("sysVersion", Global.getConfig("casic.sysVersion"));
         modelMap.put("printPort", Global.getConfig("casic.printPort"));
         return PREFIX + "add";
@@ -286,18 +292,6 @@ public class BankReceiveFilesController extends BaseController {
         return toAjax(bankReceiveFilesService.confirmFileByIds(ids, ShiroUtils.getUserId()));
     }
 
-    /**
-     * 校验登记号是否唯一
-     *
-     * @param bankReceiveFiles 台账信息
-     * @return 结果
-     */
-    @PostMapping("/checkRegistrationNumUnique")
-    @ResponseBody
-    public String checkRegistrationNumUnique(BankReceiveFiles bankReceiveFiles) {
-        return bankReceiveFilesService.checkRegistrationNumUnique(bankReceiveFiles);
-    }
-
     @RequestMapping(value = "/print")
     public String print(String id, ModelMap modelMap) {
         BankReceiveFiles bankReceiveFiles =
@@ -323,18 +317,18 @@ public class BankReceiveFilesController extends BaseController {
         List<BankFileSignOpinion> bankFileSignOpinions = bankFileSignOpinionService.selectBankFileSignOpinionList(bankFileSignOpinion);
         String leaderOpinion = "";
         for (BankFileSignOpinion bankFileSignOpinion1 : bankFileSignOpinions) {
-            leaderOpinion += (bankFileSignOpinion1.getLeaderName() == null ? "" : bankFileSignOpinion1.getLeaderName()) + "批示：" + bankFileSignOpinion1.getOpinion() + "<br/>";
+            leaderOpinion += (bankFileSignOpinion1.getLeaderName() == null ? "" : bankFileSignOpinion1.getOpinion() + "&nbsp;&nbsp;&nbsp;&nbsp;" + bankFileSignOpinion1.getLeaderName()) + "&nbsp;&nbsp;" + DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss",bankFileSignOpinion1.getOpinionTime()) + "<br/>";
         }
         modelMap.put("leaderOpinion", leaderOpinion);
 
-        //办公室主任意见
+    //办公室主任意见
         bankFileSignOpinion.setOpinionType("2");
-        List<BankFileSignOpinion> bankFileSignOpinionClass = bankFileSignOpinionService.selectBankFileSignOpinionList(bankFileSignOpinion);
+    List<BankFileSignOpinion> bankFileSignOpinionClass = bankFileSignOpinionService.selectBankFileSignOpinionList(bankFileSignOpinion);
         if (bankFileSignOpinionClass != null && bankFileSignOpinionClass.size() > 0) {
-            modelMap.put("classOpinion", bankFileSignOpinionClass.get(0) != null ? bankFileSignOpinionClass.get(0).getOpinion() : "");
-        } else {
-            modelMap.put("classOpinion", "");
-        }
+        modelMap.put("classOpinion", bankFileSignOpinionClass.get(0) != null ? bankFileSignOpinionClass.get(0).getOpinion() : "");
+    } else {
+        modelMap.put("classOpinion", "");
+    }
 
         //承办部门意见
         bankFileSignOpinion.setOpinionType("3");
@@ -362,6 +356,36 @@ public class BankReceiveFilesController extends BaseController {
         AjaxResult ajaxResult = new AjaxResult();
         List<BankReceiveFilesDetailVO> bankReceiveFilesDetails = bankFileDetailService.selectBankFileDetailByFileIds(ids);
         ajaxResult.put("data", bankReceiveFilesDetails);
+        return ajaxResult;
+    }
+
+    @RequestMapping("/getMaxRegistrationNum")
+    @ResponseBody
+    public AjaxResult getMaxRegistrationNum(String ids) {
+        AjaxResult ajaxResult = new AjaxResult();
+        String registrationNum = bankReceiveFilesService.getMaxRegistrationNum();
+        String year = DateUtils.getDate().substring(0,4);
+        ajaxResult.put("registrationNum", year+registrationNum);
+        return ajaxResult;
+    }
+
+    /**
+     * 校验登记号是否唯一
+     *
+     * @param bankReceiveFiles 台账信息
+     * @return 结果
+     */
+    @RequestMapping("/checkRegistrationNumUnique")
+    @ResponseBody
+    public AjaxResult checkRegistrationNumUnique(BankReceiveFiles bankReceiveFiles) {
+        AjaxResult ajaxResult = new AjaxResult();
+        String flag = bankReceiveFilesService.checkRegistrationNumUnique(bankReceiveFiles);
+        ajaxResult.put("flag",flag);
+        if("1".equals(flag)){
+            String registrationNum = bankReceiveFilesService.getMaxRegistrationNum();
+            String year = DateUtils.getDate().substring(0,4);
+            ajaxResult.put("registrationNum",year+registrationNum);
+        }
         return ajaxResult;
     }
 
@@ -424,27 +448,37 @@ public class BankReceiveFilesController extends BaseController {
 
     @RequestMapping("/encodingToGBK")
     @ResponseBody
-    public AjaxResult encodingToGBK(String rfid, String flowId, String title) throws UnsupportedEncodingException {
+    public AjaxResult encodingToGBK(String rfid, String flowId, String title, String secretLevel, String documentNum, String urgency, String handleTime, String communicationUnit)
+            throws UnsupportedEncodingException {
         AjaxResult ajaxResult = new AjaxResult();
-        String sa = rfid + ";" + flowId + ";" + title;
-        String finaStr = "";
-        if (sa.getBytes().length > 85) {
-            finaStr = sa.substring(0, 25) + title.substring(0, 20);
-            if (finaStr.getBytes().length != 85) {
-                for (int j = 0; j < 85 - finaStr.getBytes().length; j++) {
-                    finaStr += " ";
-                }
-            }
-        } else {
-            finaStr = sa;
-            for (int j = 0; j < 85 - sa.getBytes().length; j++) {
-                finaStr += " ";
-            }
-        }
+        String sa = "GB"+ rfid + ";" + flowId + ";" + title;
+        StringBuilder finaStr = new StringBuilder();
+        finaStr.append("GB").append(rfid).append(";");
+        finaStr.append(flowId).append(";");
+        finaStr.append(title).append(" ; ");
+        finaStr.append(secretLevel).append(" ; ");
+        finaStr.append(documentNum).append(" ; ");
+        finaStr.append(urgency).append(" ; ");
+        finaStr.append(handleTime).append(" ; ");
+        finaStr.append(communicationUnit).append(" ; ");
+//        if (sa.getBytes().length > 85) {
+//            finaStr = sa.substring(0, 25) + title.substring(0, 20);
+//            if (finaStr.getBytes().length != 85) {
+//                for (int j = 0; j < 85 - finaStr.getBytes().length; j++) {
+//                    finaStr += " ";
+//                }
+//            }
+//        } else {
+//            finaStr = sa;
+//            for (int j = 0; j < 85 - sa.getBytes().length; j++) {
+//                finaStr += " ";
+//            }
+//        }
 
-        byte[] bytes = finaStr.getBytes();
+//        byte[] bytes = finaStr.toString().getBytes();
+//        return success().put("finaStr", new String(bytes, "GBK"));
 
-        return success().put("finaStr", new String(bytes, "GBK"));
+        return success().put("finaStr", finaStr);
     }
 
 }

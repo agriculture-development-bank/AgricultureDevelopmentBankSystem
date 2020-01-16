@@ -18,6 +18,10 @@
         <result property="remark" column="remark"/>
         <result property="title" column="title" />
         <result property="secretLevel" column="dict_label" />
+        <result property="documentNum" column="document_num" />
+        <result property="urgency" column="urgency_name" />
+        <result property="handleTime" column="handle_time" />
+        <result property="communicationUnit" column="communication_unit" />
     </resultMap>
 
     <!-- 基本SQL -->
@@ -176,9 +180,18 @@
     </select>
 
     <select id="selectBankReceiveFileDetailVOByFileIds" parameterType="java.lang.String" resultMap="BankReceiveFilesDetailResult">
-        SELECT a.*,b.title,c.dict_label FROM bank_receive_files_detail a
+        SELECT
+        a.*,
+        b.title,
+        c.dict_label,
+        b.document_num,
+        b.handle_time,
+        b.communication_unit,
+        d.dict_label as urgency_name
+        FROM bank_receive_files_detail a
         LEFT JOIN bank_receive_files b ON a.file_id = b.id
         LEFT JOIN sys_dict_data c ON b.secret_level = c.dict_value
+        LEFT JOIN sys_dict_data d ON b.urgency = d.dict_value
         WHERE a.file_id IN
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

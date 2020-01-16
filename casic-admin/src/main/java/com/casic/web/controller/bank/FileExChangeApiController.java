@@ -8,9 +8,11 @@ import com.casic.bank.domain.api.FileInfo;
 import com.casic.bank.domain.api.FileOut;
 import com.casic.bank.service.BankFileDetailService;
 import com.casic.bank.service.BankRecordService;
+import com.casic.common.utils.DateUtils;
 import com.casic.common.utils.StringUtils;
 import com.casic.common.utils.UuidUtils;
 import com.casic.framework.web.base.BaseController;
+import com.casic.system.service.ISysDictDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,18 +61,25 @@ public class FileExChangeApiController extends BaseController {
     @ApiOperation(value = "文件投箱返回信息")
     public Map<String, Object> putFile(@RequestBody FileInfo fileInfo) {
         Map<String, Object> map = new HashMap<>(5);
+        fileInfo.setPuttime(new Date(fileInfo.getPuttime().getTime() - (8 * 60 * 60 * 1000)));
         try {
+            List<String> deptNameList= bankRecordService.getDeptName();
+            String jiyao_deptName = "机要室";
+            if(deptNameList != null && deptNameList.size()>0){
+                jiyao_deptName = deptNameList.get(0);
+            }
+
             if (fileInfo != null && StringUtils.isNotEmpty(fileInfo.getFilecode())) {
                 BankReceiveFilesDetail filesDetail = bankFileDetailService.selectBankFileDetailByRfid(fileInfo.getFilecode());
                 if (filesDetail != null && StringUtils.isNotEmpty(filesDetail.getId())) {
                     //1、根据RFID编号更新文件状态
                     BankReceiveFilesDetail detail = new BankReceiveFilesDetail();
                     detail.setRfid(fileInfo.getFilecode());
-                    if (StringUtils.isNotEmpty(fileInfo.getPutdept())) {
-                        if ("机要室".equals(fileInfo.getPutdept().trim())) {
-                            detail.setStatus("2");
+                    if (StringUtils.isNotEmpty(fileInfo.getTargetdept())) {
+                        if (jiyao_deptName.equalsIgnoreCase(fileInfo.getTargetdept().trim())) {
+                            detail.setStatus("4");//已归还
                         } else {
-                            detail.setStatus("4");
+                            detail.setStatus("2");//已投递
                         }
                     }
                     detail.setUpdateTime(fileInfo.getPuttime() != null ? fileInfo.getPuttime() : new Date());
@@ -78,15 +87,22 @@ public class FileExChangeApiController extends BaseController {
                     //2、保存文件投箱记录
                     BankRecord bankRecord = new BankRecord();
                     bankRecord.setId(UuidUtils.getUUIDString());
-                    bankRecord.setUserId(StringUtils.isNotEmpty(fileInfo.getPutuser()) ? fileInfo.getPutuser() : "");
-                    bankRecord.setBelongDept(StringUtils.isNotEmpty(fileInfo.getPutdept()) ? fileInfo.getPutdept() : "");
-                    bankRecord.setReceiveDept(StringUtils.isNotEmpty(fileInfo.getTargetdept()) ? fileInfo.getTargetdept() : "");
+                    bankRecord.setUserId("");
+//                    bankRecord.setUserId(StringUtils.isNotEmpty(fileInfo.getPutuser()) ? fileInfo.getPutuser() : "");
+
                     bankRecord.setOperateTime(fileInfo.getPuttime() != null ? fileInfo.getPuttime() : new Date());
-                    if (StringUtils.isNotEmpty(fileInfo.getPutdept())) {
-                        if ("机要室".equals(fileInfo.getPutdept().trim())) {
-                            bankRecord.setOperateResult("2");
+                    if (StringUtils.isNotEmpty(fileInfo.getTargetdept())) {
+                        if (jiyao_deptName.equalsIgnoreCase(fileInfo.getTargetdept().trim())) {
+                            System.out.println("fileInfo = " + jiyao_deptName.equals(fileInfo.getTargetdept().trim()));
+                            bankRecord.setOperateResult("4");//已归还
+                            String deptName=bankRecordService.selectReceiveDeptForMaxTimeByFileID(filesDetail.getId());
+                            //bankRecord.setBelongDept(deptName);
+                            bankRecord.setReceiveDept(StringUtils.isNotEmpty(fileInfo.getTargetdept()) ? fileInfo.getTargetdept() : "");
                         } else {
-                            bankRecord.setOperateResult("4");
+                            System.out.println("fileInfo = " + jiyao_deptName.equals(fileInfo.getTargetdept().trim()));
+                            bankRecord.setOperateResult("2");//已投递
+                            //bankRecord.setBelongDept(jiyao_deptName);
+                            bankRecord.setReceiveDept(StringUtils.isNotEmpty(fileInfo.getTargetdept()) ? fileInfo.getTargetdept() : "");
                         }
                     }
                     bankRecord.setFileId(filesDetail.getId());
@@ -120,7 +136,14 @@ public class FileExChangeApiController extends BaseController {
     @ApiOperation(value = "文件取件返回信息")
     public Map<String, Object> getFile(@RequestBody FileOut fileOut) {
         Map<String, Object> map = new HashMap<>(5);
+        fileOut.setTakeouttime(new Date(fileOut.getTakeouttime().getTime() - (8 * 60 * 60 * 1000)));
         try {
+            List<String> deptNameList= bankRecordService.getDeptName();
+            String jiyao_deptName = "机要室";
+            if(deptNameList != null && deptNameList.size()>0){
+                jiyao_deptName = deptNameList.get(0);
+            }
+
             if (fileOut != null && StringUtils.isNotEmpty(fileOut.getFilecode())) {
                 BankReceiveFilesDetail filesDetail = bankFileDetailService.selectBankFileDetailByRfid(fileOut.getFilecode());
                 if (filesDetail != null && StringUtils.isNotEmpty(filesDetail.getId())) {
@@ -128,7 +151,7 @@ public class FileExChangeApiController extends BaseController {
                     BankReceiveFilesDetail detail = new BankReceiveFilesDetail();
                     detail.setRfid(fileOut.getFilecode());
                     if (StringUtils.isNotEmpty(fileOut.getTakeoutdept())) {
-                        if ("机要室".equals(fileOut.getTakeoutdept().trim())) {
+                        if (jiyao_deptName.equals(fileOut.getTakeoutdept().trim())) {
                             detail.setStatus("5");
                         } else {
                             detail.setStatus("3");
@@ -140,9 +163,10 @@ public class FileExChangeApiController extends BaseController {
                     bankRecord.setId(UuidUtils.getUUIDString());
                     bankRecord.setUserId(StringUtils.isNotEmpty(fileOut.getTakeoutuser()) ? fileOut.getTakeoutuser() : "");
                     bankRecord.setBelongDept(StringUtils.isNotEmpty(fileOut.getTakeoutdept()) ? fileOut.getTakeoutdept() : "");
+                    bankRecord.setReceiveDept(StringUtils.isNotEmpty(fileOut.getTakeoutdept()) ? fileOut.getTakeoutdept() : "");
                     bankRecord.setOperateTime(fileOut.getTakeouttime() != null ? fileOut.getTakeouttime() : new Date());
                     if (StringUtils.isNotEmpty(fileOut.getTakeoutdept())) {
-                        if ("机要室".equals(fileOut.getTakeoutdept().trim())) {
+                        if (jiyao_deptName.equals(fileOut.getTakeoutdept().trim())) {
                             bankRecord.setOperateResult("5");
                         } else {
                             bankRecord.setOperateResult("3");

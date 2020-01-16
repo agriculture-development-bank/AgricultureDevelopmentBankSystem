@@ -126,6 +126,7 @@
         <if test="userName != null and userName != ''">
             and a.user_id like concat('%', #{userName}, '%')
         </if>
+        ORDER BY a.OPERATE_TIME DESC
     </select>
 
     <select id="selectCountRecordByDept" resultType="java.util.Map">
@@ -166,4 +167,24 @@
         ) b
         ON b . receive_dept = a . dept_name
     </select>
+    <select id="selectReceiveDeptForMaxTimeByFileID" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            RECEIVE_DEPT
+        FROM
+            BANK_RECORD
+        WHERE
+            FILE_ID = #{fileId}
+            AND OPERATE_TIME =(
+                SELECT
+                    MAX( OPERATE_TIME )
+                FROM
+                    BANK_RECORD
+                WHERE
+                    FILE_ID = #{fileId}
+            )
+    </select>
+    <select id="getDeptName" resultType="java.lang.String">
+        SELECT DICT_VALUE FROM SYS_DICT_DATA WHERE DICT_TYPE='jiyao_name';
+    </select>
+
 </mapper>

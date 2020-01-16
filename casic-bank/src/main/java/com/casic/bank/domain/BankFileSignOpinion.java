@@ -1,9 +1,12 @@
 package com.casic.bank.domain;
 
 import com.casic.common.base.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
 
 /**
  * 文件签署意见子表
@@ -37,6 +40,12 @@ public class BankFileSignOpinion extends BaseEntity {
      * 意见及结果
      */
     private String opinion;
+
+    /**
+     * 意见及结果
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date opinionTime;
     /**
      * 领导姓名
      */

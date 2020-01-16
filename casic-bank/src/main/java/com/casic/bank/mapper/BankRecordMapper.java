@@ -45,4 +45,19 @@ public interface BankRecordMapper {
      * @return
      */
     int updateBankRecord(BankRecord bankRecord);
+
+    /**
+     * 根据文件id查询上一条操作记录的接收部门
+     *
+     * @param fileId 文件id
+     * @return
+     */
+    String selectReceiveDeptForMaxTimeByFileID(String fileId);
+
+    /**
+     * 获取机要室部门名称
+     *
+     * @return
+     */
+    List<String> getDeptName();
 }

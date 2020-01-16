@@ -119,11 +119,11 @@
                     visible:false
                 },
                 {
-                    field: 'documentNum',
+                    field: 'registrationNum',
                     title: '登记号'
                 },
                 {
-                    field: 'registrationNum',
+                    field: 'documentNum',
                     title: '文号'
                 },
                 {
@@ -146,10 +146,10 @@
                     field: 'jointUnit',
                     title: '联合单位'
                 },
-                {
-                    field: 'numOfCopies',
-                    title: '份数'
-                },
+                // {
+                //     field: 'numOfCopies',
+                //     title: '份数'
+                // },
                 {
                     field: 'contact',
                     title: '联系人'
@@ -161,17 +161,18 @@
                 {
                     field: 'phone',
                     title: '电话'
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        actions.push('<a class="btn btn-rounded btn-xs " href="#" id="detail" onclick="detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;详情</a> ');
-
-                        return actions.join('');
-                    }
-                }]
+                }
+                // ,{
+                //     title: '操作',
+                //     align: 'center',
+                //     formatter: function (value, row, index) {
+                //         var actions = [];
+                //         actions.push('<a class="btn btn-rounded btn-xs " href="#" id="detail" onclick="detail(\'' + row.id + '\')"><i class="fa fa-ioxhost"></i>&nbsp;详情</a> ');
+                //
+                //         return actions.join('');
+                //     }
+                // }
+                ]
         };
         $.table.init(options);
 
