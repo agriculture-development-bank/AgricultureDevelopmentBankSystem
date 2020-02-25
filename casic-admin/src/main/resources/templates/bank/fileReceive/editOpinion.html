@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-opinion-edit" role="form" th:object="${bankFileSignOpinion}">
+        <input type="hidden" id="id" name="id" class="form-control" th:value="*{id}">
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">批注时间：</label>
+            <div class="col-sm-8">
+                <input id="opinionTime" name="opinionTime" class="form-control opinionTime" type="text" autocomplete="off" th:field="*{opinionTime}" >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">批注人：</label>
+            <div class="col-sm-8">
+                <input id="leaderName" name="leaderName" class="form-control" type="text" th:field="*{leaderName}">
+                <!--   二期   -->
+                <!--<input id="leaderUserName" name="leaderUserName" class="form-control" type="text" th:field="*{leaderUserName}">-->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">意见及情况：</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" id="opinion" name="opinion" rows="7" type="text"
+                          placeholder="" autocomplete="off" th:field="*{opinion}"></textarea>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:inline="javascript">
+    var prefix = ctx + "bank/sign";
+    var opinionTimeSel = "";
+    var leaderNameSel = "";
+    var leaderUserNameSel = "";
+    var opinionSel = "";
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        lay('.opinionTime').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
+            });
+        });
+    });
+
+    $("#form-opinion-edit").validate({
+        rules: {
+            leaderName: {
+                required: true,
+            },
+            opinionTime: {
+                required: true,
+            },
+            opinion: {
+                required: true,
+            }
+        },
+        messages: {
+            // "leaderName": {
+            //     remote: "批注人不能为空"
+            // },
+            // "opinionTime": {
+            //     remote: "批注时间不能为空"
+            // },
+            // "opinion": {
+            //     remote: "意见及情况不能为空"
+            // }
+        },
+    });
+
+    //  一期
+    function submitHandler() {
+        if ($.validate.form()) {
+            var data = $('#form-opinion-edit').serialize();
+            console.info("data : " + data);
+            $.operate.save(prefix + "/edit", $('#form-opinion-edit').serialize());
+        }
+    }
+
+
+/*
+    // 二期
+    function submitHandler() {
+        if ($.validate.form()) {
+            opinionTimeSel = $("#opinionTime").val();
+            leaderNameSel = $("#leaderName").val();
+            leaderUserNameSel = $("#leaderUserName").val();
+            opinionSel = $("#opinion").val();
+            return true;
+        }
+    }
+    */
+</script>
+</body>
+</html>
