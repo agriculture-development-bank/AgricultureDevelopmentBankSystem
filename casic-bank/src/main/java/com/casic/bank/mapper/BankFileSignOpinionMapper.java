@@ -1,6 +1,7 @@
 package com.casic.bank.mapper;
 
 import com.casic.bank.domain.BankFileSignOpinion;
+import com.casic.bank.domain.vo.BankFileSignOpinionVO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,12 +21,21 @@ public interface BankFileSignOpinionMapper {
     List<BankFileSignOpinion> selectBankFileSignOpinionByFileDetailId(String fileId);
 
     /**
+     * 根据台账流水号查询行领导审批意见
+     *
+     * @param registrationNum 台账流水号
+     * @return BankFileSignOpinion对象
+     */
+    List<BankFileSignOpinion> selectBankFileSignOpinionByRegistrationum(String registrationNum);
+
+
+    /**
      * 根据主键查询行领导文件签署意见
      *
      * @param id 主键id
      * @return
      */
-    BankFileSignOpinion selectBankFileSignOpinionById(String id);
+    BankFileSignOpinionVO selectBankFileSignOpinionById(String id);
 
     /**
      * 新增文件签署意见
@@ -42,6 +52,9 @@ public interface BankFileSignOpinionMapper {
      * @return list
      */
     List<BankFileSignOpinion> selectBankFileSignOpinionList(BankFileSignOpinion bankFileSignOpinion);
+
+
+    List<BankFileSignOpinionVO> selectBankFileSignOpinionVOList(BankFileSignOpinion bankFileSignOpinion);
 
     /**
      * 删除文件签署意见

@@ -3,6 +3,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" >
 <head th:include="include :: header"></head>
+<style>
+    checkbox {
+        opacity: 4;
+    }
+</style>
 <body class="white-bg" onload="load()">
 <object id="plugin0" type="application/x-htkyscanplugin" width="0" height="0"></object>
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -437,8 +442,10 @@
 
                         //密级
                         $("#secretLevel option").each(function () {
-                            var value = $(this).context.value;
-                            if (value == ('level'+join[7])) {
+                            // var value = $(this).context.value;
+                            // if (value == ('level'+join[7])) {
+                            var value = $(this).context.text;
+                            if (value == join[7]) {
                                 $(this).prop("selected", "selected");
                             } else {
                                 $(this).prop("selected", false);
@@ -446,8 +453,10 @@
                         });
                         //紧密程度
                         $("#urgency option").each(function () {
-                            var value = $(this).context.value;
-                            if (value == ('urgency_'+join[8])) {
+                            // var value = $(this).context.value;
+                            // if (value == ('urgency_'+join[8])) {
+                            var value = $(this).context.text;
+                            if (value == join[8]) {
                                 $(this).prop("selected", "selected");
                             } else {
                                 $(this).prop("selected", false);

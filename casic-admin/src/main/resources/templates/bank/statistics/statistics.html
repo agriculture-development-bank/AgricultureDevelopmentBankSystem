@@ -116,6 +116,9 @@
 <script th:src="@{/js/echarts.min.js}"></script>
 <script th:inline="javascript">
     var prefix = ctx + "bank/statistics";
+    var levelMap ={};
+    var urgencyMap ={};
+    var statusMap ={};
     $(function () {
         var operatorChart = echarts.init(document.getElementById("morrisOperator"));
     });
@@ -124,6 +127,7 @@
         var fileTypeChart = echarts.init(document.getElementById("morrisChart"));
         var url = prefix + '/queryFileTypeData';
         $.get(url).done(function (data) {
+            levelMap = data.levelMap;
             fileTypeChart.setOption({
                 tooltip: {
                     trigger:  'item',
@@ -180,9 +184,13 @@
             });
         });
 
+        fileTypeChart.on('click', function (params) {
+            toPage("secretLevel" , levelMap[params.name]);
+        });
 
         var fileExistChart = echarts.init(document.getElementById("morrisLine"));
         $.get(prefix + "/queryFileUrgencyData").done(function (data) {
+            urgencyMap = data.urgencyMap;
             fileExistChart.setOption({
                 tooltip: {
                     trigger:  'item',
@@ -221,9 +229,13 @@
             });
         });
 
+        fileExistChart.on('click', function (params) {
+            toPage("urgency" , urgencyMap[params.name]);
+        });
+
         var fileLocationChart = echarts.init(document.getElementById("morrisBar"));
         $.get(prefix + "/queryFileStatusData").done(function (data) {
-
+            statusMap = data.statusMap;
             fileLocationChart.setOption({
                 tooltip: {
                     trigger:  'item',
@@ -260,6 +272,10 @@
                     }
                 ]
             });
+        });
+
+        fileLocationChart.on('click', function (params) {
+            toPage("status" , statusMap[params.name]);
         });
 
         var taskChart = echarts.init(document.getElementById("morrisTask"));
@@ -500,6 +516,11 @@
             }, true);
         });
     });
+
+    function toPage(name,value) {
+        var url = ctx + "bank/receive?" + name+"="+value;
+        createMenuItem(url, "文件台账信息");
+    }
 </script>
 </body>
 </html>

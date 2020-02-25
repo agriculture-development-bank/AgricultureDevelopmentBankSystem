@@ -287,3 +287,27 @@ layui.use('laydate', function(){
     });
 
 });
+
+function deepClone(obj) {
+    var type = Object.prototype.toString.call(obj);  //通过原型对象获取对象类型
+    var newObj;
+    if(type ==='[object Array]'){
+        //数组
+        newObj =[];
+        if(obj.length >0){
+            for(var x=0;x<obj.length;x++){
+                newObj.push(deepClone(obj[x]));
+            }
+        }
+    }else if(type==='[object Object]'){
+        //对象
+        newObj = {};
+        for(var x in obj) {
+            newObj[x] = deepClone(obj[x]);
+        }
+    }else{
+        //基本类型和方法可以直接赋值
+        newObj = obj;
+    }
+    return newObj;
+}

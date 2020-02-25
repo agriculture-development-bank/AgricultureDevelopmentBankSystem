@@ -21,7 +21,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -88,6 +91,34 @@ public class BankFileDetailController extends BaseController {
     public TableDataInfo list(BankReceiveFilesDetailVO bankReceiveFilesDetail) {
         startPage();
         List<BankReceiveFilesDetailVO> list = bankFileDetailService.findBankReceiveFilesDetail(bankReceiveFilesDetail);
+
+        List<String> detailIdList = list.stream().map(BankReceiveFilesDetailVO::getId).collect(Collectors.toList());
+
+        //查询各明细离柜日期
+        Map<String ,Object> voMap = new HashMap<>();
+        voMap.put("idList",detailIdList);
+//        voMap.put("type","file");
+        List<Map<String,String>> dataList = bankRecordService.getLeaveCupboardDays(voMap);
+
+        //往台账数据中赋离柜日期
+        list.stream().forEach(filesDetail->{
+            dataList.stream().forEach(data->{
+                if(filesDetail.getId().equals(data.get("id".toUpperCase()))){
+                    String selDays = filesDetail.getLeaveCupboardDays();
+                    BigDecimal bd = new BigDecimal(String.valueOf(data.get("days".toUpperCase())));
+                    String dayStr = bd.toString();
+                    if(StringUtils.isEmpty(selDays) ||
+                            Float.valueOf(selDays) < Float.parseFloat(dayStr)){
+                        if(dayStr.indexOf(".") > -1){
+                            filesDetail.setLeaveCupboardDays(dayStr.substring(0,dayStr.indexOf(".")));
+                        }else{
+                            filesDetail.setLeaveCupboardDays(dayStr);
+                        }
+                    }
+                }
+            });
+        });
+
         return getDataTable(list);
     }
 

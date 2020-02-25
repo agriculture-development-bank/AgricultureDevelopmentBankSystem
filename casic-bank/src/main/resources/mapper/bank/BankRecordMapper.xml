@@ -183,8 +183,38 @@
                     FILE_ID = #{fileId}
             )
     </select>
+
     <select id="getDeptName" resultType="java.lang.String">
         SELECT DICT_VALUE FROM SYS_DICT_DATA WHERE DICT_TYPE='jiyao_name';
+    </select>
+
+    <select id="getLeaveCupboardDays" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT     fd.ID,
+                    fd.FILE_ID as fileId,
+                    CASE WHEN ISNULL(br1.FILE_ID) THEN 0
+                    ELSE nvl(FLOOR(to_date(NOW)- to_date(br2.min_time)),0)
+                    END AS days
+        FROM BANK_RECEIVE_FILES_DETAIL fd
+        LEFT JOIN BANK_RECORD br1 ON br1.FILE_ID=fd.ID
+        LEFT JOIN (
+                SELECT a.FILE_ID ,
+                        min(a.OPERATE_TIME) AS min_time
+                FROM BANK_RECORD a
+                LEFT JOIN (
+                        SELECT FILE_ID ,MAX( OPERATE_TIME ) AS max_time
+                        FROM BANK_RECORD
+                        WHERE OPERATE_RESULT = '0'
+                        GROUP BY FILE_ID
+                ) b ON b.FILE_ID = a.FILE_ID
+                WHERE (IFNULL(b.max_time) OR a.OPERATE_TIME > b.max_time)
+                GROUP BY a.FILE_ID
+        ) br2 ON fd.ID = br2.FILE_ID
+        WHERE  fd.ID IN
+            <foreach collection="idList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        GROUP BY
+        fd.ID,fd.FILE_ID,br1.FILE_ID,br2.min_time
     </select>
 
 </mapper>

@@ -337,7 +337,8 @@ public class BankReceiveFilesServiceImpl implements BankReceiveFilesService {
                 bankFileSignOpinion.setCreateBy(bankReceiveFilesDetail.getCreateBy());
                 bankFileSignOpinion.setCreateTime(new Date());
                 bankFileSignOpinion.setOpinion(advance_result);
-                bankFileSignOpinion.setOpinionTime(DateUtils.dateTime("yyyy-MM-dd HH:mm:ss",advance_time));
+//                bankFileSignOpinion.setOpinionTime(advance_time);
+                bankFileSignOpinion.setOpinionTime(DateUtils.dateTime("yyyy-MM-dd",advance_time));
                 bankFileSignOpinion.setOpinionType("1");
                 bankFileSignOpinion.setId(UuidUtils.getUUIDString());
                 bankFileSignOpinionMapper.insertBankFileSignOpinion(bankFileSignOpinion);

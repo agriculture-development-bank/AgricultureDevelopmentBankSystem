@@ -8,10 +8,7 @@ import com.casic.bank.domain.BankReceiveFiles;
 import com.casic.bank.domain.ResultBean;
 import com.casic.bank.domain.vo.BankEquipmentVO;
 import com.casic.bank.domain.vo.BankReceiveFilesDetailVO;
-import com.casic.bank.service.BankEquipmentService;
-import com.casic.bank.service.BankFileDetailService;
-import com.casic.bank.service.BankFileSignOpinionService;
-import com.casic.bank.service.BankReceiveFilesService;
+import com.casic.bank.service.*;
 import com.casic.common.annotation.Log;
 import com.casic.common.base.AjaxResult;
 import com.casic.common.config.Global;
@@ -37,11 +34,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件接收控制器
@@ -66,13 +64,17 @@ public class BankReceiveFilesController extends BaseController {
 
     private DictService dictService;
 
+    private BankRecordService bankRecordService;
+
     @Autowired
     public BankReceiveFilesController(BankReceiveFilesService bankReceiveFilesService,
                                       BankFileDetailService bankFileDetailService,
                                       BankFileSignOpinionService bankFileSignOpinionService,
                                       ISysUserService userService,
                                       ISysDeptService sysDeptService,
-                                      DictService dictService, BankEquipmentService bankEquipmentService) {
+                                      DictService dictService,
+                                      BankEquipmentService bankEquipmentService,
+                                      BankRecordService bankRecordService) {
         this.bankReceiveFilesService = bankReceiveFilesService;
         this.bankFileDetailService = bankFileDetailService;
         this.bankFileSignOpinionService = bankFileSignOpinionService;
@@ -80,6 +82,7 @@ public class BankReceiveFilesController extends BaseController {
         this.sysDeptService = sysDeptService;
         this.dictService = dictService;
         this.bankEquipmentService = bankEquipmentService;
+        this.bankRecordService = bankRecordService;
     }
 
     @Override
@@ -95,9 +98,36 @@ public class BankReceiveFilesController extends BaseController {
      */
     @GetMapping
     @RequiresPermissions("bank:receive:view")
-    public String index(ModelMap modelMap) {
+    public String index(ModelMap modelMap, HttpServletRequest request) {
         modelMap.put("sysVersion", Global.getConfig("casic.sysVersion"));
         modelMap.put("printPort", Global.getConfig("casic.printPort"));
+
+        BankReceiveFiles bankReceiveFiles = new BankReceiveFiles();
+        String secretLevel = request.getParameter("secretLevel");
+        StringBuilder selectSb = new StringBuilder();
+        if(StringUtils.isNotEmpty(secretLevel)){
+            bankReceiveFiles.setSecretLevel(secretLevel);
+            selectSb.append("&secretLevel=").append(secretLevel);
+        }
+
+        String urgency = request.getParameter("urgency");
+        if(StringUtils.isNotEmpty(urgency)){
+            bankReceiveFiles.setUrgency(urgency);
+            selectSb.append("&urgency=").append(urgency);
+        }
+
+        String status = request.getParameter("status");
+        if(StringUtils.isNotEmpty(status)){
+            bankReceiveFiles.setStatus(status);
+            selectSb.append("&status=").append(status);
+        }
+        if (selectSb.length()>0){
+            modelMap.addAttribute("selectStr",selectSb.toString().replaceFirst("&","?"));
+        }else{
+            modelMap.addAttribute("selectStr","");
+        }
+
+        modelMap.addAttribute("bankReceiveFiles",bankReceiveFiles);
         return PREFIX + "list";
     }
 
@@ -109,12 +139,12 @@ public class BankReceiveFilesController extends BaseController {
     @GetMapping(value = "/add")
     @RequiresPermissions("bank:receive:addView")
     public String add(ModelMap modelMap) {
-        unionSelect(modelMap);
         String registrationNum = bankReceiveFilesService.getMaxRegistrationNum();
-        String year = DateUtils.getDate().substring(0,4);
-        modelMap.put("registrationNum", year+registrationNum);
+//        String year = DateUtils.getDate().substring(0,4);
+        modelMap.put("registrationNum", registrationNum);
         modelMap.put("sysVersion", Global.getConfig("casic.sysVersion"));
         modelMap.put("printPort", Global.getConfig("casic.printPort"));
+        unionSelect(modelMap);
         return PREFIX + "add";
     }
 
@@ -126,8 +156,11 @@ public class BankReceiveFilesController extends BaseController {
     private void unionSelect(ModelMap modelMap) {
         //责任人
         SysUser sysUser = new SysUser();
+
+//        sysUser.setPositionCode("hld");
         List<SysUser> sysUsers = userService.selectSysUserList(sysUser);
         modelMap.put("sysUsers", sysUsers);
+
         //所属部门
         SysDept sysDept = new SysDept();
         sysDept.setStatus("0");
@@ -148,19 +181,35 @@ public class BankReceiveFilesController extends BaseController {
     @GetMapping(value = "/edit/{id}")
     public String edit(@PathVariable("id") String id, ModelMap modelMap) {
         BankReceiveFiles bankReceiveFiles = bankReceiveFilesService.selectBankReceiveFilesById(id);
-        List<BankFileSignOpinion> bankFileSignOpinions = bankFileSignOpinionService.selectBankFileSignOpinionByFileDetailId(id);
+        List<BankFileSignOpinion> bankFileSignOpinions = bankFileSignOpinionService.selectBankFileSignOpinionByRegistrationum(bankReceiveFiles.getRegistrationNum());
         Optional<BankFileSignOpinion> directorOpinion = bankFileSignOpinions.stream().filter(p -> "2".equals(p.getOpinionType())).findFirst();
         Optional<BankFileSignOpinion> hostOpinion = bankFileSignOpinions.stream().filter(p -> "3".equals(p.getOpinionType())).findFirst();
-        Optional<BankFileSignOpinion> coOrganzierOpinion = bankFileSignOpinions.stream().filter(p -> "4".equals(p.getOpinionType())).findFirst();
+//        Optional<BankFileSignOpinion> coOrganzierOpinion = bankFileSignOpinions.stream().filter(p -> "4".equals(p.getOpinionType())).findFirst();
         modelMap.addAttribute("bankReceiveFiles", bankReceiveFiles);
         modelMap.addAttribute("bankFileSignOpinions", bankFileSignOpinions);
         modelMap.addAttribute("directorOpinion", directorOpinion.isPresent() ? directorOpinion.get() : null);
         modelMap.addAttribute("hostOpinion", hostOpinion.isPresent() ? hostOpinion.get() : null);
-        modelMap.addAttribute("coOrganzierOpinion", coOrganzierOpinion.isPresent() ? coOrganzierOpinion.get() : null);
+//        modelMap.addAttribute("coOrganzierOpinion", coOrganzierOpinion.isPresent() ? coOrganzierOpinion.get() : null);
         modelMap.addAttribute("fileId", id);
         modelMap.addAttribute("registrationNum", bankReceiveFiles.getRegistrationNum());
         List<BankEquipmentVO> bankEquipmentVOS = bankEquipmentService.selectBankEquipmentList(new BankEquipmentVO());
         modelMap.put("bankEquipments", bankEquipmentVOS);
+
+        unionSelect(modelMap);
+
+        List<SysUser> usersList = (List<SysUser>)modelMap.get("sysUsers");
+
+        List<String> selUserIdList = bankFileSignOpinions.stream().map(BankFileSignOpinion::getLeaderName).collect(Collectors.toList());
+
+        usersList.stream().forEach(user->{
+            if(selUserIdList.contains(user.getUserId()) || selUserIdList.size() == 0){
+                user.setStatus("1");
+            }else{
+                user.setStatus("0");
+            }
+        });
+        modelMap.put("sysUsers",usersList);
+
         return PREFIX + "edit";
     }
 
@@ -189,7 +238,41 @@ public class BankReceiveFilesController extends BaseController {
     @ResponseBody
     public TableDataInfo list(BankReceiveFiles bankReceiveFiles) {
         startPage();
+
+        //获取台账id集合
         List<BankReceiveFiles> list = bankReceiveFilesService.selectBankReceiveFilesList(bankReceiveFiles);
+        List<String> fileIdList = list.stream().map(BankReceiveFiles::getId).collect(Collectors.toList());
+
+        //获取台账明细id集合
+        //  fileIdList.stream().collect(Collectors.joining(","));
+        List<BankReceiveFilesDetailVO> detailList = bankFileDetailService.selectBankFileDetailByFileIds(String.join(",",fileIdList));
+        List<String> detailIdList = detailList.stream().map(BankReceiveFilesDetailVO::getId).collect(Collectors.toList());
+
+        //查询各明细离柜日期
+        Map<String ,Object> voMap = new HashMap<>();
+        voMap.put("idList",detailIdList);
+//        voMap.put("type","file");
+        List<Map<String,String>> dataList = bankRecordService.getLeaveCupboardDays(voMap);
+
+        //往台账数据中赋离柜日期
+        list.stream().forEach(file->{
+            dataList.stream().forEach(data->{
+                if(file.getId().equals(data.get("fileId".toUpperCase()))){
+                    String selDays = file.getLeaveCupboardDays();
+                    BigDecimal bd = new BigDecimal(String.valueOf(data.get("days".toUpperCase())));
+                    String dayStr = bd.toString();
+                    if(StringUtils.isEmpty(selDays) ||
+                            Float.valueOf(selDays) < Float.parseFloat(dayStr)){
+                        if(dayStr.indexOf(".") > -1){
+                            file.setLeaveCupboardDays(dayStr.substring(0,dayStr.indexOf(".")));
+                        }else{
+                            file.setLeaveCupboardDays(dayStr);
+                        }
+                    }
+                }
+            });
+        });
+
         return getDataTable(list);
     }
 
@@ -232,30 +315,31 @@ public class BankReceiveFilesController extends BaseController {
     public AjaxResult edit(@RequestBody ResultBean resultBean) {
         BankReceiveFiles bankReceiveFiles = resultBean.getBankReceiveFiles();
         List<BankFileSignOpinion> bankFileSignOpinions = resultBean.getBankFileSignOpinions();
-        BankFileSignOpinion bankFileSignOpinion;
-        for (int i = 0; i < 3; i++) {
-            bankFileSignOpinion = new BankFileSignOpinion();
-            if (i == 0) {
-                bankFileSignOpinion.setId(resultBean.getDirectorOpinionId());
-                bankFileSignOpinion.setOpinion(StringUtils.isEmpty(resultBean.getDirectorOpinion()) ? "" : resultBean.getDirectorOpinion());
-                if (StringUtils.isEmpty(resultBean.getDirectorOpinionId())) {
-                    bankFileSignOpinion.setOpinionType("2");
-                }
-            } else if (i == 1) {
-                bankFileSignOpinion.setId(resultBean.getHostOpinionId());
-                bankFileSignOpinion.setOpinion(StringUtils.isEmpty(resultBean.getHostOpinion()) ? "" : resultBean.getHostOpinion());
-                if (StringUtils.isEmpty(resultBean.getHostOpinionId())) {
-                    bankFileSignOpinion.setOpinionType("3");
-                }
-            } else {
-                bankFileSignOpinion.setId(resultBean.getCoOrganzierOpinionId());
-                bankFileSignOpinion.setOpinion(StringUtils.isEmpty(resultBean.getCoOrganzierOpinion()) ? "" : resultBean.getCoOrganzierOpinion());
-                if (StringUtils.isEmpty(resultBean.getCoOrganzierOpinionId())) {
-                    bankFileSignOpinion.setOpinionType("4");
-                }
-            }
-            bankFileSignOpinions.add(bankFileSignOpinion);
+
+//        办公室主任意见
+        BankFileSignOpinion bankFileSignOpinion2 = new BankFileSignOpinion();
+        bankFileSignOpinion2.setId(resultBean.getDirectorOpinionId());
+        bankFileSignOpinion2.setOpinion(StringUtils.isEmpty(resultBean.getDirectorOpinion()) ? "" : resultBean.getDirectorOpinion());
+        bankFileSignOpinion2.setLeaderName(StringUtils.isEmpty(resultBean.getDirectorOpinionUser()) ? "" : resultBean.getDirectorOpinionUser());
+        bankFileSignOpinion2.setOpinionTime(DateUtils.dateTime("yyyy-MM-dd HH:mm:ss",
+                StringUtils.isEmpty(resultBean.getDirectorOpinionTime()) ? "" : resultBean.getDirectorOpinionTime())) ;
+        if (StringUtils.isEmpty(resultBean.getDirectorOpinionId())) {
+            bankFileSignOpinion2.setOpinionType("2");
         }
+        bankFileSignOpinions.add(bankFileSignOpinion2);
+
+//        承办部门办理情况
+        BankFileSignOpinion bankFileSignOpinion3 = new BankFileSignOpinion();
+        bankFileSignOpinion3.setId(resultBean.getHostOpinionId());
+        bankFileSignOpinion3.setOpinion(StringUtils.isEmpty(resultBean.getHostOpinion()) ? "" : resultBean.getHostOpinion());
+        bankFileSignOpinion3.setLeaderName(StringUtils.isEmpty(resultBean.getHostOpinionUser()) ? "" : resultBean.getHostOpinionUser());
+        bankFileSignOpinion3.setOpinionTime(DateUtils.dateTime("yyyy-MM-dd HH:mm:ss",
+                StringUtils.isEmpty(resultBean.getHostOpinionTime()) ? "" : resultBean.getHostOpinionTime()));
+        if (StringUtils.isEmpty(resultBean.getHostOpinionId())) {
+            bankFileSignOpinion3.setOpinionType("3");
+        }
+        bankFileSignOpinions.add(bankFileSignOpinion3);
+
         return toAjax(bankReceiveFilesService.updateBankReceiveFiles(bankReceiveFiles, bankFileSignOpinions));
     }
 
@@ -315,11 +399,16 @@ public class BankReceiveFilesController extends BaseController {
         bankFileSignOpinion.setOpinionType("1");
         bankFileSignOpinion.setRegistrationNum(bankReceiveFiles.getRegistrationNum());
         List<BankFileSignOpinion> bankFileSignOpinions = bankFileSignOpinionService.selectBankFileSignOpinionList(bankFileSignOpinion);
-        String leaderOpinion = "";
+        String leader1Opinion = "";
         for (BankFileSignOpinion bankFileSignOpinion1 : bankFileSignOpinions) {
-            leaderOpinion += (bankFileSignOpinion1.getLeaderName() == null ? "" : bankFileSignOpinion1.getOpinion() + "&nbsp;&nbsp;&nbsp;&nbsp;" + bankFileSignOpinion1.getLeaderName()) + "&nbsp;&nbsp;" + DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss",bankFileSignOpinion1.getOpinionTime()) + "<br/>";
+//            leaderOpinion += (bankFileSignOpinion1.getLeaderName() == null ?
+//                    "" : bankFileSignOpinion1.getOpinion() + "&nbsp;&nbsp;&nbsp;&nbsp;" + bankFileSignOpinion1.getLeaderName()) + "&nbsp;&nbsp;"
+//                    + bankFileSignOpinion1.getOpinionTime() + "<br/>";
+            leader1Opinion += (bankFileSignOpinion1.getLeaderName() == null ?
+                    "" : bankFileSignOpinion1.getOpinion() + "&nbsp;&nbsp;&nbsp;&nbsp;" + bankFileSignOpinion1.getLeaderName()) + "&nbsp;&nbsp;"
+                    + DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss",bankFileSignOpinion1.getOpinionTime()) + "<br/>";
         }
-        modelMap.put("leaderOpinion", leaderOpinion);
+        modelMap.put("leaderOpinion", leader1Opinion);
 
     //办公室主任意见
         bankFileSignOpinion.setOpinionType("2");
@@ -342,11 +431,18 @@ public class BankReceiveFilesController extends BaseController {
         //协办部门意见
         bankFileSignOpinion.setOpinionType("4");
         List<BankFileSignOpinion> bankFileSignOpinionH = bankFileSignOpinionService.selectBankFileSignOpinionList(bankFileSignOpinion);
-        if (bankFileSignOpinionH != null && bankFileSignOpinionH.size() > 0) {
-            modelMap.put("hOpinion", bankFileSignOpinionH.get(0) != null ? bankFileSignOpinionH.get(0).getOpinion() : "");
-        } else {
-            modelMap.put("hOpinion", "");
+        String leader4Opinion = "";
+        for (BankFileSignOpinion bankFileSignOpinion4 : bankFileSignOpinionH) {
+            leader4Opinion += (bankFileSignOpinion4.getLeaderName() == null ?
+                    "" : bankFileSignOpinion4.getOpinion() + "&nbsp;&nbsp;&nbsp;&nbsp;" + bankFileSignOpinion4.getLeaderName()) + "&nbsp;&nbsp;"
+                    + DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss",bankFileSignOpinion4.getOpinionTime()) + "<br/>";
         }
+//        if (bankFileSignOpinionH != null && bankFileSignOpinionH.size() > 0) {
+//            modelMap.put("hOpinion", bankFileSignOpinionH.get(0) != null ? bankFileSignOpinionH.get(0).getOpinion() : "");
+//        } else {
+//            modelMap.put("hOpinion", "");
+//        }
+        modelMap.put("hOpinion", leader4Opinion);
         return PREFIX + "print";
     }
 
@@ -364,8 +460,8 @@ public class BankReceiveFilesController extends BaseController {
     public AjaxResult getMaxRegistrationNum(String ids) {
         AjaxResult ajaxResult = new AjaxResult();
         String registrationNum = bankReceiveFilesService.getMaxRegistrationNum();
-        String year = DateUtils.getDate().substring(0,4);
-        ajaxResult.put("registrationNum", year+registrationNum);
+//        String year = DateUtils.getDate().substring(0,4);
+        ajaxResult.put("registrationNum", registrationNum);
         return ajaxResult;
     }
 

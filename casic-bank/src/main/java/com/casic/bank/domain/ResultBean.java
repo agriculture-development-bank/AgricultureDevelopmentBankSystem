@@ -23,4 +23,12 @@ public class ResultBean {
 
     private String coOrganzierOpinion;
 
+
+    private String directorOpinionUser;
+
+    private String directorOpinionTime;
+
+    private String hostOpinionUser;
+
+    private String hostOpinionTime;
 }

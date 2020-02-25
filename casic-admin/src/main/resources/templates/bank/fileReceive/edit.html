@@ -2,6 +2,44 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <meta charset="utf-8">
 <head th:include="include :: header"></head>
+<style>
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 18px;
+        margin-right: 10px;
+        position: relative;
+    }
+
+    input[type="checkbox"]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #fff;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+    }
+
+    input[type="checkbox"]:checked::before {
+        content: "\2713";
+        background-color: #fff;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        border: 1px solid #7D7D7D;
+        border-radius:4px;
+        color: #7D7D7D;
+        font-size: 20px;
+        font-weight: bold;
+    }
+</style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <div class="form-group-separator" style="height: 1px;background: #eee;margin-bottom: 15px;"></div>
@@ -153,50 +191,132 @@
     </form>
     <form lass="form-horizontal edit-form" role="form">
         <fieldset>
+            <!--          二期          Start                 -->
+            <!--<div class="row" style="margin-top: 20px">-->
+                <!--<div class="col-xs-12">-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-2 control-label" style="width: 12.666667%;">行领导传阅范围：</label>-->
+                        <!--<div class="col-sm-10" style="width: 87%;border: 1px solid #ddd;" >-->
+                            <!--<div th:each="user:${sysUsers}" style="width: 24%;display: inline-block;">-->
+                                <!--<label>-->
+                                    <!--<input id="selLeader" name="selLeader" type="checkbox"-->
+                                           <!--th:value="${user.userId}" th:text="${user.userName}" th:data="${user.userName}"-->
+                                           <!--th:attr ="checked=${user.status == '1'}"-->
+                                    <!--&gt;-->
+                                <!--</label>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--          二期          End                 -->
+
             <legend>审批意见</legend>
             <div class="row">
                 <div class="col-xs-12">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" style="width: 12.666667%;">行领导批示意见：</label>
                         <div class="col-sm-10 select-table table-bordered">
-                            <table id="bootstrap-table" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+                        <!--          一期          Start                 -->
+                            <a class="btn btn-success" onclick="addOpinion1('1')" style="float: right">
+                                <i class="fa fa-plus"></i> 新增
+                            </a>
+                        <!--          一期          End                 -->
+                            <table id="bootstrap-table1" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row" style="margin-top: 15px">
+            <div class="row" style="margin-top: 20px">
                 <div class="col-xs-12">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" style="width: 12.666667%;">办公室主任意见：</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-10" style="width: 50%">
                             <input type="hidden" id="directorOpinionId" name="directorOpinionId" th:value="${directorOpinion?.id}">
                             <textarea id="directorOpinion" name="directorOpinion" class="form-control" type="text" style="height: 100px" th:text="${directorOpinion?.opinion}"></textarea>
+                            <!--<label style="color: red;padding-top: 7px">*</label>-->
+                            <!--<label class="col-sm-3 control-label">批注时间：</label>-->
+                            <!--<div class="col-sm-8">-->
+                                <!--<input id="opinionTime" name="opinionTime" class="form-control opinionTime" type="text" autocomplete="off" th:field="*{opinionTime}">-->
+                            <!--</div>-->
+                        </div>
+                        <div class="col-sm-10" style="width: 35%">
+                            <div  style="height: 50px;">
+                                <label class="col-sm-3 control-label" style="padding-top: 7px;">批注人：</label>
+                                <div class="col-sm-8" style="padding-left: 0px;">
+                                    <!--th:field="*{userId}"-->
+                                    <!--<select id="directorOpinionUser" name="directorOpinionUser" class="form-control" th:field="*{directorOpinionUser}">-->
+                                        <!--<option th:each="user:${sysUsers}" th:text="${user?.userName}" th:value="${user?.userId}"></option>-->
+                                    <!--</select>-->
+
+                                    <input id="directorOpinionUser" name="directorOpinionUser" class="form-control" type="text" th:value="*{directorOpinion?.getLeaderName}">
+                                </div>
+                            </div>
+                            <div style="height: 50px;">
+                                <label class="col-sm-3 control-label" style="padding-top: 7px;">批注时间：</label>
+                                <div class="col-sm-8" style="padding-left: 0px;">
+                                    <input id="directorOpinionTime" name="directorOpinionTime"
+                                           class="form-control hostOpinionTime" type="text" th:value="*{directorOpinion?.getOpinionTime}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row" style="margin-top: 15px">
+            <div class="row" style="margin-top: 20px">
                 <div class="col-xs-12">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" style="width: 12.666667%;">承办部门办理情况：</label>
-                        <div class="col-sm-10" >
+                        <div class="col-sm-10" style="width: 50%">
                             <input type="hidden" id="hostOpinionId" name="hostOpinionId" th:value="${hostOpinion?.id}">
-                            <textarea id="hostOpinion" name="hostOpinion" class="form-control" type="text" style="height: 100px" th:text="${hostOpinion?.opinion}"></textarea>
+                            <textarea id="hostOpinion" name="hostOpinion" class="form-control" type="text"
+                                      style="height: 100px" th:text="${hostOpinion?.opinion}"></textarea>
+                        </div>
+                        <div class="col-sm-10" style="width: 35%">
+                            <div  style="height: 50px;">
+                                <label class="col-sm-3 control-label" style="padding-top: 7px;">批注人：</label>
+                                <div class="col-sm-8" style="padding-left: 0px;">
+                                    <!--<select id="hostOpinionUser" name="hostOpinionUser" class="form-control" th:field="*{hostOpinionUser}">-->
+                                        <!--<option th:each="user:${sysUsers}" th:text="${user?.userName}" th:value="${user?.userId}"></option>-->
+                                    <!--</select>-->
+
+                                    <input id="hostOpinionUser" name="hostOpinionUser" class="form-control" type="text" th:value="*{hostOpinion?.getLeaderName}">
+                                </div>
+                            </div>
+                            <div style="height: 50px;">
+                                    <label class="col-sm-3 control-label" style="padding-top: 7px;">批注时间：</label>
+                                    <div class="col-sm-8" style="padding-left: 0px;">
+                                        <input id="hostOpinionTime" name="hostOpinionTime"
+                                               class="form-control hostOpinionTime" type="text" th:value="*{hostOpinion?.getOpinionTime}">
+                                    </div>
+                            </div>
+                            <!--<label class="col-sm-3 control-label">批注时间：</label>-->
+                            <!--<input id="hostOpinionTime" name="hostOpinionTime" class="form-control hostOpinionTime" type="text" autocomplete="off">-->
+                            <!--<label class="col-sm-3 control-label">批注人：</label>-->
+                            <!--<input id="hostOpinionUser" name="hostOpinionUser" class="form-control" type="text" autocomplete="off">-->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" style="margin-top: 20px">
                 <div class="col-xs-12">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" style="width: 12.666667%;">协办部门办理情况：</label>
-                        <div class="col-sm-10" >
-                            <input type="hidden" id="coOrganzierOpinionId" name="coOrganzierOpinionId" th:value="${coOrganzierOpinion?.id}">
-                            <label for="coOrganzierOpinion"></label><textarea id="coOrganzierOpinion" name="coOrganzierOpinion" class="form-control" type="text" style="height: 100px" th:text="${coOrganzierOpinion?.opinion}"></textarea>
+                        <div>
+                            <a class="btn btn-success" onclick="addOpinion1('4')" style="float: right">
+                                <i class="fa fa-plus"></i> 新增
+                            </a>
                         </div>
+                        <div class="col-sm-10 select-table table-bordered">
+                            <table id="bootstrap-table4" class="table table-bordered table-hover" data-mobile-responsive="true"></table>
+                        </div>
+                        <!--<div class="col-sm-10" >-->
+                            <!--<input type="hidden" id="coOrganzierOpinionId" name="coOrganzierOpinionId" th:value="${coOrganzierOpinion?.id}">-->
+                            <!--<label for="coOrganzierOpinion"></label><textarea id="coOrganzierOpinion" name="coOrganzierOpinion" class="form-control" type="text" style="height: 100px" th:text="${coOrganzierOpinion?.opinion}"></textarea>-->
+                        <!--</div>-->
                     </div>
                 </div>
             </div>
@@ -221,6 +341,13 @@
 <script th:src="@{/js/template.js}"></script>
 <script th:inline="javascript">
     var prefix = ctx + "bank/receive";
+    var registrationNum = [[${registrationNum}]];
+    var options0 = {};
+    var table1,table4;
+    var $bootstrap = $("#bootstrap-table1");
+    var opinionArr = [];
+    var sysUsers = [[${sysUsers}]];
+
     layui.use('laydate', function(){
         var laydate = layui.laydate;
         lay('.handleTime').each(function(){
@@ -228,6 +355,28 @@
                 elem: this
                 ,trigger: 'click'
                 ,type: 'date'
+            });
+        });
+    });
+
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        lay('.directorOpinionTime').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
+            });
+        });
+    });
+
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        lay('.hostOpinionTime').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
             });
         });
     });
@@ -251,6 +400,7 @@
             return serializeObj;
         }
     })(jQuery);
+
 
     $(function () {
         var url = ctx + 'system/dept/getSysDeptTree/';
@@ -281,10 +431,11 @@
         var fileId = [[${fileId}]] || '';
         var registrationNum = [[${registrationNum}]] || '';
 
-        var options = {
+        options0 = {
             url: ctx + "bank/sign/list?registrationNum=" + registrationNum,
-            createUrl: ctx + "bank/sign//add",
-            removeUrl: ctx + "bank/sign//remove",
+            createUrl: ctx + "bank/sign/add?registrationNum="+registrationNum,
+            updateUrl: ctx + "bank/sign/edit/{id}",
+            removeUrl: ctx + "bank/sign/remove",
             sortName: "createTime",
             sortOrder: "desc",
             uniqueId: "id",
@@ -295,29 +446,39 @@
             showColumns: false,
             showRefresh: false,
             pagination: false,
-            modalName: '文件签署意见',
             editable: true,
             columns: [
                 {
                     field: 'id',
                     title: 'ID',
                     visible: false,
-                    align: 'center'
+                    align: 'center',
+                    width:'10%'
                 },
                 {
                     field: 'leaderName',
                     title: '批注人',
                     align: 'center',
+                    width:'10%'
                 },
+                // 二期
+                // {
+                //     field: 'leaderUserName',
+                //     title: '批注人2',
+                //     align: 'center',
+                //     width:'10%'
+                // },
                 {
                     field: 'opinionTime',
                     title: '批注时间',
                     align: 'center',
+                    width:'10%'
                 },
                 {
                     field: 'opinion',
                     title: '意见及情况',
                     align: 'center',
+                    width:'50%'
                     /*editable: {
                         type: 'text'
                     },
@@ -328,20 +489,57 @@
                 {
                     title: '操作',
                     align: 'center',
-                    visible: false,
+                    width:'10%',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-danger btn-xs " href="#" onclick="remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        actions.push('<a class="btn btn-success btn-xs " href="#" onclick="editOpinion1(\'' + row.id + '\',\''
+                            + row.opinionType + '\',\''
+                            + row.leaderName + '\',\''
+                            + row.leaderUserName  + '\')"><i class="fa fa-edit"></i>编辑</a> &nbsp;&nbsp;&nbsp;');
+                        actions.push('<a class="btn btn-danger btn-xs " href="#" onclick="remove(\'' + row.id + '\',\'' + row.opinionType + '\')">' +
+                            '<i class="fa fa-remove"></i>删除</a>');
                         return actions.join('');
                     }
-                }]
+                }
+            ],
+            onLoadSuccess:function (data) {
+                //  二期  Start
+                /*
+                if(data.total > 0 && data.rows.opinionType =='1'){
+                    opinionArr = $("#bootstrap-table1").bootstrapTable("getData");
+                }else if(opinionArr.length == 0){
+                    sysUsers.forEach(user => {
+                        addOpinionData(user.userId , user.userName);
+                    });
+                }
+                */
+                //  二期  End
+            }
         };
-        $.table.init(options);
+
+        // var options1 = JSON.parse(JSON.stringify(options));
+        var options1 = deepClone(options0);
+        options1.url = options1.url + "&opinionType=1";
+        options1.modalName =  '行领导批示意见';
+        options1.tableId = '#bootstrap-table1';
+        table1 = deepClone($.table);
+        table1.init(options1);
+
+        // $.table.init(table1);
+
+        // var options2 = JSON.parse(JSON.stringify(options));
+        var options2 = deepClone(options0);
+        options2.url = options2.url + "&opinionType=4";
+        options2.modalName = '协办部门办理情况';
+        options2.tableId = '#bootstrap-table4';
+        table4 = deepClone($.table);
+        table4.init(options2);
+        // $.table.init(options2);
     });
 
-    function remove(id) {
-        $.modal.confirm("确定删除该条文件签署意见信息吗？", function() {
-            var url =  ctx + "bank/sign//remove";
+    function remove(id,opinionType) {
+        $.modal.confirm("确定删除该条意见信息吗？", function() {
+            var url =  options0.removeUrl;
             var data = { "ids": id };
             $.modal.loading("正在处理中，请稍后...");
             var config = {
@@ -350,9 +548,15 @@
                 dataType: "json",
                 data: data,
                 success: function(result) {
+                    debugger;
                     if (result.code == web_status.SUCCESS) {
                         $.modal.msgSuccess(result.msg);
-                        $.table.refresh();
+                        if("1" == opinionType){
+                            table1.refresh(table1._option.tableId,table1._option.url);
+                        }
+                        if("4" == opinionType){
+                            table4.refresh(table4._option.tableId,table4._option.url);
+                        }
                     } else {
                         $.modal.alertError(result.msg);
                     }
@@ -360,25 +564,6 @@
                 }
             };
             $.ajax(config)
-        });
-    }
-
-    var $bootstrap = $("#bootstrap-table");
-
-    /**
-     * 编辑行
-     * @param index
-     * @param obj
-     */
-    function changeData(index, obj) {
-        var value = $(obj).val();
-        var name = $(obj).attr('name');
-
-        var row = $bootstrap.bootstrapTable('getOptions').data[index];
-        row[name] = value;
-        $bootstrap.bootstrapTable('updateRow', {
-            index: index,
-            row: row
         });
     }
 
@@ -481,10 +666,19 @@
             resultBean.bankFileSignOpinions = fileSignOpinion;
             resultBean.directorOpinionId = $('#directorOpinionId').val();
             resultBean.hostOpinionId = $('#hostOpinionId').val();
-            resultBean.coOrganzierOpinionId = $('#coOrganzierOpinionId').val();
+            // resultBean.coOrganzierOpinionId = $('#coOrganzierOpinionId').val();
+            // resultBean.directorOpinion = $('#directorOpinion').val();
+            // resultBean.hostOpinion = $('#hostOpinion').val();
+            // resultBean.coOrganzierOpinion = $('#coOrganzierOpinion').val();
+
+
             resultBean.directorOpinion = $('#directorOpinion').val();
+            resultBean.directorOpinionUser = $('#directorOpinionUser').val();
+            resultBean.directorOpinionTime = $('#directorOpinionTime').val();
             resultBean.hostOpinion = $('#hostOpinion').val();
-            resultBean.coOrganzierOpinion = $('#coOrganzierOpinion').val();
+            resultBean.hostOpinionUser = $('#hostOpinionUser').val();
+            resultBean.hostOpinionTime = $('#hostOpinionTime').val();
+
             $.modal.loading("正在处理中，请稍后...");
             var config = {
                 url: url,
@@ -506,6 +700,174 @@
             $.ajax(config);
         }
     }
+
+    /**
+     * 编辑行
+     * @param index
+     * @param obj
+     */
+    // function changeData(index, obj) {
+    //     var value = $(obj).val();
+    //     var name = $(obj).attr('name');
+    //
+    //     var row = $bootstrap.bootstrapTable('getOptions').data[index];
+    //     row[name] = value;
+    //     $bootstrap.bootstrapTable('updateRow', {
+    //         index: index,
+    //         row: row
+    //     });
+    // }
+
+
+    //  一期              Start============================================================================
+    function addOpinion1(opinionType) {
+        var title = '';
+        if('1' == opinionType){
+            title = table1._option.modalName;
+        }else{
+            title = table4._option.modalName;
+        }
+        var url = options0.createUrl + "&opinionType="+opinionType
+        $.operate.addMore("",url,title,800,550);
+    }
+
+    function editOpinion1(id,opinionType,leaderName,leaderUserName) {
+        var title = '';
+        if('1' == opinionType){
+            title = table1._option.modalName;
+        }else{
+            title = table4._option.modalName;
+        }
+        var url = options0.updateUrl+"?leaderName="+leaderName+"&leaderUserName="+leaderUserName;
+        $.operate.editMore(id,url,title,800,550);
+    }
+    //      一期              End============================================================================
+
+
+    //      二期              Start============================================================================
+
+    function editOpinion2(id,opinionType,leaderName,leaderUserName) {
+        var url =  options0.updateUrl+"?leaderName="+leaderName+"&leaderUserName="+leaderUserName;
+
+        var title = '';
+        if('1' == opinionType){
+            title = table1._option.modalName;
+        }else{
+            title = table4._option.modalName;
+        }
+
+        var options = {
+            title: title,
+            width: 800,
+            height: 550,
+            url: url,
+            callBack: selectOpinion
+        };
+        $.modal.openOptions(options);
+    }
+
+    function selectOpinion(index, layero){
+        //获取子页面对象
+        var childPage= layero.find("iframe")[0].contentWindow;
+        //执行子页面保存方法
+        var flag = childPage.submitHandler();
+        if(flag){
+            //获取子页面所选数据内容
+            var opinionSel = childPage.opinionSel;
+            var opinionTimeSel = childPage.opinionTimeSel;
+            var leaderNameSel = childPage.leaderNameSel;
+            var leaderUserNameSel = childPage.leaderUserNameSel;
+
+            //const item = userArr.find(({id}) => value === id);
+            var indexSel = opinionArr.findIndex(({leaderName}) => leaderNameSel === leaderName);
+            var dataSel =  opinionArr.find(({leaderName}) => leaderNameSel === leaderName);
+            dataSel.opinionTime = opinionTimeSel;
+            dataSel.opinion = opinionSel;
+            editTableData(dataSel,indexSel);
+
+            layer.close(index);
+        }
+    }
+
+    $("input[name='selLeader']").click(function(){
+        //$('input:checkbox:checked') 等同于 $('input[type=checkbox]:checked')
+        //意思是选择被选中的checkbox
+        //$.each($('input:checkbox:checked'),function(){
+        //     //window.alert("你选了："+ $('input[type=checkbox]:checked').length+"个，其中有："+ value + "===" + data);
+        //});
+        // if(opinionArr.length == 0){
+        // var tableArrData1 = $("#bootstrap-table1").bootstrapTable("getData");
+        // for(var i=0; i<tableArrData1.length; i++){
+        //     var listData = {
+        //         id: tableArrData1[i].id,
+        //         leaderName: tableArrData1[i].leaderName,
+        //         leaderUserName: tableArrData1[i].leaderUserName,
+        //         opinionTime: tableArrData1[i].opinionTime,
+        //         opinion: tableArrData1[i].opinion
+        //     };
+        //     opinionArr.unshift(listData);
+        // }
+        // Array.prototype.splice.apply(opinionArr ,tableArrData1)
+        // opinionArr.unshift(tableArrData1);
+        //     opinionArr = $("#bootstrap-table1").bootstrapTable("getData");
+        // }
+
+        var data = $(this).attr('data');
+        var value = $(this).attr('value');
+
+        //const item = userArr.find(({id}) => value === id);
+        var index = opinionArr.findIndex(({leaderName}) => value === leaderName);
+        if (index == -1){
+            addOpinionData(value,data);
+        }else{
+            delTableData1(index);
+            opinionArr.splice(index,1)
+        }
+    });
+
+    function addOpinionData(userId,userName) {
+        var opinionData = {
+            id:'',
+            leaderName:userId,
+            leaderUserName:userName,
+            opinionTime:'',
+            opinion:''
+        };
+        opinionArr.unshift(opinionData);
+        addTableData1(opinionData);
+    }
+
+    function editTableData(opinionData,index) {
+        console.log($("#bootstrap-table1").bootstrapTable("getData"));
+
+        // var count = $('#bootstrap-table1').bootstrapTable('getData').length;
+        // newFlag == 1的数据为新规的数据
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table1"});
+        $("#bootstrap-table1").bootstrapTable('updateRow', {index: index, row: opinionData});
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table"});
+
+        return;
+    }
+
+    function addTableData1(opinionData) {
+        console.log($("#bootstrap-table1").bootstrapTable("getData"));
+
+        // var count = $('#bootstrap-table1').bootstrapTable('getData').length;
+        // newFlag == 1的数据为新规的数据
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table1"});
+        $("#bootstrap-table1").bootstrapTable('insertRow', {index: 0, row: opinionData});
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table"});
+
+        return;
+    }
+    function delTableData1(index) {
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table1"});
+        $("#bootstrap-table1").bootstrapTable('removeByIndex',index);
+        $('#bootstrap-table1').bootstrapTable("initTableId",{tableId:"bootstrap-table"});
+        return;
+    }
+    //      二期              End
+
 </script>
 </body>
 </html>

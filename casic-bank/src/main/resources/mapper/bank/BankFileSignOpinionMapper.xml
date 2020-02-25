@@ -18,6 +18,10 @@
         <result property="remark" column="remark"/>
     </resultMap>
 
+    <resultMap id="SelectResultMap" type="com.casic.bank.domain.vo.BankFileSignOpinionVO" extends="BankFileSignOpinionResult">
+        <result property="leaderUserName" column="leader_username"/>
+    </resultMap>
+
     <!-- 基本SQL -->
     <sql id="BASE_COLUMN_LIST">
         select id, file_id, registration_num, opinion, create_time, create_by, update_time, update_by, remark, leader_name, leader_post, opinion_type, opinion_time from BANK_FILE_SIGN_OPINION
@@ -90,15 +94,57 @@
          where b.file_id = #{fileId}
     </select>
 
+    <!--  根据文件id查询行领导审批意见 -->
+    <select id="selectBankFileSignOpinionByRegistrationum" parameterType="string" resultMap="BankFileSignOpinionResult">
+         select a.* from BANK_FILE_SIGN_OPINION as a
+         where a.REGISTRATION_NUM = #{registrationNum}
+    </select>
+
     <!-- 根据主键查询行领导文件签署意见 -->
-    <select id="selectBankFileSignOpinionById" parameterType="string" resultMap="BankFileSignOpinionResult">
-        include refid="BASE_COLUMN_LIST"/>
-        where id = #{id}
+    <select id="selectBankFileSignOpinionById" parameterType="string" resultMap="SelectResultMap">
+        SELECT  so.id,
+                so.file_id,
+                so.registration_num,
+                so.opinion,
+                so.create_time,
+                so.create_by,
+                so.update_time,
+                so.update_by,
+                so.remark,
+                so.leader_name,
+                so.leader_post,
+                so.opinion_type,
+                so.opinion_time,
+                u.USER_NAME AS leader_username
+        FROM BANK_FILE_SIGN_OPINION so
+        LEFT JOIN SYS_USER u ON so.leader_name = u.USER_ID
+        WHERE so.id = #{id}
     </select>
 
     <!-- 查询文件签署意见列表数据 -->
     <select id="selectBankFileSignOpinionList" resultMap="BankFileSignOpinionResult">
         <include refid="BASE_COLUMN_LIST"/>
+        where registration_num = #{registrationNum} and opinion_type = #{opinionType}
+    </select>
+
+    <!-- 根据主键查询行领导文件签署意见 -->
+    <select id="selectBankFileSignOpinionVOList" parameterType="string" resultMap="SelectResultMap">
+        SELECT  so.id,
+                so.file_id,
+                so.registration_num,
+                so.opinion,
+                so.create_time,
+                so.create_by,
+                so.update_time,
+                so.update_by,
+                so.remark,
+                so.leader_name,
+                so.leader_post,
+                so.opinion_type,
+                so.opinion_time,
+                u.USER_NAME AS leader_username
+        FROM BANK_FILE_SIGN_OPINION so
+        LEFT JOIN SYS_USER u ON so.leader_name = u.USER_ID
         where registration_num = #{registrationNum} and opinion_type = #{opinionType}
     </select>
 </mapper>

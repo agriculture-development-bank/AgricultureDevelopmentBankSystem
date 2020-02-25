@@ -75,4 +75,8 @@ public class BankReceiveFilesDetailVO extends BankReceiveFilesDetail {
      * 紧急程度
      */
     private String urgency;
+    /**
+     * 离柜天数
+     */
+    private String leaveCupboardDays;
 }

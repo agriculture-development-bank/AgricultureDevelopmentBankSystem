@@ -119,5 +119,5 @@ public class BankReceiveFiles extends BaseEntity {
     /**
      * 离柜天数
      */
-    private String leaveCupboardDay;
+    private String leaveCupboardDays;
 }

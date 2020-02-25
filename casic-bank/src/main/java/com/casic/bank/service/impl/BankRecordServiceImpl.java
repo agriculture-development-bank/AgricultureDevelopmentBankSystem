@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BankRecordServiceImpl implements BankRecordService {
@@ -59,5 +60,11 @@ public class BankRecordServiceImpl implements BankRecordService {
     @Override
     public List<String> getDeptName() {
         return bankRecordMapper.getDeptName();
+    }
+
+    @Override
+    public List<Map<String,String>>  getLeaveCupboardDays(Map<String, Object> dataMap) {
+        List<Map<String,String>>  leaveList = bankRecordMapper.getLeaveCupboardDays(dataMap);
+        return leaveList;
     }
 }

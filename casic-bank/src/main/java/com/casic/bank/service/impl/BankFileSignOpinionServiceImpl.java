@@ -1,6 +1,7 @@
 package com.casic.bank.service.impl;
 
 import com.casic.bank.domain.BankFileSignOpinion;
+import com.casic.bank.domain.vo.BankFileSignOpinionVO;
 import com.casic.bank.mapper.BankFileSignOpinionMapper;
 import com.casic.bank.service.BankFileSignOpinionService;
 import com.casic.common.utils.UuidUtils;
@@ -40,6 +41,20 @@ public class BankFileSignOpinionServiceImpl implements BankFileSignOpinionServic
         }
         return list;
     }
+    /**
+     * 根据台账流水号查询行领导审批意见
+     *
+     * @param registrationNum 台账流水号
+     * @return BankFileSignOpinion对象
+     */
+    @Override
+    public List<BankFileSignOpinion> selectBankFileSignOpinionByRegistrationum(String registrationNum) {
+        List<BankFileSignOpinion> list = bankFileSignOpinionMapper.selectBankFileSignOpinionByRegistrationum(registrationNum);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
 
     /**
      * 查询文件签署意见列表数据
@@ -57,13 +72,28 @@ public class BankFileSignOpinionServiceImpl implements BankFileSignOpinionServic
     }
 
     /**
+     * 查询文件签署意见列表数据
+     *
+     * @param bankFileSignOpinion 文件签署意见
+     * @return list
+     */
+    @Override
+    public List<BankFileSignOpinionVO> selectBankFileSignOpinionVOList(BankFileSignOpinion bankFileSignOpinion) {
+        List<BankFileSignOpinionVO> list = bankFileSignOpinionMapper.selectBankFileSignOpinionVOList(bankFileSignOpinion);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
+
+    /**
      * 根据主键查询行领导文件签署意见
      *
      * @param id 主键id
      * @return
      */
     @Override
-    public BankFileSignOpinion selectBankFileSignOpinionById(String id) {
+    public BankFileSignOpinionVO selectBankFileSignOpinionById(String id) {
         return bankFileSignOpinionMapper.selectBankFileSignOpinionById(id);
     }
 
@@ -97,5 +127,17 @@ public class BankFileSignOpinionServiceImpl implements BankFileSignOpinionServic
     @Transactional(rollbackFor = Exception.class)
     public int deleteBankFileSignOpinionById(String id) {
         return bankFileSignOpinionMapper.deleteBankFileSignOpinionById(id);
+    }
+
+    /**
+     * 批量編輯文件签署意见
+     *
+     * @param list 文件签署意见
+     * @return 受影响行数
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateBankFileSignOpinions(List<BankFileSignOpinion> list) {
+        return bankFileSignOpinionMapper.updateBankFileSignOpinions(list);
     }
 }

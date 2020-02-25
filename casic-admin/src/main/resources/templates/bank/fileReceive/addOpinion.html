@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-opinion-add" role="form">
+        <input type="hidden" id="registrationNum" name="registrationNum" class="form-control" th:value="${registrationNum}">
+        <input type="hidden" id="opinionType" name="opinionType" class="form-control" th:value="${opinionType}">
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">批注时间：</label>
+            <div class="col-sm-8">
+                <input id="opinionTime" name="opinionTime" class="form-control opinionTime" type="text" placeholder="批注时间" autocomplete="off"  th:value="${nowTime}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">批注人：</label>
+            <div class="col-sm-8">
+                <input id="leaderName" name="leaderName" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="color: red;padding-top: 7px">*</label>
+            <label class="col-sm-3 control-label">意见及情况：</label>
+            <div class="col-sm-8">
+                <textarea  class="form-control" id="opinion" name="opinion" rows="7" type="text" placeholder="" autocomplete="off"></textarea>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "bank/sign";
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        lay('.opinionTime').each(function(){
+            laydate.render({
+                elem: this
+                ,trigger: 'click'
+                ,type: 'datetime'
+            });
+        });
+    });
+
+    $("#form-opinion-add").validate({
+        rules:{
+            leaderName:{
+                required:true,
+            },
+            opinionTime:{
+                required:true,
+            },
+            opinion:{
+                required:true,
+            }
+        },
+        messages: {
+            // "leaderName": {
+            //     remote: "批注人不能为空"
+            // },
+            // "opinionTime": {
+            //     remote: "批注时间不能为空"
+            // },
+            // "opinion": {
+            //     remote: "意见及情况不能为空"
+            // }
+        },
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var data = $('#form-opinion-add').serialize();
+            console.info("data : "+data);
+            $.operate.save(prefix + "/add", $('#form-opinion-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>

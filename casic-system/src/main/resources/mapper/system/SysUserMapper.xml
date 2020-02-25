@@ -401,6 +401,9 @@
 		<if test="status != null and status != ''">
 			and status = #{status}
 		</if>
+		<if test="positionCode != null and positionCode != ''">
+			and position_code = #{positionCode}
+		</if>
 	</select>
 
 	<!-- 根据身份卡号查询用户基本信息 -->

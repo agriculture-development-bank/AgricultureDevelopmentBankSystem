@@ -195,7 +195,7 @@
 
     <!-- 按文件类别统计 -->
     <select id="queryFileTypeData" resultType="java.util.Map" >
-        select b.dict_label as "name", nvl(a.count, 0) as "value"
+        select b.dict_label as "name", nvl(a.count, 0) as "value",b.DICT_VALUE AS divtValue
         from (select secret_level, nvl(count(*), 0) as count
         from BANK_RECEIVE_FILES
         group by secret_level) as a
@@ -206,7 +206,7 @@
 
     <!-- 按紧急程度统计 -->
     <select id="queryFileUrgencyData" resultType="java.util.Map">
-        SELECT n.dict_label AS "name" ,nvl(M.num, 0) AS "value"
+        SELECT n.dict_label AS "name" ,nvl(M.num, 0) AS "value", n.DICT_VALUE AS divtValue
         FROM (
             SELECT urgency ,nvl (count (* ), 0 ) AS num
             FROM bank_receive_files
@@ -220,7 +220,7 @@
 
     <!-- 按文件状态统计 -->
     <select id="queryFileStatusData" resultType="java.util.Map">
-         select dict_label AS "name" ,nvl(N.num, 0) AS "value"
+         select dict_label AS "name" ,nvl(N.num, 0) AS "value",DICT_VALUE AS divtValue
          from (SELECT dict_label,dict_value
                         FROM sys_dict_data
                         WHERE dict_type = 'file_receive_status') M
@@ -242,13 +242,16 @@
 
     <!-- 获取最大登记号 -->
     <select id="getMaxRegistrationNum" resultType="string">
-        SELECT
-            SUBSTRING(
-                MAX(REGISTRATION_NUM),
-                5
-            )+ 1
+         SELECT
+            nvl(
+                SUBSTRING(NOW,0,4) + SUBSTRING(MAX(REGISTRATION_NUM)+1,5)
+                ,
+                (SUBSTRING(NOW,0,4) + '00001')
+            )
         FROM
             BANK_RECEIVE_FILES
+        WHERE
+            SUBSTRING(REGISTRATION_NUM,0,4) = SUBSTRING(NOW,0,4)
         ORDER BY
             REGISTRATION_NUM DESC
     </select>

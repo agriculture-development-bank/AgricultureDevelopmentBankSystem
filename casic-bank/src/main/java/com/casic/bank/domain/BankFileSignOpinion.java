@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -37,14 +38,14 @@ public class BankFileSignOpinion extends BaseEntity {
     private String opinionType;
 
     /**
-     * 意见及结果
+     * 意见及结果 ( 行领导意见--1，办公室主任意见--2，承办部门意见--3，协办部门意见--4 )
      */
     private String opinion;
 
     /**
      * 意见及结果
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone="GMT+8")
     private Date opinionTime;
     /**
      * 领导姓名

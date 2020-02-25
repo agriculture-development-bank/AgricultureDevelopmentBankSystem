@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,12 +63,18 @@ public class StatisticsController extends BaseController {
         if (maps != null && maps.size() > 0) {
             jsonObject.put("seriesData", maps);
             jsonObject.put("legendData", maps.stream().map(p -> p.get("name").toString()).sorted().toArray());
+            Map<String,String> dataMap = new HashMap<>();
+            maps.stream().forEach(data->{
+                dataMap.put(data.get("name").toString(),data.get("DIVTVALUE").toString());
+            });
+            jsonObject.put("levelMap", dataMap);
         }
         return jsonObject;
     }
 
     /**
      * 按文件状态统计
+     *
      * @return
      */
     @GetMapping(value = "/queryFileStatusData")
@@ -78,6 +85,12 @@ public class StatisticsController extends BaseController {
         if (maps != null && maps.size() > 0) {
             jsonObject.put("seriesData", maps);
             jsonObject.put("legendData", maps.stream().map(p -> p.get("name").toString()).sorted().toArray());
+
+            Map<String,String> dataMap = new HashMap<>();
+            maps.stream().forEach(data->{
+                dataMap.put(data.get("name").toString(),data.get("DIVTVALUE").toString());
+            });
+            jsonObject.put("statusMap", dataMap);
         }
         return jsonObject;
     }
@@ -95,6 +108,12 @@ public class StatisticsController extends BaseController {
         if (maps != null && maps.size() > 0) {
             jsonObject.put("seriesData", maps);
             jsonObject.put("legendData", maps.stream().map(p -> p.get("name").toString()).sorted().toArray());
+
+            Map<String,String> dataMap = new HashMap<>();
+            maps.stream().forEach(data->{
+                dataMap.put(data.get("name").toString(),data.get("DIVTVALUE").toString());
+            });
+            jsonObject.put("urgencyMap", dataMap);
         }
         return jsonObject;
     }
@@ -112,6 +131,7 @@ public class StatisticsController extends BaseController {
 
     /**
      * 按部门使用文件情况统计
+     *
      * @param type
      * @return
      */
